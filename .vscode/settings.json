@@ -1,0 +1,21 @@
+{
+    "typescript.validate.enable": true,
+    "eslint.validate": [
+      "javascript",
+      "typescript",
+    ],
+    "eslint.run": "onType",
+    "eslint.codeActionsOnSave.mode": "all",
+    "editor.formatOnSave": true,
+    "eslint.format.enable": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "tslint.enable": false,
+    "prettier.requireConfig": true,
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    }
+  }
+  

@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    team: klage
+    app: kabin-e2e-tests
+  name: kabin-e2e-tests-{{jobid}}
+  namespace: klage
+spec:
+  backoffLimit: 0
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        team: klage
+        app: kabin-e2e-tests
+      annotations:
+        linkerd.io/inject: "false"
+    spec:
+      imagePullSecrets:
+        - name: gpr-credentials
+      serviceAccount: default
+      serviceAccountName: default
+      containers:
+        - image: {{image}}
+          name: kabin-e2e-tests
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+          envFrom:
+            - secretRef:
+                name: kabin-e2e-test-users
+            - secretRef:
+                name: slack-e2e-secrets
+            - configMapRef:
+                name: slack-e2e-configmap
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
