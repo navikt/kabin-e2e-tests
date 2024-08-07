@@ -132,7 +132,7 @@ class SlackReporter implements Reporter {
     data.steps.set(step, {
       title: step.title,
       icon: typeof step.error === 'undefined' ? SlackIcon.SUCCESS : SlackIcon.WARNING,
-      status: `${step.duration / 1_000}s`,
+      status: `${(step.duration / 1_000).toFixed(1)}s`,
       steps: new Map(),
     });
   }
@@ -140,7 +140,7 @@ class SlackReporter implements Reporter {
   async onTestEnd(test: TestCase, result: TestResult) {
     const icon = getTestStatusIcon(test, result.status);
     const title = getTestTitle(test);
-    this.updateTestMessage(test, { icon, status: `${result.duration / 1_000}s` });
+    this.updateTestMessage(test, { icon, status: `${(result.duration / 1_000).toFixed(1)}s` });
 
     const isFailed = result.status === 'failed' || result.status === 'timedOut';
 
@@ -230,10 +230,10 @@ const formatMessage = (tests: TestSlackData[], level = 0): string => {
   return tests
     .map(({ icon, status, title, steps }) => {
       if (steps.size === 0) {
-        return `${indent}${icon} ${title} - \`${status}\``;
+        return `${indent}${icon} ${title} \`${status}\``;
       }
 
-      const a = `${indent}${icon} ${title} - \`${status}\`\n${formatMessage(Array.from(steps.values()), level + 1)}`;
+      const a = `${indent}${icon} ${title} \`${status}\`\n${formatMessage(Array.from(steps.values()), level + 1)}`;
 
       return a;
     })

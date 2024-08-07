@@ -1,5 +1,5 @@
 import test, { Page, expect } from '@playwright/test';
-import { Part, getJournalpostType } from './types';
+import { Part, Sakstype, getJournalpostType } from './types';
 
 interface Journalpost {
   title: string;
@@ -16,7 +16,7 @@ interface Saksinfo {
   mottattKlageinstans: string;
   fristIKabal: string;
   varsletFrist: string;
-  ankendePart: Part;
+  klager: Part;
   fullmektig: Part;
   saksbehandlerName: string;
 }
@@ -29,49 +29,67 @@ interface Svarbrevinfo {
 interface ValgtVedtak {
   sakenGjelder: Part;
   vedtaksdato: string;
-  ytelse: string;
+  ytelse?: string;
   fagsystem: string;
   saksId: string;
 }
 
-export class AnkeStatusPage {
+export class StatusPage {
   constructor(public readonly page: Page) {}
 
-  verifyJournalførtAnke = async (jp: Journalpost) =>
-    test.step('Verifiser journalpost', async () => {
-      const journalfoertAnke = this.page.getByRole('region', { name: 'Journalført anke' });
+  #getJournaloertDocRegionName = (type: Sakstype) => {
+    switch (type) {
+      case Sakstype.ANKE:
+        return 'Journalført anke';
+      case Sakstype.KLAGE:
+        return 'Valgt journalpost';
+    }
+  };
 
-      const kvitteringTemaContainer = journalfoertAnke.getByText('Tema').locator('> *');
+  verifyJournalførtDocument = async (jp: Journalpost, type: Sakstype) =>
+    test.step('Verifiser journalpost', async () => {
+      const journalfoertDoc = this.page.getByRole('region', { name: this.#getJournaloertDocRegionName(type) });
+
+      const kvitteringTemaContainer = journalfoertDoc.getByText('Tema').locator('> *');
       await kvitteringTemaContainer.filter({ hasNotText: 'Laster...' }).waitFor();
 
-      await expect(journalfoertAnke.getByText('Tittel').locator('> *')).toHaveText(jp.title);
-      await expect(journalfoertAnke.getByText('Tema').locator('> *')).toHaveText(jp.tema);
-      await expect(journalfoertAnke.getByText('Dato').locator('> *')).toHaveText(jp.dato);
-      await expect(journalfoertAnke.getByText('Avsender/mottaker').locator('> *')).toHaveText(
+      await expect(journalfoertDoc.getByText('Tittel').locator('> *')).toHaveText(jp.title);
+      await expect(journalfoertDoc.getByText('Tema').locator('> *')).toHaveText(jp.tema);
+      await expect(journalfoertDoc.getByText('Dato').locator('> *')).toHaveText(jp.dato);
+      await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toHaveText(
         jp.avsenderMottaker.getNameAndId(),
       );
-      await expect(journalfoertAnke.getByText('Saks-ID').locator('> *')).toHaveText(jp.saksId);
-      await expect(journalfoertAnke.getByText('Type').locator('> *')).toHaveText(getJournalpostType(jp.type));
+      await expect(journalfoertDoc.getByText('Saks-ID').locator('> *')).toHaveText(jp.saksId);
+      await expect(journalfoertDoc.getByText('Type').locator('> *')).toHaveText(getJournalpostType(jp.type));
 
       for (const name of jp.logiskeVedleggNames) {
-        await expect(
-          journalfoertAnke.getByRole('list', { name: 'Logiske vedlegg', exact: true }).first(),
-        ).toContainText(name);
+        await expect(journalfoertDoc.getByRole('list', { name: 'Logiske vedlegg', exact: true }).first()).toContainText(
+          name,
+        );
       }
 
       for (const name of jp.vedleggNames) {
-        await expect(journalfoertAnke.getByTestId('status-journalpost-vedlegg-list').first()).toContainText(name);
+        await expect(journalfoertDoc.getByTestId('status-journalpost-vedlegg-list').first()).toContainText(name);
       }
     });
 
-  verifySaksinfo = async (info: Saksinfo) =>
+  #getKlagerText = (type: Sakstype) => {
+    switch (type) {
+      case Sakstype.ANKE:
+        return 'Ankende part';
+      case Sakstype.KLAGE:
+        return 'Klager';
+    }
+  };
+
+  verifySaksinfo = async (info: Saksinfo, type: Sakstype) =>
     test.step('Verifiser saksinfo', async () => {
       const saksinfo = this.page.getByRole('region', { name: 'Saksinfo' });
 
       await expect(saksinfo.getByText('Mottatt NAV klageinstans').locator('> *')).toHaveText(info.mottattKlageinstans);
       await expect(saksinfo.getByText(/Frist.*/).locator('> *')).toHaveText(info.fristIKabal);
       await expect(saksinfo.getByText('Varslet frist').locator('> *')).toHaveText(info.varsletFrist);
-      await expect(saksinfo.getByText('Ankende part').locator('> *')).toHaveText(info.ankendePart.getNameAndId());
+      await expect(saksinfo.getByText(this.#getKlagerText(type)).locator('> *')).toHaveText(info.klager.getNameAndId());
       await expect(saksinfo.getByText('Fullmektig').locator('> *')).toHaveText(info.fullmektig.getNameAndId());
       await expect(saksinfo.getByText('Tildelt saksbehandler').locator('> *')).toContainText(info.saksbehandlerName);
     });
@@ -101,7 +119,11 @@ export class AnkeStatusPage {
         vedtak.sakenGjelder.getNameAndId(),
       );
       await expect(valgtVedtak.getByText('Vedtaksdato').locator('> *')).toHaveText(vedtak.vedtaksdato);
-      await expect(valgtVedtak.getByText('Ytelse').locator('> *')).toHaveText(vedtak.ytelse);
+
+      if (typeof vedtak.ytelse === 'string') {
+        await expect(valgtVedtak.getByText('Ytelse').locator('> *')).toHaveText(vedtak.ytelse);
+      }
+
       await expect(valgtVedtak.getByText('Fagsystem').locator('> *')).toHaveText(vedtak.fagsystem);
       await expect(valgtVedtak.getByText('Saks-ID').locator('> *')).toHaveText(vedtak.saksId);
     });
