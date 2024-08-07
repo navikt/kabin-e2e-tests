@@ -37,14 +37,22 @@ export const getTestStatusIcon = (test: TestCase, status: TestStatus): SlackIcon
 };
 
 export enum SlackIcon {
-  WARNING = ':warning:',
-  SUCCESS = ':white_check_mark:',
-  WAITING = ':hourglass:',
-  TIMED_OUT = ':timer_clock:',
-  QUESTION = ':question:',
-  TADA = ':tada:',
-  SKEPTIC = ':face_with_raised_eyebrow:',
-  RUNNING = ':meow_code:',
+  // WARNING = ':warning:',
+  WARNING = '💩',
+  // SUCCESS = ':white_check_mark:',
+  SUCCESS = '✅',
+  // WAITING = ':hourglass:',
+  WAITING = '⏳',
+  // TIMED_OUT = ':timer_clock:',
+  TIMED_OUT = '💤',
+  // QUESTION = ':question:',
+  QUESTION = '❓',
+  // TADA = ':tada:',
+  TADA = '🎉',
+  // SKEPTIC = ':face_with_raised_eyebrow:',
+  SKEPTIC = '🤔',
+  // RUNNING = ':meow_code:',
+  RUNNING = '🧪',
 }
 
 const getStatusIcon = (status: TestStatus): SlackIcon => {

@@ -3,7 +3,7 @@ import { createApiUrl } from '../tests/functions';
 
 export const makeDirectApiRequest = async <T>(
   page: Page,
-  api: 'kabal-api' | 'kabal-innstillinger',
+  api: 'kabin-api' | 'kabal-api' | 'kabal-innstillinger',
   path: string,
   method: 'POST' | 'GET' | 'PUT' | 'DELETE',
   body?: T,

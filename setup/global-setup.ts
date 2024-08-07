@@ -4,7 +4,7 @@ import { DEV_DOMAIN, USE_DEV } from '../tests/functions';
 import { getLoggedInPage } from '../tests/helpers';
 import { userSaksbehandler } from '../tests/test-data';
 
-export const SCREEN_SIZE: ViewportSize = { width: 2560, height: 1440 };
+export const SCREEN_SIZE: ViewportSize = { width: 2560, height: 2000 };
 
 const globalSetup = async (config: FullConfig) => {
   const { storageState } = config.projects[0].use;

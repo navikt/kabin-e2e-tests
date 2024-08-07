@@ -49,16 +49,12 @@ export class Part {
     return `${this.name}${this.getHumanReadableId()}`;
   }
 
-  public getTestLabel(): string {
-    return `${this.name} (${this.getHumanReadableId()})`;
-  }
-
   public getTestLabelWithType(): string {
     if (this.type === PartType.EKSTRA_MOTTAKER) {
-      return this.getTestLabel();
+      return this.name;
     }
 
-    return `${this.getTestLabel()} - ${this.type}`;
+    return `${this.name} - ${this.type}`;
   }
 }
 
@@ -90,4 +86,38 @@ export class FristExtension {
 export interface Country {
   search: string;
   fullName: string;
+}
+
+export enum Sakstype {
+  KLAGE = 'KLAGE',
+  ANKE = 'ANKE',
+}
+
+export interface Ankevedtak {
+  type: string;
+  saksId: string;
+  tema: string;
+  ytelse: string;
+  vedtaksdato: string;
+  fagsystem: string;
+}
+
+export interface Klagevedtak {
+  fagsakId: string;
+  saksId: string;
+  tema: string;
+  vedtaksdato: string;
+  behandlendeEnhet: string;
+  fagsystem: string;
+}
+
+export type Vedtak = { type: Sakstype.KLAGE; data: Klagevedtak } | { type: Sakstype.ANKE; data: Ankevedtak };
+
+export interface SelectJournalpostParams {
+  title?: string;
+  tema?: string;
+  date?: string;
+  avsenderMottaker?: string;
+  fagsakId?: string;
+  type?: string;
 }
