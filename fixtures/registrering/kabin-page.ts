@@ -566,6 +566,6 @@ export class KabinPage {
       }
     }
 
-    throw new Error(`Could not delete registrering with url: ${url}`);
+    console.warn(`Could not delete registrering with url: ${url}`);
   };
 }

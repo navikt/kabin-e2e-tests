@@ -1,7 +1,4 @@
 import { join } from 'path';
-import { URL } from 'url';
-
-export const getParsedUrl = (url: string): URL => new URL(url);
 
 export const USE_DEV = process.env.NODE_ENV === 'test';
 
