@@ -1,8 +1,11 @@
 import fs, { ReadStream, createReadStream } from 'fs';
 import { buffer } from 'stream/consumers';
-import { App } from '@slack/bolt';
-import { ChatPostMessageResponse } from '@slack/web-api';
+import { App, isCodedError } from '@slack/bolt';
+import { ChatPostMessageResponse, ChatUpdateResponse } from '@slack/web-api';
 import { IS_DEPLOYED, envString, requiredEnvString } from '../config/env';
+
+const BOT_NAME = 'Kabin E2E';
+const ICON_URL = 'https://raw.githubusercontent.com/navikt/kabin/main/frontend/assets/android-chrome-192x192.png';
 
 class SlackClient {
   private app: App;
@@ -21,6 +24,8 @@ class SlackClient {
       token: this.token,
       channel: this.channel,
       text: message,
+      username: BOT_NAME,
+      icon_url: ICON_URL,
     });
 
     return new SlackMessageThread(this, response);
@@ -31,7 +36,7 @@ class SlackClient {
     filename: string = filePath,
     title: string = filePath,
     message?: string,
-    threadMessage?: ChatPostMessageResponse,
+    threadMessage?: ChatPostMessageResponse | ChatUpdateResponse,
   ) {
     return await this.uploadFileBuffer(createReadStream(filePath), filename, title, message, threadMessage);
   }
@@ -41,7 +46,7 @@ class SlackClient {
     filename?: string,
     title?: string,
     message?: string,
-    threadMessage?: ChatPostMessageResponse,
+    threadMessage?: ChatPostMessageResponse | ChatUpdateResponse,
   ) {
     try {
       return await this.app.client.files.uploadV2({
@@ -70,7 +75,7 @@ class SlackClient {
     }
   }
 
-  async updateMessage(message: ChatPostMessageResponse, newMessage: string) {
+  async updateMessage(message: ChatPostMessageResponse | ChatUpdateResponse, newMessage: string) {
     if (typeof message.ts === 'undefined') {
       throw new Error('Could not update message.');
     }
@@ -85,13 +90,15 @@ class SlackClient {
 
       return new SlackMessageThread(this, response);
     } catch (error) {
-      console.error('Failed to update message with', newMessage);
+      if (isCodedError(error)) {
+        console.error('Failed to update message with', error.code, newMessage.length);
+      }
       this.postReply(message, ['Failed to update Slack message to:', '```', newMessage, '```'].join('\n'));
       throw error;
     }
   }
 
-  async postReply(threadMessage: ChatPostMessageResponse, reply: string) {
+  async postReply(threadMessage: ChatPostMessageResponse | ChatUpdateResponse, reply: string) {
     if (typeof threadMessage.ts === 'undefined') {
       throw new Error('Could not reply to message.');
     }
@@ -132,7 +139,7 @@ export const getSlack = () => {
 export class SlackMessageThread {
   constructor(
     private app: SlackClient,
-    private message: ChatPostMessageResponse,
+    private message: ChatPostMessageResponse | ChatUpdateResponse,
   ) {
     /* Empty */
   }

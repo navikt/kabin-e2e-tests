@@ -8,136 +8,127 @@ interface TestSlackData {
   icon: SlackIcon;
   title: string;
   status: string;
-  steps: Map<TestStep, TestSlackData>;
+  steps: Map<string, TestSlackData>;
 }
 
 class SlackReporter implements Reporter {
   private slack = getSlack();
-  private thread?: SlackMessageThread;
-  private mainMessage = '';
-  private testStatuses: Map<TestCase, TestSlackData> = new Map();
-  private totalTests = 0;
-  private completedTests = 0;
-  private failedTestCount = 0;
-  private creatingSlackMessage = false;
-  private timer: NodeJS.Timeout | null = null;
+  private mainThread: SlackMessageThread | null = null;
+  private threads: Map<string, SlackMessageThread> = new Map();
+  private testStatuses: Map<string, TestSlackData> = new Map();
+  private tests: TestCase[] = [];
   private startTime = Date.now();
   private name = '';
 
   private async setTestMessage(test: TestCase, status: TestSlackData) {
-    this.testStatuses.set(test, status);
+    this.testStatuses.set(test.id, status);
+    const existingTestThread = this.threads.get(test.id);
 
-    return await this.updateMessage();
+    if (existingTestThread !== undefined) {
+      return await existingTestThread.update(formatTest(status));
+    }
+
+    if (this.slack === null) {
+      throw new Error('Cannot post message. No Slack client.');
+    }
+
+    const testThread = await this.slack.postMessage(formatTest(status));
+    this.threads.set(test.id, testThread);
+
+    return testThread;
   }
 
   private async updateTestMessage(test: TestCase, status: Partial<Omit<TestSlackData, 'title'>>) {
-    const existing = this.testStatuses.get(test);
+    const previousStatus = this.testStatuses.get(test.id);
 
-    if (typeof existing === 'undefined') {
-      return;
+    if (previousStatus === undefined) {
+      throw new Error('Cannot update message with no previous status.');
     }
 
-    return await this.setTestMessage(test, { ...existing, ...status });
+    return await this.setTestMessage(test, { ...previousStatus, ...status });
   }
 
   private async updateMainMessage(msg: string) {
-    this.mainMessage = msg;
-    await this.updateMessage();
-  }
+    const mainMessage = `*${this.name} - ${msg}*`;
 
-  private async updateMessage() {
-    const orderedTests = formatMessage(Array.from(this.testStatuses.values()));
-
-    const message = [`*${this.name} - ${this.mainMessage}*`, '', orderedTests].join('\n');
-
-    if (this.slack === null) {
-      // eslint-disable-next-line no-console
-      console.log('');
-      // eslint-disable-next-line no-console
-      console.log(message);
-
-      return;
-    }
-
-    // If it is currently creating a Slack message/thread.
-    if (this.creatingSlackMessage) {
-      if (this.timer !== null) {
-        clearTimeout(this.timer);
+    if (this.mainThread === null) {
+      if (this.slack === null) {
+        throw new Error('Cannot post main message. No Slack client.');
       }
 
-      // Retry in 100ms, hopefully the message/thread exists by then.
-      return new Promise<void>((res) => {
-        this.timer = setTimeout(async () => {
-          await this.updateMessage();
-          res();
-        }, 100);
-      });
+      this.mainThread = await this.slack.postMessage(mainMessage);
+
+      return this.mainThread;
     }
 
-    // If there is no Slack message/thread.
-    if (typeof this.thread === 'undefined' && !this.creatingSlackMessage) {
-      // If it has not yet started to create a Slack message/thread, do so and set the flag.
-      this.creatingSlackMessage = true;
-      this.thread = await this.slack?.postMessage(this.mainMessage);
-      this.creatingSlackMessage = false;
-    }
+    this.mainThread = await this.mainThread?.update(mainMessage);
 
-    await this.thread?.update(message);
+    return this.mainThread;
   }
 
   async onBegin(config: FullConfig, suite: Suite) {
-    const allTests = suite.allTests();
-    this.totalTests = allTests.length;
+    this.tests = suite.allTests();
 
     this.name = config.projects.map(({ name }) => name).join(', ');
 
-    this.mainMessage = `Running ${this.totalTests} E2E tests with ${config.workers} workers...`;
-    allTests.forEach((test) =>
-      this.testStatuses.set(test, {
-        icon: SlackIcon.WAITING,
-        title: getTestTitle(test),
-        status: 'Waiting...',
-        steps: new Map(),
-      }),
-    );
-    this.updateMessage();
+    if (this.slack === null) {
+      return;
+    }
+
+    await this.updateMainMessage(`Running ${this.tests.length} E2E tests with ${config.workers} workers...`);
   }
 
   async onTestBegin(test: TestCase) {
-    this.updateTestMessage(test, { icon: SlackIcon.RUNNING, status: 'Running...' });
+    const exiting = this.testStatuses.get(test.id);
+
+    const isRetrying = test.results.some((r) => r.retry !== 0);
+
+    await this.setTestMessage(test, {
+      icon: SlackIcon.RUNNING,
+      title: getTestTitle(test),
+      status: isRetrying ? 'Retrying...' : 'Running...',
+      steps: exiting?.steps ?? new Map<string, TestSlackData>(),
+    });
   }
 
   async onStepBegin(test: TestCase, result: TestResult, step: TestStep) {
-    const data = this.testStatuses.get(test);
+    const status = this.testStatuses.get(test.id);
 
-    if (typeof data === 'undefined' || step.category !== 'test.step') {
+    if (status === undefined || step.category !== 'test.step') {
       return;
     }
 
-    data.steps.set(step, {
+    const isRetrying = test.results.some((r) => r.retry !== 0);
+
+    status.steps.set(`${test.id}-${step.title}`, {
       title: step.title,
       icon: SlackIcon.RUNNING,
-      status: 'Running...',
+      status: isRetrying ? 'Retrying...' : 'Running...',
       steps: new Map(),
     });
+
+    return await this.updateTestMessage(test, status);
   }
 
   async onStepEnd(test: TestCase, result: TestResult, step: TestStep) {
-    const data = this.testStatuses.get(test);
+    const testStatus = this.testStatuses.get(test.id);
 
-    if (typeof data === 'undefined' || !data.steps.has(step)) {
+    if (testStatus === undefined || !testStatus.steps.has(`${test.id}-${step.title}`)) {
       return;
     }
 
-    data.steps.set(step, {
+    testStatus.steps.set(`${test.id}-${step.title}`, {
       title: step.title,
-      icon: typeof step.error === 'undefined' ? SlackIcon.SUCCESS : SlackIcon.WARNING,
+      icon: step.error === undefined ? SlackIcon.SUCCESS : SlackIcon.WARNING,
       status: `${(step.duration / 1_000).toFixed(1)}s`,
       steps: new Map(),
     });
+
+    return await this.updateTestMessage(test, testStatus);
   }
 
   async onTestEnd(test: TestCase, result: TestResult) {
+    const testThread = this.threads.get(test.id);
     const icon = getTestStatusIcon(test, result.status);
     const title = getTestTitle(test);
     this.updateTestMessage(test, { icon, status: `${(result.duration / 1_000).toFixed(1)}s` });
@@ -145,22 +136,20 @@ class SlackReporter implements Reporter {
     const isFailed = result.status === 'failed' || result.status === 'timedOut';
 
     if (isFailed) {
-      this.failedTestCount += 1;
-
       if (typeof result?.error?.stack === 'undefined') {
         const log = [`${title} - stacktrace`, '```', 'No stacktrace', '```'];
-        await this.thread?.reply(log.join('\n'));
+        await testThread?.reply(log.join('\n'));
       } else {
         const partLength = 3_000;
 
         const firstStack = result.error.stack.substring(0, partLength);
         const firstLog = [`${title} - stacktrace`, '```', firstStack, '```'];
-        await this.thread?.reply(firstLog.join('\n'));
+        await testThread?.reply(firstLog.join('\n'));
 
         for (let i = 1; i * partLength < result.error.stack.length; i++) {
           const stack = result.error.stack.substring(i * partLength, (i + 1) * partLength);
           const log = ['```', stack, '```'];
-          await this.thread?.reply(log.join('\n'));
+          await testThread?.reply(log.join('\n'));
         }
       }
     }
@@ -169,17 +158,19 @@ class SlackReporter implements Reporter {
 
     await asyncForEach(atttachments, async ({ name, path, body, contentType }) => {
       if (contentType === 'text/plain' && body instanceof Buffer) {
-        return await this.thread?.reply([':warning: *Warning*', '```', body.toString('utf-8'), '```'].join('\n'));
+        return await testThread?.reply(
+          [`${SlackIcon.WARNING} *Warning*`, '```', body.toString('utf-8'), '```'].join('\n'),
+        );
       }
 
-      if (typeof path === 'undefined') {
+      if (path === undefined) {
         return;
       }
 
       const filename = name + nodePath.extname(path);
 
       if (name === 'trace') {
-        return await this.thread?.replyFilePath(
+        return await testThread?.replyFilePath(
           path,
           `${title} - \`${name}\`\n\`npx playwright show-trace ${filename}\``,
           test.title,
@@ -187,10 +178,8 @@ class SlackReporter implements Reporter {
         );
       }
 
-      return await this.thread?.replyFilePath(path, `${title} - ${name}`, test.title, filename);
+      return await testThread?.replyFilePath(path, `${title} - ${name}`, test.title, filename);
     });
-
-    this.completedTests += 1;
   }
 
   async onEnd(result: FullResult) {
@@ -199,21 +188,23 @@ class SlackReporter implements Reporter {
     const tag = this.slack?.tagChannelOnError === 'true' ? '<!channel> ' : '';
 
     if (result.status === 'passed') {
-      await this.updateMainMessage(`${icon} All ${this.totalTests} tests succeeded! \`${duration}s\``);
+      await this.updateMainMessage(`${icon} All ${this.tests.length} tests succeeded! \`${duration}s\``);
     } else if (result.status === 'failed') {
       await this.updateMainMessage(
-        `${tag} ${icon} ${this.failedTestCount} of ${this.totalTests} tests failed! \`${duration}s\``,
+        `${tag} ${icon} ${this.tests.filter((t) => !t.ok()).length} of ${this.tests.length} tests failed! \`${duration}s\``,
       );
     } else if (result.status === 'timedout') {
       await this.updateMainMessage(
-        `${tag} ${icon} Global timeout! ${this.failedTestCount} of ${this.totalTests} tests failed! \`${duration}s\``,
+        `${tag} ${icon} Global timeout! ${this.tests.filter((t) => !t.ok()).length} of ${this.tests.length} tests failed! \`${duration}s\``,
+      );
+    } else if (result.status === 'interrupted') {
+      await this.updateMainMessage(
+        `${tag} ${icon} Interrupted! ${this.tests.filter((t) => !t.ok()).length} of ${this.tests.length} tests failed! \`${duration}s\``,
       );
     }
 
     // Wait for all tests to be done sending to Slack.
-    while (this.completedTests < this.totalTests) {
-      await delay(200);
-    }
+    await delay(2_000);
   }
 }
 
@@ -224,18 +215,24 @@ const prepareFailedResult = (result: TestResult) =>
 
 const preparePassedResult = (result: TestResult) => result.attachments.filter(({ name }) => name === 'warningMessage');
 
-const formatMessage = (tests: TestSlackData[], level = 0): string => {
+const formatTest = ({ icon, status, title, steps }: TestSlackData): string => {
+  if (steps.size === 0) {
+    return `${icon} ${title} \`${status}\``;
+  }
+
+  return `${icon} ${title} \`${status}\`\n${formatSteps(Array.from(steps.values()))}`;
+};
+
+const formatSteps = (steps: TestSlackData[], level = 1): string => {
   const indent = '\t'.repeat(level);
 
-  return tests
-    .map(({ icon, status, title, steps }) => {
-      if (steps.size === 0) {
-        return `${indent}${icon} ${title} \`${status}\``;
+  return steps
+    .map((step) => {
+      if (step.steps.size === 0) {
+        return `${indent}${step.icon} ${step.title} \`${step.status}\``;
       }
 
-      const a = `${indent}${icon} ${title} \`${status}\`\n${formatMessage(Array.from(steps.values()), level + 1)}`;
-
-      return a;
+      return `${indent}${step.icon} ${step.title} \`${step.status}\`\n${formatSteps(Array.from(steps.values()), level + 1)}`;
     })
     .join('\n');
 };
