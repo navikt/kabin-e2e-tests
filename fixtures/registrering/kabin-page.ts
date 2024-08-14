@@ -1,13 +1,7 @@
 /* eslint-disable max-lines */
 import test, { Locator, Page, expect } from '@playwright/test';
 import { makeDirectApiRequest } from '../direct-api-request';
-import {
-  REGISTRERING_REGEX,
-  STATUS_REGEX,
-  feilregistrerAndDelete,
-  finishedRequest,
-  getIdFromStatusPage,
-} from '../helpers';
+import { REGISTRERING_REGEX, STATUS_REGEX, feilregistrerAndDelete, finishedRequest } from '../helpers';
 import { AnkePage } from './anke-page';
 import { KlagePage } from './klage-page';
 import {
@@ -32,8 +26,9 @@ export class KabinPage {
   setSakenGjelder = async (SAKEN_GJELDER: Part) =>
     test.step(`Sett saken gjelder: ${SAKEN_GJELDER.name}`, async () => {
       await this.page.getByPlaceholder('Søk etter person').fill(SAKEN_GJELDER.id);
-      this.page.getByText(`${SAKEN_GJELDER.name} (${SAKEN_GJELDER.name})`);
+      const requestPromise = this.page.waitForRequest('**/registreringer/**/saken-gjelder-value');
       await this.page.getByText('Velg', { exact: true }).click();
+      await finishedRequest(requestPromise);
     });
 
   #getDocumentsContainer = async () => this.page.locator('section', { hasText: 'Velg journalpost' });
@@ -246,22 +241,15 @@ export class KabinPage {
   };
 
   #getKlagevedtakData = async (cells: Locator[]): Promise<Klagevedtak> => {
-    const [fagsakId, saksId, tema, vedtaksdato, behandlendeEnhet, fagsystem] = await Promise.all(
+    const [fagsakId, tema, vedtaksdato, behandlendeEnhet, fagsystem] = await Promise.all(
       cells.map(async (cell) => cell.textContent()),
     );
 
-    if (
-      fagsakId === null ||
-      saksId === null ||
-      tema === null ||
-      vedtaksdato === null ||
-      behandlendeEnhet === null ||
-      fagsystem === null
-    ) {
+    if (fagsakId === null || tema === null || vedtaksdato === null || behandlendeEnhet === null || fagsystem === null) {
       throw new Error('One or more mulighet data is null');
     }
 
-    return { fagsakId, saksId, tema, vedtaksdato, behandlendeEnhet, fagsystem };
+    return { fagsakId, tema, vedtaksdato, behandlendeEnhet, fagsystem };
   };
 
   verifySaksId = async (jpSaksId: string, mulighetSaksId: string) => {
@@ -279,7 +267,7 @@ export class KabinPage {
       await this.page.getByRole('textbox', { name: 'Mottatt Klageinstans' }).clear();
 
       // eslint-disable-next-line playwright/no-wait-for-timeout
-      await this.page.waitForTimeout(100);
+      await this.page.waitForTimeout(500);
 
       const requestPromise = this.page.waitForRequest('**/registreringer/**/overstyringer/mottatt-klageinstans');
       await this.page.getByLabel('Mottatt Klageinstans').fill(vedtaksdato);
@@ -450,7 +438,7 @@ export class KabinPage {
     }
 
     if (typeof country !== 'undefined') {
-      await partSection.getByLabel('Land').fill(country.search);
+      await partSection.getByLabel(/Land.*/).fill(country.search);
       await partSection.getByText(country.fullName).click();
     }
 
@@ -538,13 +526,24 @@ export class KabinPage {
   finish = async (type: Sakstype) =>
     test.step('Fullfør', async () => {
       await this.page.getByText('Fullfør', { exact: true }).click();
+      const requestPromise = this.page.waitForRequest('**/registreringer/**/ferdigstill');
       await this.page.getByText('Bekreft', { exact: true }).click();
+      const request = await requestPromise;
+      const response = await request.response();
+
+      if (response === null) {
+        throw new Error('No response');
+      }
 
       await this.page.waitForURL(STATUS_REGEX);
 
-      const kabalId = getIdFromStatusPage(this.page.url());
+      const res: unknown = await response.json();
 
-      feilregistrerAndDelete(this.page, kabalId);
+      if (!isStatusResponse(res)) {
+        throw new Error('Invalid response');
+      }
+
+      feilregistrerAndDelete(this.page, res.behandlingId);
 
       await this.page.getByText(this.#getFinishText(type)).waitFor();
     });
@@ -569,3 +568,9 @@ export class KabinPage {
     console.warn(`Could not delete registrering with url: ${url}`);
   };
 }
+
+const isStatusResponse = (response: unknown): response is { behandlingId: string } =>
+  typeof response === 'object' &&
+  response !== null &&
+  'behandlingId' in response &&
+  typeof response.behandlingId === 'string';
