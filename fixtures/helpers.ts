@@ -2,33 +2,60 @@
 import { Page, Request } from '@playwright/test';
 import { makeDirectApiRequest } from '../fixtures/direct-api-request';
 
+const feilRegistrer = async (page: Page, kabalId: string) => {
+  const res = await makeDirectApiRequest(page, 'kabal-api', `/behandlinger/${kabalId}/feilregistrer`, 'POST', {
+    reason: 'E2E-test',
+  });
+
+  if (res.ok) {
+    console.debug(`Feilregistrert oppgave with id: ${kabalId}`);
+  } else {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+};
+
+const deleteOppgave = async (page: Page, kabalId: string) => {
+  const res = await makeDirectApiRequest(page, 'kabal-api', `/internal/behandlinger/${kabalId}`, 'DELETE');
+
+  if (res.ok) {
+    console.debug(`Deleted oppgave with id: ${kabalId}`);
+  } else {
+    const text = await res.text();
+    throw new Error(`${res.status}: ${text}`);
+  }
+};
+
+const exponentialBackoff = <T>(
+  promise: () => Promise<T>,
+  label: string,
+  retries: number,
+  delay: number = 1000,
+  factor: number = 2,
+): Promise<T> =>
+  promise().catch((error) => {
+    if (retries === 0) {
+      throw error;
+    }
+
+    console.debug(`${label} failed. Retrying in ${delay}ms... Remaining retries: ${retries}`);
+
+    return new Promise<T>((resolve) =>
+      setTimeout(() => resolve(exponentialBackoff(promise, label, retries - 1, delay * factor, factor)), delay),
+    );
+  });
+
 export const feilregistrerAndDelete = async (page: Page, kabalId: string) => {
   try {
-    const res = await makeDirectApiRequest(page, 'kabal-api', `/behandlinger/${kabalId}/feilregistrer`, 'POST', {
-      reason: 'E2E-test',
-    });
-
-    if (res.ok) {
-      console.debug(`Feilregistrert oppgave: ${kabalId}`);
-    } else {
-      return console.error(`Feilregistrering failed for oppgave: ${kabalId}`, res.status);
-    }
+    await exponentialBackoff(() => feilRegistrer(page, kabalId), 'Feilregistrering', 3, 1000, 2);
   } catch (e) {
-    console.error(`Feilregistrering failed for oppgave: ${kabalId}`, e);
-
-    return;
+    console.error('Feilregistrering failed for oppgave:', kabalId, e);
   }
 
   try {
-    const res = await makeDirectApiRequest(page, 'kabal-api', `/internal/behandlinger/${kabalId}`, 'DELETE');
-
-    if (res.ok) {
-      console.debug(`Deleted oppgave: ${kabalId}`);
-    } else {
-      return console.error(`Delete failed for oppgave: ${kabalId}`, res.status);
-    }
+    await exponentialBackoff(() => deleteOppgave(page, kabalId), 'Deletion', 3, 1000, 2);
   } catch (e) {
-    console.error(`Delete failed for oppgave: ${kabalId}`, e);
+    console.error('Delete failed for oppgave:', kabalId, e);
   }
 };
 

@@ -5,7 +5,7 @@ interface Journalpost {
   title: string;
   tema: string;
   dato: string;
-  avsenderMottaker: Part;
+  avsenderMottaker: string;
   saksId: string;
   type: string;
   logiskeVedleggNames: string[];
@@ -56,9 +56,7 @@ export class StatusPage {
       await expect(journalfoertDoc.getByText('Tittel').locator('> *')).toHaveText(jp.title);
       await expect(journalfoertDoc.getByText('Tema').locator('> *')).toHaveText(jp.tema);
       await expect(journalfoertDoc.getByText('Dato').locator('> *')).toHaveText(jp.dato);
-      await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toHaveText(
-        jp.avsenderMottaker.getNameAndId(),
-      );
+      await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toHaveText(jp.avsenderMottaker);
       await expect(journalfoertDoc.getByText('Saks-ID').locator('> *')).toHaveText(jp.saksId);
       await expect(journalfoertDoc.getByText('Type').locator('> *')).toHaveText(getJournalpostType(jp.type));
 
@@ -111,9 +109,18 @@ export class StatusPage {
       }
     });
 
-  verifyValgtVedtak = async (vedtak: ValgtVedtak) =>
+  #getValgtVedtakRegionName = (type: Sakstype) => {
+    switch (type) {
+      case Sakstype.ANKE:
+        return 'Valgt vedtak';
+      case Sakstype.KLAGE:
+        return 'Valgt klagevedtak';
+    }
+  };
+
+  verifyValgtVedtak = async (vedtak: ValgtVedtak, type: Sakstype) =>
     test.step('Verifiser valgt vedtak', async () => {
-      const valgtVedtak = this.page.getByRole('region', { name: 'Valgt vedtak' });
+      const valgtVedtak = this.page.getByRole('region', { name: this.#getValgtVedtakRegionName(type) });
 
       await expect(valgtVedtak.getByText('Saken gjelder').locator('> *')).toHaveText(
         vedtak.sakenGjelder.getNameAndId(),

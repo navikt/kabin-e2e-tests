@@ -104,7 +104,6 @@ export interface Ankevedtak {
 
 export interface Klagevedtak {
   fagsakId: string;
-  saksId: string;
   tema: string;
   vedtaksdato: string;
   behandlendeEnhet: string;

@@ -4,7 +4,7 @@ import { FristExtension, Part, PartType, Sakstype, Utskriftstype } from '../fixt
 import { UI_DOMAIN } from './functions';
 
 const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
-const SAKEN_GJELDER_KLAGE = new Part('OBSERVANT PÅKJENNING', '11054737671', PartType.SAKEN_GJELDER);
+const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
 const ANKENDE_PART = new Part('FALSK ONKEL', '17887799784', PartType.KLAGER);
 const FULLMEKTIG = new Part('FATTET ØRN MUSKEL', '14828897927', PartType.FULLMEKTIG);
 const AVSENDER = new Part('HUMORISTISK LOGG', '01046813711', PartType.AVSENDER);
@@ -44,14 +44,13 @@ const KLAGE = {
   type: Sakstype.KLAGE,
   sakenGjelder: SAKEN_GJELDER_KLAGE,
   getJournalpostParams: {
-    fagsakId: '1577J06',
-    title: 'NAV orienterer om saksbehandlingen',
-    date: '18.07.2024',
-    avsenderMottaker: 'OBSERVANT PÅKJENNING',
+    fagsakId: '25598148',
+    title: 'MASKERT_FELT',
+    date: '18.07.2022',
   },
   hjemlerLong: ['Folketrygdloven - § 10-4', 'Trygderettsloven - § 14'],
   hjemlerShort: ['Ftrl - § 10-4', 'Trrl - § 14'],
-  mottattKlageinstans: '26.07.2024',
+  mottattKlageinstans: '25.07.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
 };
 
@@ -64,7 +63,7 @@ test.describe('Registrering', () => {
     }
   });
 
-  [ANKE, KLAGE].forEach(
+  [KLAGE, ANKE].forEach(
     ({
       type,
       sakenGjelder,
@@ -86,14 +85,14 @@ test.describe('Registrering', () => {
         await kabinPage.selectType(type);
         const vedtak = await kabinPage.selectFirstAvailableVedtak(type);
 
-        const { tema, saksId, fagsystem, vedtaksdato } = vedtak.data;
+        const saksId = vedtak.type === Sakstype.KLAGE ? vedtak.data.fagsakId : vedtak.data.saksId;
 
         await kabinPage.verifySaksId(jpData.saksId, saksId);
 
         if (type === Sakstype.KLAGE) {
           await klagePage.setFirstAvailableGosysOppgave();
 
-          await klagePage.setMottattVedtaksinstans(vedtaksdato);
+          await klagePage.setMottattVedtaksinstans(jpData.dato);
         }
 
         await kabinPage.setMottattKlageinstans(mottattKlageinstans);
@@ -148,9 +147,9 @@ test.describe('Registrering', () => {
         await statusPage.verifyJournalførtDocument(
           {
             title: jpData.title,
-            tema,
+            tema: vedtak.data.tema,
             dato: jpData.saksId === saksId ? jpData.dato : format(new Date(), 'dd.MM.yyyy'),
-            avsenderMottaker: AVSENDER,
+            avsenderMottaker: jpData.type === 'N' ? 'Ingen' : AVSENDER.getNameAndId(),
             saksId,
             type: jpData.type,
             logiskeVedleggNames: jpData.logiskeVedleggNames,
@@ -187,7 +186,9 @@ test.describe('Registrering', () => {
 
         const ytelse = vedtak.type === Sakstype.ANKE ? vedtak.data.ytelse : undefined;
 
-        await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId, ytelse });
+        const { vedtaksdato, fagsystem } = vedtak.data;
+
+        await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId, ytelse }, type);
       });
     },
   );
