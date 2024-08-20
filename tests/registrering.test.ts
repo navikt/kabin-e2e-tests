@@ -9,8 +9,8 @@ const ANKENDE_PART = new Part('FALSK ONKEL', '17887799784', PartType.KLAGER);
 const FULLMEKTIG = new Part('FATTET ØRN MUSKEL', '14828897927', PartType.FULLMEKTIG);
 const AVSENDER = new Part('HUMORISTISK LOGG', '01046813711', PartType.AVSENDER);
 const EKSTRA_MOTTAKER1 = new Part('IVRIG JAK', '29480474455', PartType.EKSTRA_MOTTAKER);
-const EKSTRA_MOTTAKER2 = new Part('VIRKELIG VIFTE', '29418813049', PartType.EKSTRA_MOTTAKER);
-const EKSTRA_MOTTAKER3 = new Part('KONTANT SOKK', '02518849517', PartType.EKSTRA_MOTTAKER);
+const EKSTRA_MOTTAKER2 = new Part('SANNSYNLIG MEDISIN', '06049939084', PartType.EKSTRA_MOTTAKER);
+const EKSTRA_MOTTAKER3 = new Part('DRIFTIG HVITKLØVER', '25046846764', PartType.EKSTRA_MOTTAKER);
 const SVARBREV_NAME = 'E2E-dokumentnavn';
 const SVARBREV_FULLMEKTIG_NAME = 'E2E-fullmektig';
 const SAKEN_GJELDER_ADDRESS_1 = 'E2E-adresselinje1';
@@ -29,15 +29,15 @@ const ANKE = {
   type: Sakstype.ANKE,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   getJournalpostParams: {
-    fagsakId: '9705',
-    title: 'Testjournalpost',
-    date: '25.07.2024',
+    fagsakId: '200053764',
+    title: 'document.pdf',
+    date: '20.08.2024',
     avsenderMottaker: 'HUMORISTISK LOGG',
   },
   hjemlerLong: ['Folketrygdloven - § 15-2', 'Folketrygdloven - § 15-3'],
   hjemlerShort: ['Ftrl - § 15-2', 'Ftrl - § 15-3'],
   mottattKlageinstans: '18.07.2023',
-  tildeltSaksbehandler: 'F_Z994862 E_Z994862',
+  tildeltSaksbehandler: 'F_Z994488 E_Z994488',
 };
 
 const KLAGE = {
@@ -45,11 +45,11 @@ const KLAGE = {
   sakenGjelder: SAKEN_GJELDER_KLAGE,
   getJournalpostParams: {
     fagsakId: '25598148',
-    title: 'MASKERT_FELT',
+    title: 'a-inntekt_2022-07-18',
     date: '18.07.2022',
   },
-  hjemlerLong: ['Folketrygdloven - § 10-4', 'Trygderettsloven - § 14'],
-  hjemlerShort: ['Ftrl - § 10-4', 'Trrl - § 14'],
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '26.07.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
 };
@@ -90,8 +90,6 @@ test.describe('Registrering', () => {
         await kabinPage.verifySaksId(jpData.saksId, saksId);
 
         if (type === Sakstype.KLAGE) {
-          await klagePage.setFirstAvailableGosysOppgave();
-
           await klagePage.setMottattVedtaksinstans(jpData.dato);
         }
 
