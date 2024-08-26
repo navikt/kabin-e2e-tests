@@ -25,10 +25,7 @@ export class KabinPage {
 
   setSakenGjelder = async (SAKEN_GJELDER: Part) =>
     test.step(`Sett saken gjelder: ${SAKEN_GJELDER.name}`, async () => {
-      await this.page.getByPlaceholder('Søk etter person').fill(SAKEN_GJELDER.id);
-      const requestPromise = this.page.waitForRequest('**/registreringer/**/saken-gjelder-value');
-      await this.page.getByText('Velg', { exact: true }).click();
-      await finishedRequest(requestPromise);
+      await this.page.getByPlaceholder('Opprett ny registrering').fill(SAKEN_GJELDER.id);
     });
 
   #getDocumentsContainer = async () => this.page.locator('section', { hasText: 'Velg journalpost' });
@@ -251,6 +248,8 @@ export class KabinPage {
 
     return { fagsakId, tema, vedtaksdato, behandlendeEnhet, fagsystem };
   };
+
+  getYtelse = () => this.page.getByTestId('ytelseId').textContent();
 
   verifySaksId = async (jpSaksId: string, mulighetSaksId: string) => {
     if (jpSaksId !== mulighetSaksId) {
