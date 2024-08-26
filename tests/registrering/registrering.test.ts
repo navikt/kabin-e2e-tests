@@ -35,12 +35,13 @@ test.describe('Registrering', () => {
 
         const saksId = vedtak.type === Sakstype.KLAGE ? vedtak.data.fagsakId : vedtak.data.saksId;
 
+        await klagePage.setFirstAvailableGosysOppgave();
+
         await kabinPage.verifySaksId(jpData.saksId, saksId);
 
         const ytelse = await kabinPage.getYtelse();
 
         if (type === Sakstype.KLAGE) {
-          await klagePage.setFirstAvailableGosysOppgave();
           await klagePage.setMottattVedtaksinstans(jpData.dato);
         }
 
