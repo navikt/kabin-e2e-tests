@@ -2,11 +2,9 @@ import { test as base } from '@playwright/test';
 import { AnkePage } from './anke-page';
 import { KabinPage } from './kabin-page';
 import { KlagePage } from './klage-page';
-import { RegistreringerPage } from './registreringer-page';
 import { StatusPage } from './status-page';
 
 interface Pages {
-  registreringerPage: RegistreringerPage;
   kabinPage: KabinPage;
   klagePage: KlagePage;
   ankePage: AnkePage;
@@ -14,10 +12,6 @@ interface Pages {
 }
 
 export const test = base.extend<Pages>({
-  registreringerPage: async ({ page }, use) => {
-    await use(new RegistreringerPage(page));
-  },
-
   kabinPage: async ({ page }, use) => {
     await use(new KabinPage(page));
   },

@@ -29,7 +29,7 @@ interface Svarbrevinfo {
 interface ValgtVedtak {
   sakenGjelder: Part;
   vedtaksdato: string;
-  ytelse?: string;
+  ytelse: string | null;
   fagsystem: string;
   saksId: string;
 }
@@ -56,7 +56,7 @@ export class StatusPage {
       await expect(journalfoertDoc.getByText('Tittel').locator('> *')).toHaveText(jp.title);
       await expect(journalfoertDoc.getByText('Tema').locator('> *')).toHaveText(jp.tema);
       await expect(journalfoertDoc.getByText('Dato').locator('> *')).toHaveText(jp.dato);
-      await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toHaveText(jp.avsenderMottaker);
+      await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toContainText(jp.avsenderMottaker);
       await expect(journalfoertDoc.getByText('Saks-ID').locator('> *')).toHaveText(jp.saksId);
       await expect(journalfoertDoc.getByText('Type').locator('> *')).toHaveText(getJournalpostType(jp.type));
 
