@@ -1,4 +1,4 @@
-import test, { Page } from '@playwright/test';
+import test, { type Page } from '@playwright/test';
 
 export class AnkePage {
   constructor(public readonly page: Page) {}

@@ -3,6 +3,5 @@
 nais/
 test-results/
 .editorconfig
-.eslintrc
 .gitignore
 *.md

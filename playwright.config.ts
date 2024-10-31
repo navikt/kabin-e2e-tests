@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from '@playwright/test';
+import type { PlaywrightTestConfig } from '@playwright/test';
 import { SCREEN_SIZE } from './setup/global-setup';
 
 const config: PlaywrightTestConfig = {
@@ -24,5 +24,4 @@ const config: PlaywrightTestConfig = {
   globalSetup: require.resolve('./setup/global-setup'),
 };
 
-// eslint-disable-next-line import/no-unused-modules, import/no-default-export
 export default config;

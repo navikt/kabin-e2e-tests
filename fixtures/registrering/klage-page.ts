@@ -1,17 +1,16 @@
-import test, { Page, expect } from '@playwright/test';
+import test, { type Page, expect } from '@playwright/test';
 
 export class KlagePage {
   constructor(public readonly page: Page) {}
 
   setMottattVedtaksinstans = async (vedtaksdato: string) =>
     test.step(`Sett Mottatt vedtaksinstans: ${vedtaksdato}`, async () => {
-      // eslint-disable-next-line playwright/no-wait-for-timeout
       await this.page.waitForTimeout(1000);
       await this.page.getByLabel('Mottatt vedtaksinstans').fill(vedtaksdato);
     });
 
   setFirstAvailableGosysOppgave = async () =>
-    test.step(`Sett første tilgjengelige Gosys-oppgave`, async () => {
+    test.step('Sett første tilgjengelige Gosys-oppgave', async () => {
       const row = this.page.getByRole('table', { name: 'Gosys-oppgaver' }).locator('tbody > tr').first();
       const oppgave = row.filter({ has: this.page.getByText('Velg') });
 

@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-import { Page, Request } from '@playwright/test';
+import type { Page, Request } from '@playwright/test';
 import { makeDirectApiRequest } from '../fixtures/direct-api-request';
 
 const feilRegistrer = async (page: Page, kabalId: string) => {
@@ -30,8 +29,8 @@ const exponentialBackoff = <T>(
   promise: () => Promise<T>,
   label: string,
   retries: number,
-  delay: number = 1000,
-  factor: number = 2,
+  delay = 1000,
+  factor = 2,
 ): Promise<T> =>
   promise().catch((error) => {
     if (retries === 0) {

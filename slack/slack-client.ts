@@ -1,7 +1,7 @@
-import fs, { ReadStream, createReadStream } from 'fs';
-import { buffer } from 'stream/consumers';
+import fs, { type ReadStream, createReadStream } from 'node:fs';
+import { buffer } from 'node:stream/consumers';
 import { App, isCodedError } from '@slack/bolt';
-import { ChatPostMessageResponse, ChatUpdateResponse } from '@slack/web-api';
+import type { ChatPostMessageResponse, ChatUpdateResponse } from '@slack/web-api';
 import { IS_DEPLOYED, envString, requiredEnvString } from '../config/env';
 
 const BOT_NAME = 'Kabin E2E';
