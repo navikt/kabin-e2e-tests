@@ -191,11 +191,20 @@ export class KabinPage {
       await mulighet.waitFor();
 
       const requestPromise = this.page.waitForRequest('**/registreringer/**/mulighet');
-      await mulighet.getByText('Velg').click();
+
+      const button = await row.getByRole('button', { name: 'Velg' });
+
+      const id = await button.getAttribute('data-testid');
+
+      if (id === null) {
+        throw new Error('Could not find data-testid attribute on td holding select button');
+      }
+
+      await button.click();
       await finishedRequest(requestPromise);
 
-      const button = row.getByRole('button');
-      await expect(button).toHaveAttribute('title', 'Valgt');
+      const selected = muligheter.getByTestId(id);
+      await expect(selected).toHaveAttribute('title', 'Valgt');
 
       const cells = await row.getByRole('cell').all();
 
