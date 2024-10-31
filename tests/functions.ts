@@ -1,6 +1,6 @@
-import { join } from 'path';
+import { join } from 'node:path';
 
-export const USE_DEV = process.env.NODE_ENV === 'test';
+export const USE_DEV = true;
 
 export const DEV_DOMAIN = 'https://kabin.intern.dev.nav.no';
 export const LOCAL_DOMAIN = 'http://localhost:8063';

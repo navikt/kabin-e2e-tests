@@ -1,7 +1,14 @@
-/* eslint-disable max-lines */
-import nodePath from 'path';
-import { FullConfig, FullResult, Reporter, Suite, TestCase, TestResult, TestStep } from '@playwright/test/reporter';
-import { SlackMessageThread, getSlack } from '../slack/slack-client';
+import nodePath from 'node:path';
+import type {
+  FullConfig,
+  FullResult,
+  Reporter,
+  Suite,
+  TestCase,
+  TestResult,
+  TestStep,
+} from '@playwright/test/reporter';
+import { type SlackMessageThread, getSlack } from '../slack/slack-client';
 import { SlackIcon, asyncForEach, delay, getFullStatusIcon, getTestStatusIcon, getTestTitle } from './functions';
 
 interface TestSlackData {
@@ -245,5 +252,4 @@ const formatSteps = (steps: TestSlackData[], level = 1): string => {
     .join('\n');
 };
 
-// eslint-disable-next-line import/no-unused-modules, import/no-default-export
 export default SlackReporter;

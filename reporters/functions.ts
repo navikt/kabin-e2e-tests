@@ -1,4 +1,4 @@
-import { FullResult, TestCase, TestStatus } from '@playwright/test/reporter';
+import type { FullResult, TestCase, TestStatus } from '@playwright/test/reporter';
 
 export const getTestTitle = (test: TestCase) => {
   const [, , , description, testName] = test.titlePath();

@@ -1,20 +1,19 @@
-/* eslint-disable max-lines */
-import test, { Locator, Page, expect } from '@playwright/test';
+import test, { type Locator, type Page, expect } from '@playwright/test';
 import { makeDirectApiRequest } from '../direct-api-request';
 import { REGISTRERING_REGEX, STATUS_REGEX, feilregistrerAndDelete, finishedRequest } from '../helpers';
 import { AnkePage } from './anke-page';
 import { KlagePage } from './klage-page';
 import {
-  Ankevedtak,
-  Country,
-  FristExtension,
-  Klagevedtak,
-  Part,
+  type Ankevedtak,
+  type Country,
+  type FristExtension,
+  type Klagevedtak,
+  type Part,
   PartType,
   Sakstype,
-  SelectJournalpostParams,
+  type SelectJournalpostParams,
   Utskriftstype,
-  Vedtak,
+  type Vedtak,
 } from './types';
 
 export class KabinPage {
@@ -148,11 +147,11 @@ export class KabinPage {
       return listitem;
     }
 
-    throw new Error('Could not find journalpost with given parameters: ' + JSON.stringify(params));
+    throw new Error(`Could not find journalpost with given parameters: ${JSON.stringify(params)}`);
   };
 
   selectJournalpostByInnerText = async (params: SelectJournalpostParams) =>
-    test.step(`Velg journalpost`, async () => {
+    test.step('Velg journalpost', async () => {
       const journalpost = (await this.#getJournalpostByInnerText(params)).first();
 
       return this.#selectJournalpost(journalpost);
@@ -253,7 +252,7 @@ export class KabinPage {
 
   verifySaksId = async (jpSaksId: string, mulighetSaksId: string) => {
     if (jpSaksId !== mulighetSaksId) {
-      await test.step(`Verifiser melding om ny saksId`, async () => {
+      await test.step('Verifiser melding om ny saksId', async () => {
         this.page.getByText(
           `Journalposten er tidligere journalført på fagsak-ID ${jpSaksId}. Ved opprettelse av behandling i Kabal vil innholdet kopieres over i en ny journalpost på fagsak-ID ${mulighetSaksId}.`,
         );
@@ -265,7 +264,6 @@ export class KabinPage {
     test.step(`Sett Mottatt Klageinstans: ${vedtaksdato}`, async () => {
       await this.page.getByRole('textbox', { name: 'Mottatt Klageinstans' }).clear();
 
-      // eslint-disable-next-line playwright/no-wait-for-timeout
       await this.page.waitForTimeout(500);
 
       const requestPromise = this.page.waitForRequest('**/registreringer/**/overstyringer/mottatt-klageinstans');
@@ -509,7 +507,6 @@ export class KabinPage {
       await ekstraMottakere.getByText('Legg til mottaker').click();
       await finishedRequest(requestPromise);
       await input.filter({ hasNotText: part.id }).waitFor();
-      // eslint-disable-next-line playwright/no-wait-for-timeout
       await this.page.waitForTimeout(500);
     });
 

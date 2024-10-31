@@ -1,5 +1,5 @@
-import { Page, ViewportSize, chromium } from '@playwright/test';
-import { FullConfig } from '@playwright/test/reporter';
+import { type Page, type ViewportSize, chromium } from '@playwright/test';
+import type { FullConfig } from '@playwright/test/reporter';
 import { DEV_DOMAIN, USE_DEV } from '../tests/functions';
 import { getLoggedInPage } from '../tests/helpers';
 import { userSaksbehandler } from '../tests/test-data';
@@ -27,7 +27,6 @@ const globalSetup = async (config: FullConfig) => {
   await browser.close();
 };
 
-// eslint-disable-next-line import/no-unused-modules, import/no-default-export
 export default globalSetup;
 
 const setLocalhostCookie = async (page: Page) => {
