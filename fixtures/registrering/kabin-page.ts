@@ -16,6 +16,8 @@ import {
   type Vedtak,
 } from './types';
 
+const LAND_REGEX = /Land.*/;
+const SOME_CHAR_REGEX = /.+/;
 export class KabinPage {
   #ankePage = new AnkePage(this.page);
   #klagePage = new KlagePage(this.page);
@@ -107,6 +109,7 @@ export class KabinPage {
     }
   };
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: ¯\_(ツ)_/¯
   #getJournalpostByInnerText = async (params: SelectJournalpostParams) => {
     const documents = await this.#getDocumentsContainer();
     await documents.getByRole('listitem').first().waitFor();
@@ -261,7 +264,7 @@ export class KabinPage {
 
   verifySaksId = async (jpSaksId: string, mulighetSaksId: string) => {
     if (jpSaksId !== mulighetSaksId) {
-      await test.step('Verifiser melding om ny saksId', async () => {
+      await test.step('Verifiser melding om ny saksId', () => {
         this.page.getByText(
           `Journalposten er tidligere journalført på fagsak-ID ${jpSaksId}. Ved opprettelse av behandling i Kabal vil innholdet kopieres over i en ny journalpost på fagsak-ID ${mulighetSaksId}.`,
         );
@@ -300,7 +303,7 @@ export class KabinPage {
     test.step(`Sett hjemler: ${shortNames.join(', ')}`, async () => {
       await this.page.getByLabel('Hjemler').click();
       await this.page.getByText('Fjern alle').click();
-      await this.page.locator('#hjemmelIdList').filter({ hasNotText: /.+/ }).waitFor();
+      await this.page.locator('#hjemmelIdList').filter({ hasNotText: SOME_CHAR_REGEX }).waitFor();
 
       for (const longName of longNames) {
         const requestPromise = this.page.waitForRequest('**/hjemmel-id-list');
@@ -361,7 +364,7 @@ export class KabinPage {
   getSvarbrevSection = async () => this.page.getByRole('region', { name: 'Svarbrev' });
 
   setSendSvarbrev = async (send: boolean) =>
-    test.step(`Velge å${send ? ' ' : ' ikke '}sende svarbrev`, async () => {
+    test.step(`Velge å${send ? ' ' : ' ikke '}sende svarbrev`, () => {
       this.page.getByText(send ? 'Send svarbrev' : 'Ikke send svarbrev', { exact: true }).click();
     });
 
@@ -444,7 +447,7 @@ export class KabinPage {
     }
 
     if (typeof country !== 'undefined') {
-      await partSection.getByLabel(/Land.*/).fill(country.search);
+      await partSection.getByLabel(LAND_REGEX).fill(country.search);
       await partSection.getByText(country.fullName).click();
     }
 
@@ -474,7 +477,7 @@ export class KabinPage {
     address3?: string,
     country?: Country,
   ) =>
-    test.step(`Endre adresse for ekstra mottaker: ${part.getTestLabelWithType()}`, async () => {
+    test.step(`Endre adresse for ekstra mottaker: ${part.getTestLabelWithType()}`, () => {
       const list = this.page.getByRole('list', { name: 'Liste over ekstra mottakere' });
       const section = list.getByRole('listitem', { name: part.name });
 
@@ -494,7 +497,7 @@ export class KabinPage {
     });
 
   setUtskriftTypeForExtraReceiver = async (part: Part, type: Utskriftstype) =>
-    test.step(`Velg utskriftstype: ${type} for ekstra mottaker: ${part.getTestLabelWithType()}`, async () => {
+    test.step(`Velg utskriftstype: ${type} for ekstra mottaker: ${part.getTestLabelWithType()}`, () => {
       const list = this.page.getByRole('list', { name: 'Liste over ekstra mottakere' });
       const section = list.getByRole('listitem', { name: part.name });
 
