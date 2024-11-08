@@ -106,7 +106,7 @@ class SlackReporter implements Reporter {
     });
   }
 
-  async onStepBegin(test: TestCase, result: TestResult, step: TestStep) {
+  async onStepBegin(test: TestCase, _result: TestResult, step: TestStep) {
     const status = this.testStatuses.get(test.id);
 
     if (status === undefined || step.category !== 'test.step') {
@@ -125,7 +125,7 @@ class SlackReporter implements Reporter {
     return await this.updateTestMessage(test, status);
   }
 
-  async onStepEnd(test: TestCase, result: TestResult, step: TestStep) {
+  async onStepEnd(test: TestCase, _result: TestResult, step: TestStep) {
     const testStatus = this.testStatuses.get(test.id);
 
     if (testStatus === undefined || !testStatus.steps.has(`${test.id}-${step.title}`)) {
@@ -252,4 +252,5 @@ const formatSteps = (steps: TestSlackData[], level = 1): string => {
     .join('\n');
 };
 
+// biome-ignore lint/style/noDefaultExport: https://playwright.dev/docs/test-reporters
 export default SlackReporter;

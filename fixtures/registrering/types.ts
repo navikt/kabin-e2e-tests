@@ -32,6 +32,7 @@ export const getJournalpostType = (type: string | null): string => {
   }
 };
 
+const SIX_CIPHERS_REGEX = /(.{6})/;
 export class Part {
   constructor(
     public name: string,
@@ -40,7 +41,7 @@ export class Part {
   ) {}
 
   public getHumanReadableId(): string {
-    return this.id.replace(/(.{6})/, '$1 ');
+    return this.id.replace(SIX_CIPHERS_REGEX, '$1 ');
   }
 
   // Contatenated name and id, used to match with textContent()

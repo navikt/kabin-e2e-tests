@@ -34,6 +34,7 @@ interface ValgtVedtak {
   saksId: string;
 }
 
+const FRIST_REGEX = /Frist.*/;
 export class StatusPage {
   constructor(public readonly page: Page) {}
 
@@ -85,7 +86,7 @@ export class StatusPage {
       const saksinfo = this.page.getByRole('region', { name: 'Saksinfo' });
 
       await expect(saksinfo.getByText('Mottatt NAV klageinstans').locator('> *')).toHaveText(info.mottattKlageinstans);
-      await expect(saksinfo.getByText(/Frist.*/).locator('> *')).toHaveText(info.fristIKabal);
+      await expect(saksinfo.getByText(FRIST_REGEX).locator('> *')).toHaveText(info.fristIKabal);
       await expect(saksinfo.getByText('Varslet frist').locator('> *')).toHaveText(info.varsletFrist);
       await expect(saksinfo.getByText(this.#getKlagerText(type)).locator('> *')).toHaveText(info.klager.getNameAndId());
       await expect(saksinfo.getByText('Fullmektig').locator('> *')).toHaveText(info.fullmektig.getNameAndId());
