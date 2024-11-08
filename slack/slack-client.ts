@@ -49,18 +49,14 @@ class SlackClient {
     threadMessage?: ChatPostMessageResponse | ChatUpdateResponse,
   ) {
     try {
-      return await this.app.client.files.uploadV2({
-        token: this.token,
-        file: fileBuffer,
-        channel_id: threadMessage?.channel ?? this.channel,
-        filename,
-        title,
-        initial_comment: message,
-        thread_ts: threadMessage?.ts,
-        request_file_info: false,
-      });
+      const channel_id = threadMessage?.channel ?? this.channel;
+      const thread_ts = threadMessage?.ts;
+
+      const params = { token: this.token, file: fileBuffer, filename, channel_id, title, initial_comment: message };
+
+      return await this.app.client.files.uploadV2(thread_ts === undefined ? params : { ...params, thread_ts });
     } catch (error) {
-      const bufferSize = fileBuffer instanceof Buffer ? fileBuffer.byteLength : (await buffer(fileBuffer)).byteLength;
+      const bufferSize = Buffer.isBuffer(fileBuffer) ? fileBuffer.byteLength : (await buffer(fileBuffer)).byteLength;
       const errorMessage = `Failed to upload file (${bufferSize} bytes): ${filename ?? '<no filename>'}`;
 
       console.error(errorMessage);
