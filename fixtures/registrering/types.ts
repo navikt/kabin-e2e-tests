@@ -96,7 +96,7 @@ export enum Sakstype {
 
 export interface Ankevedtak {
   type: string;
-  saksId: string;
+  fagsakId: string;
   tema: string;
   ytelse: string;
   vedtaksdato: string;
@@ -120,4 +120,31 @@ export interface SelectJournalpostParams {
   avsenderMottaker?: string;
   fagsakId?: string;
   type?: string;
+}
+
+export interface GosysOppgaveQuery {
+  opprettet: string;
+  frist: string;
+  tema: string;
+  gjelder: string;
+  oppgavetype: string;
+  tildeltEnhetsnr: string;
+  opprettetAvEnhetsnr: string;
+}
+
+export interface Ankemulighet {
+  type: string;
+  fagsakId: string;
+  tema: string;
+  ytelse: string;
+  vedtaksdato: string;
+  fagsystem: string;
+}
+
+export interface Klagemulighet {
+  fagsakId: string;
+  tema: string;
+  vedtakInnstilling: string;
+  behandlendeEnhet: string;
+  fagsystem: string;
 }

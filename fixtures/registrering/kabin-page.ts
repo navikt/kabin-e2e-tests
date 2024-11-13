@@ -190,12 +190,12 @@ export class KabinPage {
       await muligheter.waitFor({ timeout: 20_000 });
       const row = muligheter.locator('tbody tr');
 
-      const mulighet = await row.filter({ has: this.page.getByText('Velg') });
+      const mulighet = row.filter({ has: this.page.getByText('Velg') }).first();
       await mulighet.waitFor();
 
       const requestPromise = this.page.waitForRequest('**/registreringer/**/mulighet');
 
-      const button = await row.getByRole('button', { name: 'Velg' });
+      const button = row.getByRole('button', { name: 'Velg' }).first();
 
       const id = await button.getAttribute('data-testid');
 
@@ -209,7 +209,9 @@ export class KabinPage {
       const selected = muligheter.getByTestId(id);
       await expect(selected).toHaveAttribute('title', 'Valgt');
 
-      const cells = await row.getByRole('cell').all();
+      const selectedRow = row.filter({ has: this.page.getByTestId(id) });
+
+      const cells = await selectedRow.getByRole('cell').all();
 
       return this.#getVedtakData(type, cells);
     });
@@ -230,13 +232,13 @@ export class KabinPage {
   };
 
   #getAnkevedtakData = async (cells: Locator[]): Promise<Ankevedtak> => {
-    const [type, saksId, tema, ytelse, vedtaksdato, fagsystem] = await Promise.all(
+    const [type, fagsakId, tema, ytelse, vedtaksdato, fagsystem] = await Promise.all(
       cells.map(async (cell) => cell.textContent()),
     );
 
     if (
       type === null ||
-      saksId === null ||
+      fagsakId === null ||
       tema === null ||
       ytelse === null ||
       fagsystem === null ||
@@ -245,7 +247,7 @@ export class KabinPage {
       throw new Error('One or more mulighet data is null');
     }
 
-    return { type, saksId, tema, ytelse, vedtaksdato, fagsystem };
+    return { type, fagsakId, tema, ytelse, vedtaksdato, fagsystem };
   };
 
   #getKlagevedtakData = async (cells: Locator[]): Promise<Klagevedtak> => {
@@ -377,6 +379,7 @@ export class KabinPage {
   setSvarbrevFullmektigName = async (fullmektigName: string) =>
     test.step(`Sett navn på fullmektig i svarbrev: ${fullmektigName}`, async () => {
       const svarbrevSection = await this.getSvarbrevSection();
+      await svarbrevSection.getByLabel('Navn på fullmektig i brevet').clear();
       await svarbrevSection.getByLabel('Navn på fullmektig i brevet').fill(fullmektigName);
     });
 
