@@ -35,6 +35,8 @@ interface ValgtVedtak {
 }
 
 const FRIST_REGEX = /Frist.*/;
+const TEMA_REGEX = /Tema.*/;
+
 export class StatusPage {
   constructor(public readonly page: Page) {}
 
@@ -51,11 +53,11 @@ export class StatusPage {
     test.step('Verifiser journalpost', async () => {
       const journalfoertDoc = this.page.getByRole('region', { name: this.#getJournaloertDocRegionName(type) });
 
-      const kvitteringTemaContainer = journalfoertDoc.getByText('Tema').locator('> *');
+      const kvitteringTemaContainer = journalfoertDoc.getByText(TEMA_REGEX).locator('> *');
       await kvitteringTemaContainer.filter({ hasNotText: 'Laster...' }).waitFor();
 
       await expect(journalfoertDoc.getByText('Tittel').locator('> *')).toHaveText(jp.title);
-      await expect(journalfoertDoc.getByText('Tema').locator('> *')).toHaveText(jp.tema);
+      await expect(journalfoertDoc.getByText(TEMA_REGEX).locator('> *')).toHaveText(jp.tema);
       await expect(journalfoertDoc.getByText('Dato').locator('> *')).toHaveText(jp.dato);
       await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toContainText(jp.avsenderMottaker);
       await expect(journalfoertDoc.getByText('Saks-ID').locator('> *')).toHaveText(jp.saksId);
@@ -113,7 +115,7 @@ export class StatusPage {
   #getValgtVedtakRegionName = (type: Sakstype) => {
     switch (type) {
       case Sakstype.ANKE:
-        return 'Valgt vedtak';
+        return 'Valgt ankevedtak';
       case Sakstype.KLAGE:
         return 'Valgt klagevedtak';
     }

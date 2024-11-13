@@ -21,20 +21,21 @@ test.describe('Registrering', () => {
     hjemlerShort,
     mottattKlageinstans,
     tildeltSaksbehandler,
+    gosysOppgave,
   } of [KLAGE, ANKE]) {
-    test(`${type}`, async ({ kabinPage, statusPage, klagePage }) => {
+    test(`${type}`, async ({ kabinPage, statusPage, klagePage, ankePage }) => {
       await kabinPage.setSakenGjelder(sakenGjelder);
 
       const jpData = await kabinPage.selectJournalpostByInnerText(getJournalpostParams);
-
       await kabinPage.selectType(type);
+
       const vedtak = await kabinPage.selectFirstAvailableVedtak(type);
 
-      const saksId = vedtak.type === Sakstype.KLAGE ? vedtak.data.fagsakId : vedtak.data.saksId;
+      const { fagsakId } = vedtak.data;
 
-      await klagePage.setFirstAvailableGosysOppgave();
+      await klagePage.setGosysOppgave(gosysOppgave);
 
-      await kabinPage.verifySaksId(jpData.saksId, saksId);
+      await kabinPage.verifySaksId(jpData.saksId, fagsakId);
 
       const ytelse = await kabinPage.getYtelse();
 
@@ -95,9 +96,9 @@ test.describe('Registrering', () => {
         {
           title: jpData.title,
           tema: vedtak.data.tema,
-          dato: jpData.saksId === saksId ? jpData.dato : format(new Date(), 'dd.MM.yyyy'),
+          dato: jpData.saksId === fagsakId ? jpData.dato : format(new Date(), 'dd.MM.yyyy'),
           avsenderMottaker: getAvsenderName(jpData.type, jpData.avsenderMottaker, data.avsender),
-          saksId,
+          saksId: fagsakId,
           type: jpData.type,
           logiskeVedleggNames: jpData.logiskeVedleggNames,
           vedleggNames: jpData.vedleggNames,
@@ -135,7 +136,7 @@ test.describe('Registrering', () => {
 
       const { vedtaksdato, fagsystem } = vedtak.data;
 
-      await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId, ytelse }, type);
+      await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId: fagsakId, ytelse }, type);
     });
   }
 });

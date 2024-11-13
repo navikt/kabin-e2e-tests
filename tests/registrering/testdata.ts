@@ -1,4 +1,11 @@
-import { FristExtension, Part, PartType, Sakstype } from '../../fixtures/registrering/types';
+import {
+  FristExtension,
+  type GosysOppgaveQuery,
+  Part,
+  PartType,
+  Sakstype,
+  type SelectJournalpostParams,
+} from '../../fixtures/registrering/types';
 
 const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
 const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
@@ -24,7 +31,26 @@ export const data = {
   varsletFrist: new FristExtension(70, 'måneder'),
 };
 
-export const ANKE = {
+const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
+  opprettet: '11.10.2024',
+  frist: '18.03.2030',
+  tema: 'Sykepenger',
+  gjelder: 'Klage',
+  oppgavetype: 'Behandle sak (Manuell)',
+  tildeltEnhetsnr: '4295',
+  opprettetAvEnhetsnr: '4295',
+};
+const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
+  opprettet: '10.10.2024',
+  frist: '23.04.2030',
+  tema: 'Sykepenger',
+  gjelder: 'Klage',
+  oppgavetype: 'Vurder henvendelse',
+  tildeltEnhetsnr: '4291',
+  opprettetAvEnhetsnr: '9999',
+};
+
+export const ANKE: AnkeTestdata = {
   type: Sakstype.ANKE,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   getJournalpostParams: {
@@ -37,9 +63,10 @@ export const ANKE = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '18.07.2024',
   tildeltSaksbehandler: 'F_Z994488 E_Z994488',
+  gosysOppgave: ANKE_GOSYS_OPPGAVE,
 };
 
-export const KLAGE = {
+export const KLAGE: KlageTestdata = {
   type: Sakstype.KLAGE,
   sakenGjelder: SAKEN_GJELDER_KLAGE,
   getJournalpostParams: {
@@ -52,4 +79,23 @@ export const KLAGE = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '23.08.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgave: KLAGE_GOSYS_OPPGAVE,
 };
+
+interface BaseTestdata {
+  sakenGjelder: Part;
+  getJournalpostParams: SelectJournalpostParams;
+  hjemlerLong: string[];
+  hjemlerShort: string[];
+  mottattKlageinstans: string;
+  tildeltSaksbehandler: string;
+  gosysOppgave: GosysOppgaveQuery;
+}
+
+interface KlageTestdata extends BaseTestdata {
+  type: Sakstype.KLAGE;
+}
+
+interface AnkeTestdata extends BaseTestdata {
+  type: Sakstype.ANKE;
+}
