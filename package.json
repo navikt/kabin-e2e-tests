@@ -12,15 +12,15 @@
     "tsc": "tsc"
   },
   "dependencies": {
-    "@playwright/test": "^1.48.2",
-    "@slack/bolt": "^4.1.0",
+    "@playwright/test": "^1.49.0",
+    "@slack/bolt": "^4.1.1",
     "date-fns": "^4.1.0",
-    "playwright": "^1.48.2"
+    "playwright": "^1.49.0"
   },
   "devDependencies": {
-    "@types/node": "^22.9.0",
-    "@types/node-fetch": "^2.6.11",
+    "@types/node": "^22.10.1",
+    "@types/node-fetch": "^2.6.12",
     "dotenv": "^16.4.5",
-    "typescript": "^5.6.3"
+    "typescript": "^5.7.2"
   }
 }
