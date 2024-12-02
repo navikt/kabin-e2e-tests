@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { test } from '../../fixtures/registrering/fixture';
 import { type Part, Sakstype, Utskriftstype } from '../../fixtures/registrering/types';
 import { UI_DOMAIN } from '../functions';
-import { ANKE, KLAGE, data } from './testdata';
+import { ANKE, KLAGE, OMGJØRINGSKRAV, data } from './testdata';
 
 test.describe('Registrering', () => {
   test.beforeEach(({ page }) => page.goto(UI_DOMAIN));
@@ -22,8 +22,8 @@ test.describe('Registrering', () => {
     mottattKlageinstans,
     tildeltSaksbehandler,
     gosysOppgave,
-  } of [KLAGE, ANKE]) {
-    test(`${type}`, async ({ kabinPage, statusPage, klagePage, ankePage }) => {
+  } of [KLAGE, ANKE, OMGJØRINGSKRAV]) {
+    test(`${type}`, async ({ kabinPage, statusPage, klagePage }) => {
       await kabinPage.setSakenGjelder(sakenGjelder);
 
       const jpData = await kabinPage.selectJournalpostByInnerText(getJournalpostParams);

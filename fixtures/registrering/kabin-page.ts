@@ -3,11 +3,13 @@ import { makeDirectApiRequest } from '../direct-api-request';
 import { REGISTRERING_REGEX, STATUS_REGEX, feilregistrerAndDelete, finishedRequest } from '../helpers';
 import { AnkePage } from './anke-page';
 import { KlagePage } from './klage-page';
+import { OmgjøringskravPage } from './omgjøringskrav-page';
 import {
   type Ankevedtak,
   type Country,
   type FristExtension,
   type Klagevedtak,
+  type Omgjøringskravvedtak,
   type Part,
   PartType,
   Sakstype,
@@ -21,6 +23,7 @@ const SOME_CHAR_REGEX = /.+/;
 export class KabinPage {
   #ankePage = new AnkePage(this.page);
   #klagePage = new KlagePage(this.page);
+  #omgjøringskravPage = new OmgjøringskravPage(this.page);
 
   constructor(public readonly page: Page) {}
 
@@ -170,6 +173,9 @@ export class KabinPage {
       case Sakstype.ANKE:
         await this.#ankePage.selectAnke();
         break;
+      case Sakstype.OMGJØRINGSKRAV:
+        await this.#omgjøringskravPage.selectOmgjøringskrav();
+        break;
     }
 
     await finishedRequest(requestPromise);
@@ -181,6 +187,8 @@ export class KabinPage {
         return 'Klagemuligheter';
       case Sakstype.ANKE:
         return 'Ankemuligheter';
+      case Sakstype.OMGJØRINGSKRAV:
+        return 'Omgjøringskravmuligheter';
     }
   };
 
@@ -228,8 +236,16 @@ export class KabinPage {
 
         return { data, type };
       }
+      case Sakstype.OMGJØRINGSKRAV: {
+        const data = await this.#getOmgoringskravvedtakData(cells);
+
+        return { data, type };
+      }
     }
   };
+
+  #getOmgoringskravvedtakData = async (cells: Locator[]): Promise<Omgjøringskravvedtak> =>
+    this.#getAnkevedtakData(cells);
 
   #getAnkevedtakData = async (cells: Locator[]): Promise<Ankevedtak> => {
     const [type, fagsakId, tema, ytelse, vedtaksdato, fagsystem] = await Promise.all(
@@ -531,6 +547,8 @@ export class KabinPage {
         return 'Klage opprettet';
       case Sakstype.ANKE:
         return 'Anke opprettet';
+      case Sakstype.OMGJØRINGSKRAV:
+        return 'Omgjøringskrav opprettet';
     }
   };
 

@@ -46,6 +46,8 @@ export class StatusPage {
         return 'Journalført anke';
       case Sakstype.KLAGE:
         return 'Valgt journalpost';
+      case Sakstype.OMGJØRINGSKRAV:
+        return 'Journalført omgjøringskrav';
     }
   };
 
@@ -80,6 +82,8 @@ export class StatusPage {
         return 'Ankende part';
       case Sakstype.KLAGE:
         return 'Klager';
+      case Sakstype.OMGJØRINGSKRAV:
+        return 'Den som krever omgjøring';
     }
   };
 
@@ -118,6 +122,8 @@ export class StatusPage {
         return 'Valgt ankevedtak';
       case Sakstype.KLAGE:
         return 'Valgt klagevedtak';
+      case Sakstype.OMGJØRINGSKRAV:
+        return 'Valgt vedtak';
     }
   };
 
