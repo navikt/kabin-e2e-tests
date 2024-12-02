@@ -37,7 +37,9 @@ const exponentialBackoff = <T>(
       throw error;
     }
 
-    console.debug(`${label} failed. Retrying in ${delay}ms... Remaining retries: ${retries}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    console.debug(`${label} failed: ${errorMessage}. Retrying in ${delay}ms... Remaining retries: ${retries}`);
 
     return new Promise<T>((resolve) =>
       setTimeout(() => resolve(exponentialBackoff(promise, label, retries - 1, delay * factor, factor)), delay),
