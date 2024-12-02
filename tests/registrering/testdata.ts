@@ -9,6 +9,7 @@ import {
 
 const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
 const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
+const SAKEN_GJELDER_OMGJØRINGSKRAV = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
 
 export const data = {
   ankendePart: new Part('FALSK ONKEL', '17887799784', PartType.KLAGER),
@@ -50,6 +51,16 @@ const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettetAvEnhetsnr: '9999',
 };
 
+const OMGJØRINGSKRAV_GOSYS_OPPGAVE: GosysOppgaveQuery = {
+  opprettet: '10.10.2024',
+  frist: '23.04.2030',
+  tema: 'Sykepenger',
+  gjelder: 'Klage',
+  oppgavetype: 'Vurder henvendelse',
+  tildeltEnhetsnr: '4291',
+  opprettetAvEnhetsnr: '9999',
+};
+
 export const ANKE: AnkeTestdata = {
   type: Sakstype.ANKE,
   sakenGjelder: SAKEN_GJELDER_ANKE,
@@ -82,6 +93,22 @@ export const KLAGE: KlageTestdata = {
   gosysOppgave: KLAGE_GOSYS_OPPGAVE,
 };
 
+export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
+  type: Sakstype.OMGJØRINGSKRAV,
+  sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
+  getJournalpostParams: {
+    fagsakId: 'cde1',
+    title: 'Generelt brev',
+    date: '22.11.2024',
+    avsenderMottaker: 'SKEPTISK LANDSBY',
+  },
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '28.11.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgave: OMGJØRINGSKRAV_GOSYS_OPPGAVE,
+};
+
 interface BaseTestdata {
   sakenGjelder: Part;
   getJournalpostParams: SelectJournalpostParams;
@@ -98,4 +125,8 @@ interface KlageTestdata extends BaseTestdata {
 
 interface AnkeTestdata extends BaseTestdata {
   type: Sakstype.ANKE;
+}
+
+interface OmgjøringskravTestdata extends BaseTestdata {
+  type: Sakstype.OMGJØRINGSKRAV;
 }

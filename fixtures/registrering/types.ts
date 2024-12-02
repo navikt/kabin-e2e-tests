@@ -92,6 +92,7 @@ export interface Country {
 export enum Sakstype {
   KLAGE = 'KLAGE',
   ANKE = 'ANKE',
+  OMGJØRINGSKRAV = 'OMGJØRINGSKRAV',
 }
 
 export interface Ankevedtak {
@@ -103,6 +104,8 @@ export interface Ankevedtak {
   fagsystem: string;
 }
 
+export interface Omgjøringskravvedtak extends Ankevedtak {}
+
 export interface Klagevedtak {
   fagsakId: string;
   tema: string;
@@ -111,7 +114,10 @@ export interface Klagevedtak {
   fagsystem: string;
 }
 
-export type Vedtak = { type: Sakstype.KLAGE; data: Klagevedtak } | { type: Sakstype.ANKE; data: Ankevedtak };
+export type Vedtak =
+  | { type: Sakstype.KLAGE; data: Klagevedtak }
+  | { type: Sakstype.ANKE; data: Ankevedtak }
+  | { type: Sakstype.OMGJØRINGSKRAV; data: Omgjøringskravvedtak };
 
 export interface SelectJournalpostParams {
   title?: string;
