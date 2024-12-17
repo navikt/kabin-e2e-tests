@@ -37,7 +37,9 @@ export class KabinPage {
   #selectJournalpost = async (document: Locator) => {
     await document.waitFor();
 
-    const [title, tema, dato, avsenderMottaker, saksId, type] = await document.locator('article > *').allTextContents();
+    const [, title, tema, dato, avsenderMottaker, saksId, type] = await document
+      .locator('article > *')
+      .allTextContents();
 
     if (title === null || tema === null || dato === null || avsenderMottaker === null || saksId === null) {
       throw new Error('One or more document data is null');
@@ -61,17 +63,17 @@ export class KabinPage {
   #journalpostFilterIndex = (filter: keyof SelectJournalpostParams) => {
     switch (filter) {
       case 'title':
-        return 0;
-      case 'tema':
         return 1;
-      case 'date':
+      case 'tema':
         return 2;
-      case 'avsenderMottaker':
+      case 'date':
         return 3;
-      case 'fagsakId':
+      case 'avsenderMottaker':
         return 4;
-      case 'type':
+      case 'fagsakId':
         return 5;
+      case 'type':
+        return 6;
     }
   };
 
@@ -90,7 +92,7 @@ export class KabinPage {
 
   #setJournalpostFilterTitle = async (filter: string) => {
     const documents = await this.#getDocumentsContainer();
-    await documents.getByRole('listitem').first().waitFor();
+    await documents.getByRole('listitem').nth(1).waitFor();
     const filters = this.page.getByRole('region', { name: 'Journalpostfiltere' });
 
     await filters.waitFor();
@@ -122,7 +124,7 @@ export class KabinPage {
     await this.#setJournalpostFilters(params);
 
     for (const listitem of listitems) {
-      const [title, tema, dato, avsenderMottaker, saksId, type] = await listitem
+      const [, title, tema, dato, avsenderMottaker, saksId, type] = await listitem
         .locator('article > *')
         .allTextContents();
 
