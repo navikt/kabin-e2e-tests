@@ -2,7 +2,8 @@ import type { PlaywrightTestConfig } from '@playwright/test';
 import { SCREEN_SIZE } from './setup/global-setup';
 
 const config: PlaywrightTestConfig = {
-  workers: 8,
+  outputDir: '/tmp/test-results',
+  workers: 4,
   fullyParallel: true,
   timeout: 180_000,
   globalTimeout: 360_000,
@@ -18,7 +19,7 @@ const config: PlaywrightTestConfig = {
     trace: 'on',
     locale: 'no-NB',
     viewport: SCREEN_SIZE,
-    storageState: './state.json', // File for storing cookies and localStorage (per origin). Speeds up test execution, as the test browser no longer needs to log in for every test.
+    storageState: '/tmp/state.json', // File for storing cookies and localStorage (per origin). Speeds up test execution, as the test browser no longer needs to log in for every test.
   },
   // https://playwright.dev/docs/test-advanced#global-setup-and-teardown
   globalSetup: require.resolve('./setup/global-setup'),
