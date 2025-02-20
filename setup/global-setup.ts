@@ -1,7 +1,7 @@
-import { type Page, type ViewportSize, chromium } from '@playwright/test';
+import { type Page, chromium } from '@playwright/test';
 import type { FullConfig } from '@playwright/test/reporter';
 import { DEV_DOMAIN, USE_DEV } from '../tests/functions';
-import { getLoggedInPage } from '../tests/helpers';
+import { logIn } from '../tests/helpers';
 import { userSaksbehandler } from '../tests/test-data';
 import { feilregistrerKabalBehandlinger } from './feilregistrer-and-delete';
 
@@ -10,7 +10,7 @@ const globalSetup = async (config: FullConfig) => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
-  await getLoggedInPage(page, userSaksbehandler);
+  await logIn(page, userSaksbehandler);
 
   if (typeof storageState === 'string') {
     if (!USE_DEV) {
@@ -21,6 +21,8 @@ const globalSetup = async (config: FullConfig) => {
   }
 
   await browser.close();
+
+  await feilregistrerKabalBehandlinger();
 };
 
 // biome-ignore lint/style/noDefaultExport: https://playwright.dev/docs/test-global-setup-teardown

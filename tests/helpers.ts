@@ -2,8 +2,8 @@ import { type Page, expect } from '@playwright/test';
 import { DEV_DOMAIN, LOCAL_DOMAIN, UI_DOMAIN, USE_DEV } from './functions';
 import type { User } from './test-data';
 
-export const goToAzure = async (page: Page, path = ''): Promise<Page> => {
-  const res = await page.goto(`${DEV_DOMAIN}${path}`);
+const goToAzure = async (page: Page, devDomain: string) => {
+  const res = await page.goto(devDomain);
   expect(res).not.toBeNull();
   const url = res?.url();
   expect(url).toBeDefined();
@@ -12,30 +12,37 @@ export const goToAzure = async (page: Page, path = ''): Promise<Page> => {
   return page;
 };
 
-export const getLoggedInPage = async (page: Page, { username, password }: User, path = '') => {
-  const azurePage = await goToAzure(page, path);
+export const logIn = async (
+  page: Page,
+  { username, password }: User,
+  devDomain = DEV_DOMAIN,
+  localDomain = LOCAL_DOMAIN,
+  uiDomain = UI_DOMAIN,
+) => {
+  await goToAzure(page, devDomain);
+
   // Fill in username.
-  await azurePage.fill('input[type=email][name=loginfmt]', username);
+  await page.fill('input[type=email][name=loginfmt]', username);
 
   // Click "Next".
-  await azurePage.click('input[type=submit]');
+  await page.click('input[type=submit]');
 
   // Fill in password.
-  await azurePage.fill('input[type=password][tabindex="0"]', password);
+  await page.fill('input[type=password][tabindex="0"]', password);
 
   // Click "Sign in".
-  await azurePage.click('input[type=submit]');
+  await page.click('input[type=submit]');
 
   // Click "No" to remember login.
-  await azurePage.click('input[type=button]');
+  await page.click('input[type=button]');
 
   // Force navigation to local domain, if not using dev domain.
   if (!USE_DEV) {
-    await page.goto(`${LOCAL_DOMAIN}${path}`);
+    await page.goto(localDomain);
   }
 
   // Browser should be redirected to Kabin.
-  expect(azurePage.url()).toMatch(`${UI_DOMAIN}${path}`);
+  expect(page.url()).toMatch(`${uiDomain}/`);
 
-  return azurePage;
+  return page;
 };

@@ -1,10 +1,13 @@
-import type { Page, Request } from '@playwright/test';
+import type { Cookie, Request } from '@playwright/test';
 import { makeDirectApiRequest } from '../fixtures/direct-api-request';
 
-const feilRegistrer = async (page: Page, kabalId: string) => {
-  const res = await makeDirectApiRequest(page, 'kabal-api', `/behandlinger/${kabalId}/feilregistrer`, 'POST', {
-    reason: 'E2E-test',
-  });
+const feilRegistrer = async (cookies: Cookie[], kabalId: string) => {
+  const res = await makeDirectApiRequest(
+    `https://kabin.intern.dev.nav.no/api/kabal-api/behandlinger/${kabalId}/feilregistrer`,
+    'POST',
+    cookies,
+    { reason: 'Reservert testbruker' },
+  );
 
   if (res.ok) {
     console.debug(`Feilregistrert oppgave with id: ${kabalId}`);
@@ -14,8 +17,12 @@ const feilRegistrer = async (page: Page, kabalId: string) => {
   }
 };
 
-const deleteOppgave = async (page: Page, kabalId: string) => {
-  const res = await makeDirectApiRequest(page, 'kabal-api', `/internal/behandlinger/${kabalId}`, 'DELETE');
+const deleteOppgave = async (cookies: Cookie[], kabalId: string) => {
+  const res = await makeDirectApiRequest(
+    `https://kabin.intern.dev.nav.no/api/kabal-api/internal/dev/behandlinger/${kabalId}`,
+    'DELETE',
+    cookies,
+  );
 
   if (res.ok) {
     console.debug(`Deleted oppgave with id: ${kabalId}`);
@@ -46,15 +53,15 @@ const exponentialBackoff = <T>(
     );
   });
 
-export const feilregistrerAndDelete = async (page: Page, kabalId: string) => {
+export const feilregistrerAndDelete = async (cookies: Cookie[], kabalId: string) => {
   try {
-    await exponentialBackoff(() => feilRegistrer(page, kabalId), 'Feilregistrering', 3, 1000, 2);
+    await exponentialBackoff(() => feilRegistrer(cookies, kabalId), 'Feilregistrering', 3, 1000, 2);
   } catch (e) {
     console.error('Feilregistrering failed for oppgave:', kabalId, e);
   }
 
   try {
-    await exponentialBackoff(() => deleteOppgave(page, kabalId), 'Deletion', 3, 1000, 2);
+    await exponentialBackoff(() => deleteOppgave(cookies, kabalId), 'Deletion', 3, 1000, 2);
   } catch (e) {
     console.error('Delete failed for oppgave:', kabalId, e);
   }
