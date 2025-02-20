@@ -312,8 +312,14 @@ export class KabinPage {
       const fristSection = this.page.getByRole('region', { name: 'Frist i Kabal' });
       await fristSection.waitFor();
 
+      const units = this.page.waitForRequest('**/registreringer/**/overstyringer/behandlingstid');
       await fristSection.locator('input').fill(frist.value.toString());
+      await finishedRequest(units);
+
+      const unitType = this.page.waitForRequest('**/registreringer/**/overstyringer/behandlingstid');
       await fristSection.getByText('måneder', { exact: true }).click();
+      await finishedRequest(unitType);
+
       const expectedFristIKabal = frist.getExtendedDate(vedtaksdato);
 
       await fristSection.getByText(expectedFristIKabal).waitFor();
