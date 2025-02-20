@@ -422,7 +422,13 @@ export class KabinPage {
     test.step(`Sett fritekst i svarbrev: ${fritekst}`, async () => {
       const svarbrevSection = await this.getSvarbrevSection();
       await svarbrevSection.getByText('Overstyr', { exact: true }).last().click();
-      await svarbrevSection.getByLabel('Fritekst').fill(fritekst);
+      await svarbrevSection.getByLabel('Fritekst', { exact: true }).fill(fritekst);
+    });
+
+  setSvarbrevInitialFritekst = async (fritekst: string) =>
+    test.step(`Sett valgfri fritekst i svarbrev: ${fritekst}`, async () => {
+      const svarbrevSection = await this.getSvarbrevSection();
+      await svarbrevSection.getByLabel('Fritekst (valgfri)', { exact: true }).fill(fritekst);
     });
 
   #partTypeToText = (partType: PartType) => {

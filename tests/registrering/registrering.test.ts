@@ -62,6 +62,7 @@ test.describe('Registrering', () => {
       await kabinPage.setSvarbrevDocumentName(data.svarbrevName);
       await kabinPage.setSvarbrevFullmektigName(data.svarbrevFullmektigNamae);
       await kabinPage.setSvarbrevVarsletFrist(data.varsletFrist);
+      await kabinPage.setSvarbrevInitialFritekst('Valgfri E2E-fritekst');
       await kabinPage.setSvarbrevFritekst('E2E-fritekst');
 
       await kabinPage.selectMottaker(sakenGjelder);
@@ -131,8 +132,6 @@ test.describe('Registrering', () => {
           { name: data.ekstraMottaker3.name, utskrift: 'Sentral utskrift' },
         ],
       });
-
-      // const ytelse = vedtak.type === Sakstype.ANKE ? vedtak.data.ytelse : undefined;
 
       const { vedtaksdato, fagsystem } = vedtak.data;
 
