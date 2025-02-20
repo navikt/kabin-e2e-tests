@@ -34,7 +34,7 @@ export const data = {
 
 const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '11.10.2024',
-  frist: '18.03.2030',
+  frist: '01.04.2025',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Behandle sak (Manuell)',
