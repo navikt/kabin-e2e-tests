@@ -6,10 +6,10 @@
   },
   "scripts": {
     "test": "playwright test",
-    "dev": "NODE_ENV=test playwright test --headed --retries 0 --workers 1",
-    "local": "playwright test --headed --retries 0 --workers 1",
+    "dev": "NODE_ENV=test playwright test -c playwright.config.dev.ts",
+    "local": "bun run dev",
     "lint": "biome check",
-    "tsc": "tsc"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@playwright/test": "^1.50.1",
