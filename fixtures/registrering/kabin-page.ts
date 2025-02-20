@@ -574,7 +574,9 @@ export class KabinPage {
         throw new Error('Invalid response');
       }
 
-      feilregistrerAndDelete(this.page, res.behandlingId);
+      const cookies = await this.page.context().cookies();
+
+      feilregistrerAndDelete(cookies, res.behandlingId);
 
       await this.page.getByText(this.#getFinishText(type)).waitFor();
     });
@@ -588,7 +590,13 @@ export class KabinPage {
       const [, registreringId] = registreringMatch;
 
       if (typeof registreringId === 'string') {
-        await makeDirectApiRequest(this.page, 'kabin-api', `/registrering/${registreringId}`, 'DELETE');
+        const cookies = await this.page.context().cookies();
+
+        await makeDirectApiRequest(
+          `https://kabin.intern.dev.nav.no/api/registrering/${registreringId}`,
+          'DELETE',
+          cookies,
+        );
 
         console.info('Deleted registrering with id:', registreringId);
 

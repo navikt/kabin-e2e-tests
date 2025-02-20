@@ -1,15 +1,8 @@
-import type { Page } from '@playwright/test';
-import { createApiUrl } from '../tests/functions';
+import type { Cookie } from '@playwright/test';
 
-export const makeDirectApiRequest = async <T>(
-  page: Page,
-  api: 'kabin-api' | 'kabal-api' | 'kabal-innstillinger',
-  path: string,
-  method: 'POST' | 'GET' | 'PUT' | 'DELETE',
-  body?: T,
-) => {
-  const url = createApiUrl(api, path);
+type Method = RequestInit['method'];
 
+export const makeDirectApiRequest = async <T>(url: string, method: Method, cookies: Cookie[], body?: T) => {
   try {
     return fetch(url, {
       method,
@@ -17,7 +10,7 @@ export const makeDirectApiRequest = async <T>(
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Cookie: (await page.context().cookies()).map(({ name, value }) => `${name}=${value}`).join('; '),
+        Cookie: cookies.map(({ name, value }) => `${name}=${value}`).join('; '),
       },
     });
   } catch (e) {
