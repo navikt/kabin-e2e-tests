@@ -3,16 +3,12 @@ import type { FullConfig } from '@playwright/test/reporter';
 import { DEV_DOMAIN, USE_DEV } from '../tests/functions';
 import { getLoggedInPage } from '../tests/helpers';
 import { userSaksbehandler } from '../tests/test-data';
-
-export const SCREEN_SIZE: ViewportSize = { width: 2560, height: 2000 };
+import { feilregistrerKabalBehandlinger } from './feilregistrer-and-delete';
 
 const globalSetup = async (config: FullConfig) => {
   const { storageState } = config.projects[0].use;
   const browser = await chromium.launch();
-  const page = await browser.newPage({
-    viewport: SCREEN_SIZE,
-    screen: SCREEN_SIZE,
-  });
+  const page = await browser.newPage();
 
   await getLoggedInPage(page, userSaksbehandler);
 

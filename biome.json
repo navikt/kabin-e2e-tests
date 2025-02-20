@@ -41,6 +41,6 @@
     "linter": { "enabled": true }
   },
   "files": {
-    "ignore": ["dist/**"]
+    "ignore": ["test-results/**", "state.json"]
   }
 }
