@@ -3,10 +3,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  labels:
-    app: kabin-e2e-tests
-    team: klage
-  name: kabin-e2e-tests
+  name: kabin-e2e-tests-internet-netpol
   namespace: klage
 spec:
   egress:

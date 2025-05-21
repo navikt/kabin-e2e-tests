@@ -1,11 +1,12 @@
 apiVersion: nais.io/v1
 kind: Naisjob
 metadata:
+  name: kabin-e2e-tests-{{jobid}}
+  namespace: klage
   labels:
     team: klage
     e2e: kabin
-  name: kabin-e2e-tests-{{jobid}}
-  namespace: klage
+    job_id: {{jobid}}
 spec:
   backoffLimit: 0
   resources:
@@ -16,10 +17,14 @@ spec:
       cpu: 8000m
       memory: 8Gi  
   image: {{image}}
+  env:
+    - name: JOB_ID
+      value: {{jobid}}
   envFrom:
-  - secret: kabin-e2e-test-users
-  - secret: slack-e2e-secrets
-  - configmap: slack-e2e-configmap
+    - secret: kabin-e2e-test-users
+    - secret: slack-e2e-secrets
+    - configmap: slack-e2e-configmap
+    - secret: klage-job-status-write-api-key
   accessPolicy:
     outbound:
       external:
