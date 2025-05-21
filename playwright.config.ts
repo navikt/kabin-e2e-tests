@@ -5,7 +5,7 @@ import { baseConfig } from './playwright.config.base';
 export default defineConfig({
   ...baseConfig,
   outputDir: '/tmp/test-results',
-  reporter: [['list'], ['./reporters/slack-reporter.ts']],
+  reporter: [['list'], ['./reporters/slack-reporter.ts'], ['./reporters/status.ts']],
   retries: 1,
 
   use: {
