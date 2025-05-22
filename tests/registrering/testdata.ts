@@ -34,7 +34,6 @@ export const data = {
 
 const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '11.10.2024',
-  frist: '18.05.2030',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Behandle sak (Manuell)',
@@ -43,7 +42,6 @@ const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
 };
 const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '10.10.2024',
-  frist: '23.06.2030',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Vurder henvendelse',
@@ -53,7 +51,6 @@ const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
 
 const OMGJØRINGSKRAV_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '10.10.2024',
-  frist: '23.06.2030',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Vurder henvendelse',
@@ -97,10 +94,10 @@ export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
   type: Sakstype.OMGJØRINGSKRAV,
   sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
   getJournalpostParams: {
-    fagsakId: 'cde1',
-    title: 'Generelt brev',
-    date: '22.11.2024',
-    avsenderMottaker: 'SKEPTISK LANDSBY',
+    fagsakId: 'cde6',
+    title: 'Ekspedisjonsbrev til Trygderetten',
+    date: '23.04.2025',
+    avsenderMottaker: 'TRYGDERETTEN',
   },
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],

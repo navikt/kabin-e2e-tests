@@ -32,7 +32,7 @@ export class KabinPage {
       await this.page.getByPlaceholder('Opprett ny registrering').fill(SAKEN_GJELDER.id);
     });
 
-  #getDocumentsContainer = async () => this.page.locator('section', { hasText: 'Velg journalpost' });
+  #getDocumentsContainer = () => this.page.locator('section', { hasText: 'Velg journalpost' });
 
   #selectJournalpost = async (document: Locator) => {
     await document.waitFor();
@@ -78,11 +78,7 @@ export class KabinPage {
   };
 
   #setJournalpostFilter = async (index: number, filter: string) => {
-    const documents = await this.#getDocumentsContainer();
-    await documents.getByRole('listitem').first().waitFor();
     const filters = this.page.getByRole('region', { name: 'Journalpostfiltere' });
-
-    await filters.waitFor();
 
     await filters.locator('> *').nth(index).click();
 
@@ -91,8 +87,7 @@ export class KabinPage {
   };
 
   #setJournalpostFilterTitle = async (filter: string) => {
-    const documents = await this.#getDocumentsContainer();
-    await documents.getByRole('listitem').first().waitFor();
+    await this.#getDocumentsContainer().getByRole('listitem').first().waitFor();
     const filters = this.page.getByRole('region', { name: 'Journalpostfiltere' });
 
     await filters.waitFor();
@@ -101,6 +96,8 @@ export class KabinPage {
   };
 
   #setJournalpostFilters = async (params: SelectJournalpostParams) => {
+    await this.page.getByRole('region', { name: 'Journalpostfiltere' }).waitFor();
+
     for (const [key, value] of Object.entries(params)) {
       if (key === 'title') {
         await this.#setJournalpostFilterTitle(value);
@@ -116,12 +113,14 @@ export class KabinPage {
 
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: ¯\_(ツ)_/¯
   #getJournalpostByInnerText = async (params: SelectJournalpostParams) => {
-    const documents = await this.#getDocumentsContainer();
+    const documents = this.#getDocumentsContainer();
+    await documents.waitFor();
+
+    await this.#setJournalpostFilters(params);
+
     await documents.getByRole('listitem').first().waitFor();
 
     const listitems = await documents.getByRole('listitem').all();
-
-    await this.#setJournalpostFilters(params);
 
     for (const listitem of listitems) {
       const [, title, tema, dato, avsenderMottaker, saksId, type] = await listitem
@@ -160,7 +159,7 @@ export class KabinPage {
 
   selectJournalpostByInnerText = async (params: SelectJournalpostParams) =>
     test.step('Velg journalpost', async () => {
-      const journalpost = (await this.#getJournalpostByInnerText(params)).first();
+      const journalpost = await this.#getJournalpostByInnerText(params);
 
       return this.#selectJournalpost(journalpost);
     });

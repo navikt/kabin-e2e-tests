@@ -130,7 +130,6 @@ export interface SelectJournalpostParams {
 
 export interface GosysOppgaveQuery {
   opprettet: string;
-  frist: string;
   tema: string;
   gjelder: string;
   oppgavetype: string;

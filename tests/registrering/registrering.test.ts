@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { finishedRequest } from '../../fixtures/helpers';
 import { test } from '../../fixtures/registrering/fixture';
 import { type Part, Sakstype, Utskriftstype } from '../../fixtures/registrering/types';
 import { UI_DOMAIN } from '../functions';
@@ -23,8 +24,11 @@ test.describe('Registrering', () => {
     tildeltSaksbehandler,
     gosysOppgave,
   } of [KLAGE, ANKE, OMGJØRINGSKRAV]) {
-    test(`${type}`, async ({ kabinPage, statusPage, klagePage }) => {
+    test(`${type}`, async ({ kabinPage, statusPage, klagePage, page }) => {
+      const promise = page.waitForRequest('**/arkivertedokumenter');
       await kabinPage.setSakenGjelder(sakenGjelder);
+
+      await finishedRequest(promise);
 
       const jpData = await kabinPage.selectJournalpostByInnerText(getJournalpostParams);
       await kabinPage.selectType(type);

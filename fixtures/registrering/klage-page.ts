@@ -12,7 +12,6 @@ export class KlagePage {
     });
 
   setGosysOppgave = async ({
-    frist,
     gjelder,
     oppgavetype,
     opprettet,
@@ -25,12 +24,13 @@ export class KlagePage {
 
       const oppgave = rows
         .filter({ has: this.page.locator('td:nth-of-type(2)').filter({ hasText: opprettet }) })
-        .filter({ has: this.page.locator('td:nth-of-type(3)').filter({ hasText: frist }) })
+
         .filter({ has: this.page.locator('td:nth-of-type(4)').filter({ hasText: tema }) })
         .filter({ has: this.page.locator('td:nth-of-type(5)').filter({ hasText: gjelder }) })
         .filter({ has: this.page.locator('td:nth-of-type(6)').filter({ hasText: oppgavetype }) })
         .filter({ has: this.page.locator('td:nth-of-type(7)').filter({ hasText: tildeltEnhetsnr }) })
-        .filter({ has: this.page.locator('td:nth-of-type(8)').filter({ hasText: opprettetAvEnhetsnr }) });
+        .filter({ has: this.page.locator('td:nth-of-type(8)').filter({ hasText: opprettetAvEnhetsnr }) })
+        .first();
 
       await oppgave.waitFor();
 
