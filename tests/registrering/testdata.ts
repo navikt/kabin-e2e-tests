@@ -34,7 +34,7 @@ export const data = {
 
 const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '11.10.2024',
-  frist: '01.04.2025',
+  frist: '18.05.2030',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Behandle sak (Manuell)',
@@ -43,7 +43,7 @@ const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
 };
 const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '10.10.2024',
-  frist: '23.04.2030',
+  frist: '23.06.2030',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Vurder henvendelse',
@@ -53,7 +53,7 @@ const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
 
 const OMGJØRINGSKRAV_GOSYS_OPPGAVE: GosysOppgaveQuery = {
   opprettet: '10.10.2024',
-  frist: '23.04.2030',
+  frist: '23.06.2030',
   tema: 'Sykepenger',
   gjelder: 'Klage',
   oppgavetype: 'Vurder henvendelse',
