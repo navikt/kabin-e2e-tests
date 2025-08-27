@@ -1,6 +1,5 @@
 import {
   FristExtension,
-  type GosysOppgaveQuery,
   Part,
   PartType,
   Sakstype,
@@ -32,32 +31,6 @@ export const data = {
   varsletFrist: new FristExtension(70, 'måneder'),
 };
 
-const ANKE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
-  opprettet: '11.10.2024',
-  tema: 'Sykepenger',
-  gjelder: 'Klage',
-  oppgavetype: 'Behandle sak (Manuell)',
-  tildeltEnhetsnr: '4295',
-  opprettetAvEnhetsnr: '4295',
-};
-const KLAGE_GOSYS_OPPGAVE: GosysOppgaveQuery = {
-  opprettet: '10.10.2024',
-  tema: 'Sykepenger',
-  gjelder: 'Klage',
-  oppgavetype: 'Vurder henvendelse',
-  tildeltEnhetsnr: '4291',
-  opprettetAvEnhetsnr: '9999',
-};
-
-const OMGJØRINGSKRAV_GOSYS_OPPGAVE: GosysOppgaveQuery = {
-  opprettet: '10.10.2024',
-  tema: 'Sykepenger',
-  gjelder: 'Klage',
-  oppgavetype: 'Vurder henvendelse',
-  tildeltEnhetsnr: '4291',
-  opprettetAvEnhetsnr: '9999',
-};
-
 export const ANKE: AnkeTestdata = {
   type: Sakstype.ANKE,
   sakenGjelder: SAKEN_GJELDER_ANKE,
@@ -71,7 +44,7 @@ export const ANKE: AnkeTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '18.07.2024',
   tildeltSaksbehandler: 'F_Z994488 E_Z994488',
-  gosysOppgave: ANKE_GOSYS_OPPGAVE,
+  gosysOppgaveIndex: 1,
 };
 
 export const KLAGE: KlageTestdata = {
@@ -87,7 +60,7 @@ export const KLAGE: KlageTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '23.08.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgave: KLAGE_GOSYS_OPPGAVE,
+  gosysOppgaveIndex: 0,
 };
 
 export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
@@ -103,7 +76,7 @@ export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.11.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgave: OMGJØRINGSKRAV_GOSYS_OPPGAVE,
+  gosysOppgaveIndex: 2,
 };
 
 interface BaseTestdata {
@@ -113,7 +86,7 @@ interface BaseTestdata {
   hjemlerShort: string[];
   mottattKlageinstans: string;
   tildeltSaksbehandler: string;
-  gosysOppgave: GosysOppgaveQuery;
+  gosysOppgaveIndex: number;
 }
 
 interface KlageTestdata extends BaseTestdata {
