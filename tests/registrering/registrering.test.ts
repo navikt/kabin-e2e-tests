@@ -3,7 +3,7 @@ import { finishedRequest } from '../../fixtures/helpers';
 import { test } from '../../fixtures/registrering/fixture';
 import { type Part, Sakstype, Utskriftstype } from '../../fixtures/registrering/types';
 import { UI_DOMAIN } from '../functions';
-import { ANKE, KLAGE, OMGJØRINGSKRAV, data } from './testdata';
+import { ANKE, data, KLAGE, OMGJØRINGSKRAV } from './testdata';
 
 test.describe('Registrering', () => {
   test.beforeEach(({ page }) => page.goto(UI_DOMAIN));
