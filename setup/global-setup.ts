@@ -1,4 +1,4 @@
-import { type Page, chromium } from '@playwright/test';
+import { chromium, type Page } from '@playwright/test';
 import type { FullConfig } from '@playwright/test/reporter';
 import { DEV_DOMAIN, USE_DEV } from '../tests/functions';
 import { logIn } from '../tests/helpers';
@@ -25,7 +25,6 @@ const globalSetup = async (config: FullConfig) => {
   await feilregistrerKabalBehandlinger();
 };
 
-// biome-ignore lint/style/noDefaultExport: https://playwright.dev/docs/test-global-setup-teardown
 export default globalSetup;
 
 const setLocalhostCookie = async (page: Page) => {

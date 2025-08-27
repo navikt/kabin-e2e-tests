@@ -1,7 +1,6 @@
 import { defineConfig } from 'playwright/test';
 import { baseConfig } from './playwright.config.base';
 
-// biome-ignore lint/style/noDefaultExport: https://playwright.dev/docs/test-configuration
 export default defineConfig({
   ...baseConfig,
   outputDir: '/tmp/test-results',

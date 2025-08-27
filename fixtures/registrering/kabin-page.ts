@@ -1,6 +1,6 @@
-import test, { type Locator, type Page, expect } from '@playwright/test';
+import test, { expect, type Locator, type Page } from '@playwright/test';
 import { makeDirectApiRequest } from '../direct-api-request';
-import { REGISTRERING_REGEX, STATUS_REGEX, feilregistrerAndDelete, finishedRequest } from '../helpers';
+import { feilregistrerAndDelete, finishedRequest, REGISTRERING_REGEX, STATUS_REGEX } from '../helpers';
 import { AnkePage } from './anke-page';
 import { KlagePage } from './klage-page';
 import { OmgjøringskravPage } from './omgjøringskrav-page';
@@ -111,7 +111,6 @@ export class KabinPage {
     }
   };
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: ¯\_(ツ)_/¯
   #getJournalpostByInnerText = async (params: SelectJournalpostParams) => {
     const documents = this.#getDocumentsContainer();
     await documents.waitFor();

@@ -1,5 +1,5 @@
-import test, { type Page, expect } from '@playwright/test';
-import { type Part, Sakstype, getJournalpostType } from './types';
+import test, { expect, type Page } from '@playwright/test';
+import { getJournalpostType, type Part, Sakstype } from './types';
 
 interface Journalpost {
   title: string;

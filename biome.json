@@ -1,46 +1,109 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-  "organizeImports": { "enabled": true },
-  "linter": {
+  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "root": true,
+  "vcs": {
     "enabled": true,
-    "rules": {
-      "all": true,
-      "nursery": {
-        "all": true,
-        "useImportRestrictions": { "level": "off" },
-        "noSecrets": { "level": "off", "options": {} },
-        "useComponentExportOnlyModules": { "level": "off", "options": {} },
-        "noEnum": { "level": "off" },
-        "useExplicitType": { "level": "off" },
-        "useConsistentMemberAccessibility": { "level": "off", "options": {} },
-        "useConsistentCurlyBraces": { "level": "off", "fix": "none" },
-        "noProcessEnv": { "level": "off" }
-      },
-      "correctness": {
-        "noUndeclaredDependencies": { "level": "off" },
-        "useImportExtensions": { "level": "off", "fix": "none", "options": {} },
-        "noUndeclaredVariables": { "level": "off" },
-        "noNodejsModules": { "level": "off" }
-      },
-      "style": {
-        "noImplicitBoolean": { "level": "off", "fix": "none" },
-        "useDefaultSwitchClause": { "level": "off" },
-        "useNamingConvention": { "level": "off", "fix": "none", "options": {} },
-        "noParameterProperties": { "level": "off" }
-      },
-      "suspicious": {
-        "noConsole": { "level": "off", "options": { "allow": ["debug", "info", "warn", "error"] } },
-        "noReactSpecificProps": { "level": "off" },
-        "noEmptyBlockStatements": { "level": "off" }
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": ["**"]
+          }
+        }
       }
     }
   },
-  "formatter": { "lineWidth": 120, "indentStyle": "space" },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "project": "recommended",
+      "test": "recommended"
+    },
+    "rules": {
+      "recommended": true,
+      "performance": {
+        "noDelete": "error",
+        "noBarrelFile": "error",
+        "noAccumulatingSpread": "error",
+        "useTopLevelRegex": "error",
+        "noDynamicNamespaceImportAccess": "error",
+        "noNamespaceImport": "error",
+        "noReExportAll": "error"
+      },
+      "security": {
+        "recommended": true
+      },
+      "nursery": {
+        "noSecrets": "off",
+        "useExplicitType": "off",
+        "noImportCycles": "on",
+        "useSortedClasses": { "level": "on", "fix": "safe", "options": {} }
+      },
+      "correctness": {
+        "useImportExtensions": "off",
+        "noUnusedImports": { "level": "error", "fix": "safe", "options": {} }
+      },
+      "style": {
+        "noImplicitBoolean": "off",
+        "noProcessEnv": "off",
+        "noParameterProperties": "off",
+        "useDefaultSwitchClause": "off",
+        "useNamingConvention": "off",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error",
+        "useComponentExportOnlyModules": "off",
+        "noEnum": "off",
+        "useConsistentMemberAccessibility": "off",
+        "useConsistentCurlyBraces": "off"
+      },
+      "suspicious": {
+        "noConsole": { "level": "error", "options": { "allow": ["debug", "info", "warn", "error"] } },
+        "noReactSpecificProps": "off",
+        "noEmptyBlockStatements": "error",
+        "noFocusedTests": "error"
+      },
+      "complexity": {
+        "useSimplifiedLogicExpression": "off",
+        "noExcessiveCognitiveComplexity": { "level": "error", "options": { "maxAllowedComplexity": 25 } },
+        "noUselessFragments": { "level": "on", "fix": "safe", "options": {} }
+      }
+    }
+  },
+  "formatter": { "enabled": true, "lineWidth": 120, "indentStyle": "space" },
   "javascript": {
-    "formatter": { "quoteStyle": "single", "arrowParentheses": "always", "bracketSameLine": false },
+    "formatter": { "enabled": true, "quoteStyle": "single", "arrowParentheses": "always", "bracketSameLine": false },
     "linter": { "enabled": true }
   },
+  "json": {
+    "formatter": {
+      "enabled": true,
+      "trailingCommas": "none",
+      "indentStyle": "space",
+      "lineWidth": 120,
+      "indentWidth": 2,
+      "bracketSpacing": true,
+      "expand": "auto",
+      "lineEnding": "lf"
+    },
+    "linter": { "enabled": true },
+    "assist": { "enabled": true }
+  },
   "files": {
-    "ignore": ["test-results/**", "state.json"]
+    "includes": ["**", "!**/test-results", "!**/state.json"]
   }
 }
