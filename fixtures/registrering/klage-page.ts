@@ -1,6 +1,6 @@
 import test, { expect, type Page } from '@playwright/test';
 import { finishedRequest } from '../helpers';
-import type { GosysOppgaveQuery, Klagemulighet } from './types';
+import type { Klagemulighet } from './types';
 
 export class KlagePage {
   constructor(public readonly page: Page) {}
@@ -11,26 +11,11 @@ export class KlagePage {
       await this.page.getByLabel('Mottatt vedtaksinstans').fill(vedtaksdato);
     });
 
-  setGosysOppgave = async ({
-    gjelder,
-    oppgavetype,
-    opprettet,
-    opprettetAvEnhetsnr,
-    tema,
-    tildeltEnhetsnr,
-  }: GosysOppgaveQuery) =>
+  setGosysOppgave = async (gosysOppgaveIndex: number) =>
     test.step('Velg Gosys-oppgave', async () => {
       const rows = this.page.getByRole('table', { name: 'Gosys-oppgaver' }).locator('tbody > tr');
 
-      const oppgave = rows
-        .filter({ has: this.page.locator('td:nth-of-type(2)').filter({ hasText: opprettet }) })
-
-        .filter({ has: this.page.locator('td:nth-of-type(4)').filter({ hasText: tema }) })
-        .filter({ has: this.page.locator('td:nth-of-type(5)').filter({ hasText: gjelder }) })
-        .filter({ has: this.page.locator('td:nth-of-type(6)').filter({ hasText: oppgavetype }) })
-        .filter({ has: this.page.locator('td:nth-of-type(7)').filter({ hasText: tildeltEnhetsnr }) })
-        .filter({ has: this.page.locator('td:nth-of-type(8)').filter({ hasText: opprettetAvEnhetsnr }) })
-        .first();
+      const oppgave = rows.nth(gosysOppgaveIndex);
 
       await oppgave.waitFor();
 

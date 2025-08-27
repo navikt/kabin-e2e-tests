@@ -128,15 +128,6 @@ export interface SelectJournalpostParams {
   type?: string;
 }
 
-export interface GosysOppgaveQuery {
-  opprettet: string;
-  tema: string;
-  gjelder: string;
-  oppgavetype: string;
-  tildeltEnhetsnr: string;
-  opprettetAvEnhetsnr: string;
-}
-
 export interface Ankemulighet {
   type: string;
   fagsakId: string;

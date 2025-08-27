@@ -22,7 +22,7 @@ test.describe('Registrering', () => {
     hjemlerShort,
     mottattKlageinstans,
     tildeltSaksbehandler,
-    gosysOppgave,
+    gosysOppgaveIndex: gosysOppgave,
   } of [KLAGE, ANKE, OMGJØRINGSKRAV]) {
     test(`${type}`, async ({ kabinPage, statusPage, klagePage, page }) => {
       const promise = page.waitForRequest('**/arkivertedokumenter');
