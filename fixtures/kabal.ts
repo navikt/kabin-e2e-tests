@@ -1,5 +1,5 @@
-import type { Cookie, Request } from '@playwright/test';
-import { makeDirectApiRequest } from '../fixtures/direct-api-request';
+import type { Cookie } from '@playwright/test';
+import { makeDirectApiRequest } from '@/fixtures/direct-api-request';
 
 const feilRegistrer = async (cookies: Cookie[], kabalId: string) => {
   const res = await makeDirectApiRequest(
@@ -65,25 +65,4 @@ export const feilregistrerAndDelete = async (cookies: Cookie[], kabalId: string)
   } catch (e) {
     console.error('Delete failed for oppgave:', kabalId, e);
   }
-};
-
-const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
-const REGISTRERING = `http(?:s?)://(?:.+)/registrering/(${UUID})`;
-export const REGISTRERING_REGEX = new RegExp(`${REGISTRERING}`);
-export const STATUS_REGEX = new RegExp(`${REGISTRERING}/status`);
-
-export const finishedRequest = async (requestPromise: Promise<Request>) => {
-  const request = await requestPromise;
-  const response = await request.response();
-
-  if (response === null) {
-    throw new Error('No response');
-  }
-
-  if (!response.ok()) {
-    const text = await response.text();
-    throw new Error(`Request failed: ${response.status()} - ${text}`);
-  }
-
-  return response.finished();
 };
