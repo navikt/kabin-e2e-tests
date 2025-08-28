@@ -1,13 +1,7 @@
-import {
-  FristExtension,
-  Part,
-  PartType,
-  Sakstype,
-  type SelectJournalpostParams,
-} from '../../fixtures/registrering/types';
+import { FristExtension, Part, PartType, Sakstype, type SelectJournalpostParams } from '@/fixtures/registrering/types';
 
-export const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
 export const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
+export const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
 export const SAKEN_GJELDER_OMGJØRINGSKRAV = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
 
 export const data = {
@@ -27,24 +21,8 @@ export const data = {
   ekstraMottakerAddress2: 'Ekstra mottakers E2E-adresselinje2',
   ekstraMottakerAddress3: 'Ekstra mottakers E2E-adresselinje3',
   ekstraMottakerLand: 'HEARD- OG MCDONALD-ØYENE',
-  fristIKabal: new FristExtension(68, 'måneder'),
+  fristInKabal: new FristExtension(68, 'måneder'),
   varsletFrist: new FristExtension(70, 'måneder'),
-};
-
-export const ANKE: AnkeTestdata = {
-  type: Sakstype.ANKE,
-  sakenGjelder: SAKEN_GJELDER_ANKE,
-  getJournalpostParams: {
-    fagsakId: '712',
-    title: 'Generelt brev',
-    date: '23.08.2024',
-    avsenderMottaker: 'SPESIFIKK KUBBESTOL',
-  },
-  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
-  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '18.07.2024',
-  tildeltSaksbehandler: 'F_Z994488 E_Z994488',
-  gosysOppgaveIndex: 1,
 };
 
 export const KLAGE: KlageTestdata = {
@@ -63,6 +41,22 @@ export const KLAGE: KlageTestdata = {
   gosysOppgaveIndex: 0,
 };
 
+export const ANKE: AnkeTestdata = {
+  type: Sakstype.ANKE,
+  sakenGjelder: SAKEN_GJELDER_ANKE,
+  getJournalpostParams: {
+    fagsakId: '712',
+    title: 'Generelt brev',
+    date: '23.08.2024',
+    avsenderMottaker: 'SPESIFIKK KUBBESTOL',
+  },
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '18.07.2024',
+  tildeltSaksbehandler: 'F_Z994488 E_Z994488',
+  gosysOppgaveIndex: 0,
+};
+
 export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
   type: Sakstype.OMGJØRINGSKRAV,
   sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
@@ -76,7 +70,7 @@ export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.11.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 2,
+  gosysOppgaveIndex: 1, // Same user as klage, different task to avoid race condition.
 };
 
 interface BaseTestdata {

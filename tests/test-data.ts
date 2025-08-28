@@ -1,4 +1,4 @@
-import { requiredEnvString } from '../config/env';
+import { requiredEnvString } from '@/config/env';
 
 export interface User {
   username: string;

@@ -1,9 +1,25 @@
 import { addMonths, addWeeks, format, parse } from 'date-fns';
 
-enum JournalpostType {
-  U = 'Utgående',
-  I = 'Inngående',
-  N = 'Notat',
+export enum JournalpostType {
+  U = 'U',
+  I = 'I',
+  N = 'N',
+}
+
+const JOURNALPOST_TYPES = Object.values(JournalpostType);
+
+export const isJournalpostType = (type: string): type is JournalpostType =>
+  JOURNALPOST_TYPES.includes(type as JournalpostType);
+
+export interface Journalpost {
+  title: string;
+  tema: string;
+  dato: string;
+  avsenderMottaker: string;
+  saksId: string;
+  type: JournalpostType;
+  logiskeVedleggNames: string[];
+  vedleggNames: string[];
 }
 
 export enum PartType {
@@ -19,20 +35,8 @@ export enum Utskriftstype {
   LOKAL = 'Lokal utskrift',
 }
 
-export const getJournalpostType = (type: string | null): string => {
-  switch (type) {
-    case 'U':
-      return JournalpostType.U;
-    case 'I':
-      return JournalpostType.I;
-    case 'N':
-      return JournalpostType.N;
-    default:
-      throw new Error(`Unknown journalpost type: ${type}`);
-  }
-};
-
 const SIX_CIPHERS_REGEX = /(.{6})/;
+
 export class Part {
   constructor(
     public name: string,
@@ -125,7 +129,7 @@ export interface SelectJournalpostParams {
   date?: string;
   avsenderMottaker?: string;
   fagsakId?: string;
-  type?: string;
+  type?: JournalpostType;
 }
 
 export interface Ankemulighet {

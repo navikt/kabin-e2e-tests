@@ -1,16 +1,16 @@
 import { format } from 'date-fns';
-import { finishedRequest } from '../../fixtures/helpers';
-import { test } from '../../fixtures/registrering/fixture';
-import { type Part, Sakstype, Utskriftstype } from '../../fixtures/registrering/types';
-import { UI_DOMAIN } from '../functions';
-import { ANKE, data, KLAGE, OMGJØRINGSKRAV } from './testdata';
+import { finishedRequest } from '@/fixtures/finished-request';
+import { test } from '@/fixtures/registrering/fixture';
+import { type Part, Sakstype, Utskriftstype } from '@/fixtures/registrering/types';
+import { UI_DOMAIN } from '@/tests/functions';
+import { ANKE, data, KLAGE, OMGJØRINGSKRAV } from '@/tests/registrering/testdata';
 
 test.describe('Registrering', () => {
   test.beforeEach(({ page }) => page.goto(UI_DOMAIN));
 
-  test.afterEach(async ({ kabinPage }, { status }) => {
+  test.afterEach(async ({ registreringPage }, { status }) => {
     if (status !== 'passed') {
-      await kabinPage.deleteRegistrering();
+      await registreringPage.deleteRegistrering();
     }
   });
 
@@ -22,60 +22,63 @@ test.describe('Registrering', () => {
     hjemlerShort,
     mottattKlageinstans,
     tildeltSaksbehandler,
-    gosysOppgaveIndex: gosysOppgave,
+    gosysOppgaveIndex,
   } of [KLAGE, ANKE, OMGJØRINGSKRAV]) {
-    test(`${type}`, async ({ kabinPage, statusPage, klagePage, page }) => {
-      const promise = page.waitForRequest('**/arkivertedokumenter');
-      await kabinPage.setSakenGjelder(sakenGjelder);
+    test(`${type}`, async ({ registreringPage, statusPage, page }) => {
+      const fetchingJournalposter = page.waitForRequest('**/arkivertedokumenter'); // The request monitoring must be created before the request is made.
+      const createRegistrering = page.waitForRequest(`${UI_DOMAIN}/api/kabin-api/registreringer`);
+      await registreringPage.setSakenGjelder(sakenGjelder); // Will trigger the request for journalposter.
 
-      await finishedRequest(promise);
+      await finishedRequest(createRegistrering, 'Failed to create registrering');
 
-      const jpData = await kabinPage.selectJournalpostByInnerText(getJournalpostParams);
-      await kabinPage.selectType(type);
+      await finishedRequest(fetchingJournalposter, 'Failed to fetch journalposter');
 
-      const vedtak = await kabinPage.selectFirstAvailableVedtak(type);
+      const journalpost = await registreringPage.selectJournalpostByInnerText(getJournalpostParams);
+      await registreringPage.selectType(type);
+
+      const vedtak = await registreringPage.selectFirstAvailableVedtak(type);
 
       const { fagsakId } = vedtak.data;
 
-      await klagePage.setGosysOppgave(gosysOppgave);
+      await registreringPage.selectGosysOppgave(gosysOppgaveIndex);
 
-      await kabinPage.verifySaksId(jpData.saksId, fagsakId);
+      await registreringPage.verifySaksId(journalpost.saksId, fagsakId);
 
-      const ytelse = await kabinPage.getYtelse();
+      const ytelse = await registreringPage.getYtelse();
 
       if (type === Sakstype.KLAGE) {
-        await klagePage.setMottattVedtaksinstans(jpData.dato);
+        await registreringPage.setMottattVedtaksinstans(journalpost.dato);
       }
 
-      await kabinPage.setMottattKlageinstans(mottattKlageinstans);
+      await registreringPage.setMottattKlageinstans(mottattKlageinstans);
 
-      await kabinPage.setFristIKabal(data.fristIKabal, mottattKlageinstans);
-      await kabinPage.setHjemler(hjemlerLong, hjemlerShort);
+      await registreringPage.setFristInKabal(data.fristInKabal, mottattKlageinstans);
+      await registreringPage.setHjemler(hjemlerLong, hjemlerShort);
 
-      await kabinPage.verifySakenGjelder(sakenGjelder);
-      await kabinPage.setAnkendePart(data.ankendePart);
-      await kabinPage.setFullmektig(data.fullmektig);
+      await registreringPage.verifySakenGjelder(sakenGjelder);
+      await registreringPage.setAnkendePart(data.ankendePart);
+      await registreringPage.setFullmektig(data.fullmektig);
 
-      if (jpData.type === 'I') {
-        await kabinPage.setAvsender(data.avsender);
+      if (journalpost.type === 'I') {
+        await registreringPage.setAvsender(data.avsender);
       }
 
-      await kabinPage.setSaksbehandler(tildeltSaksbehandler);
+      await registreringPage.setSaksbehandler(tildeltSaksbehandler);
 
-      await kabinPage.setSendSvarbrev(true);
-      await kabinPage.setSvarbrevDocumentName(data.svarbrevName);
-      await kabinPage.setSvarbrevFullmektigName(data.svarbrevFullmektigNamae);
-      await kabinPage.setSvarbrevVarsletFrist(data.varsletFrist);
-      await kabinPage.setSvarbrevInitialFritekst('Valgfri E2E-fritekst');
-      await kabinPage.setSvarbrevFritekst('E2E-fritekst');
+      await registreringPage.setSendSvarbrev(true);
+      await registreringPage.setSvarbrevDocumentName(data.svarbrevName);
+      await registreringPage.setSvarbrevFullmektigName(data.svarbrevFullmektigNamae);
+      await registreringPage.setSvarbrevVarsletFrist(data.varsletFrist);
+      await registreringPage.setSvarbrevInitialFritekst('Valgfri E2E-fritekst');
+      await registreringPage.setSvarbrevFritekst('E2E-fritekst');
 
-      await kabinPage.selectMottaker(sakenGjelder);
-      await kabinPage.selectMottaker(data.ankendePart);
-      await kabinPage.selectMottaker(data.fullmektig);
+      await registreringPage.selectMottaker(sakenGjelder);
+      await registreringPage.selectMottaker(data.ankendePart);
+      await registreringPage.selectMottaker(data.fullmektig);
 
-      await kabinPage.setUtskriftTypeForPart(data.ankendePart, Utskriftstype.LOKAL);
+      await registreringPage.setUtskriftTypeForPart(data.ankendePart, Utskriftstype.LOKAL);
 
-      await kabinPage.changeAddressForPart(
+      await registreringPage.changeAddressForPart(
         sakenGjelder,
         data.sakenGjelderAddress1,
         data.sakenGjelderAddress2,
@@ -83,11 +86,11 @@ test.describe('Registrering', () => {
         { search: 'sandwich', fullName: data.sakenGjelderLand },
       );
 
-      await kabinPage.addExtraReceiver(data.ekstraMottaker1);
-      await kabinPage.addExtraReceiver(data.ekstraMottaker2);
-      await kabinPage.addExtraReceiver(data.ekstraMottaker3);
-      await kabinPage.setUtskriftTypeForExtraReceiver(data.ekstraMottaker1, Utskriftstype.LOKAL);
-      await kabinPage.changeAddressForExtraReceiver(
+      await registreringPage.addExtraReceiver(data.ekstraMottaker1);
+      await registreringPage.addExtraReceiver(data.ekstraMottaker2);
+      await registreringPage.addExtraReceiver(data.ekstraMottaker3);
+      await registreringPage.setUtskriftTypeForExtraReceiver(data.ekstraMottaker1, Utskriftstype.LOKAL);
+      await registreringPage.changeAddressForExtraReceiver(
         data.ekstraMottaker2,
         data.ekstraMottakerAddress1,
         data.ekstraMottakerAddress2,
@@ -95,18 +98,18 @@ test.describe('Registrering', () => {
         { search: 'mcdonald', fullName: data.ekstraMottakerLand },
       );
 
-      await kabinPage.finish(type);
+      await registreringPage.finish(type);
 
       await statusPage.verifyJournalførtDocument(
         {
-          title: jpData.title,
+          title: journalpost.title,
           tema: vedtak.data.tema,
-          dato: jpData.saksId === fagsakId ? jpData.dato : format(new Date(), 'dd.MM.yyyy'),
-          avsenderMottaker: getAvsenderName(jpData.type, jpData.avsenderMottaker, data.avsender),
+          dato: journalpost.saksId === fagsakId ? journalpost.dato : format(new Date(), 'dd.MM.yyyy'),
+          avsenderMottaker: getAvsenderName(journalpost.type, journalpost.avsenderMottaker, data.avsender),
           saksId: fagsakId,
-          type: jpData.type,
-          logiskeVedleggNames: jpData.logiskeVedleggNames,
-          vedleggNames: jpData.vedleggNames,
+          type: journalpost.type,
+          logiskeVedleggNames: journalpost.logiskeVedleggNames,
+          vedleggNames: journalpost.vedleggNames,
         },
         type,
       );
@@ -114,7 +117,7 @@ test.describe('Registrering', () => {
       await statusPage.verifySaksinfo(
         {
           mottattKlageinstans,
-          fristIKabal: data.fristIKabal.getDateAndExtension(mottattKlageinstans),
+          fristInKabal: data.fristInKabal.getDateAndExtension(mottattKlageinstans),
           varsletFrist: data.varsletFrist.getDateAndExtension(mottattKlageinstans),
           klager: data.ankendePart,
           fullmektig: data.fullmektig,
