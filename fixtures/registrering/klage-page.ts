@@ -13,7 +13,7 @@ export class KlagePage {
 
   setGosysOppgave = async (gosysOppgaveIndex: number) =>
     test.step('Velg Gosys-oppgave', async () => {
-      const rows = this.page.getByRole('table', { name: 'Gosys-oppgaver' }).locator('tbody > tr');
+      const rows = this.page.getByRole('table', { name: 'Gosys-oppgaver' }).locator('tbody').getByRole('row');
 
       const oppgave = rows.nth(gosysOppgaveIndex);
 
