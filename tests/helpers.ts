@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test';
-import { DEV_DOMAIN, LOCAL_DOMAIN, UI_DOMAIN, USE_DEV } from './functions';
-import type { User } from './test-data';
+import { DEV_DOMAIN, UI_DOMAIN } from '@/tests/functions';
+import type { User } from '@/tests/test-data';
 
 const goToAzure = async (page: Page, devDomain: string) => {
   const res = await page.goto(devDomain);
@@ -12,13 +12,7 @@ const goToAzure = async (page: Page, devDomain: string) => {
   return page;
 };
 
-export const logIn = async (
-  page: Page,
-  { username, password }: User,
-  devDomain = DEV_DOMAIN,
-  localDomain = LOCAL_DOMAIN,
-  uiDomain = UI_DOMAIN,
-) => {
+export const logIn = async (page: Page, { username, password }: User, devDomain = DEV_DOMAIN, uiDomain = UI_DOMAIN) => {
   await goToAzure(page, devDomain);
 
   // Fill in username.
@@ -36,12 +30,12 @@ export const logIn = async (
   // Click "No" to remember login.
   await page.click('input[type=button]');
 
-  // Force navigation to local domain, if not using dev domain.
-  if (!USE_DEV) {
-    await page.goto(localDomain);
+  // If the UI domain is different from the login domain, navigate to that.
+  if (!page.url().startsWith(UI_DOMAIN)) {
+    await page.goto(uiDomain);
   }
 
-  // Browser should be redirected to Kabin.
+  // Should be be at UI domain.
   expect(page.url()).toMatch(`${uiDomain}/`);
 
   return page;

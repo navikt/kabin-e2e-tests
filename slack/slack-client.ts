@@ -2,7 +2,7 @@ import fs, { createReadStream, type ReadStream } from 'node:fs';
 import { buffer } from 'node:stream/consumers';
 import { App, isCodedError } from '@slack/bolt';
 import type { ChatPostMessageResponse, ChatUpdateResponse } from '@slack/web-api';
-import { envString, IS_DEPLOYED, requiredEnvString } from '../config/env';
+import { envString, IS_DEPLOYED, requiredEnvString } from '@/config/env';
 
 const BOT_NAME = 'Kabin E2E';
 const ICON_URL = 'https://raw.githubusercontent.com/navikt/kabin/main/frontend/assets/android-chrome-192x192.png';

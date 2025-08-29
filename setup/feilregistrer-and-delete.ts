@@ -1,9 +1,9 @@
 import { type Cookie, chromium } from '@playwright/test';
-import { makeDirectApiRequest } from '../fixtures/direct-api-request';
-import { KABAL_DEV_DOMAIN, KABAL_LOCAL_DOMAIN, KABAL_UI_DOMAIN } from '../tests/functions';
-import { logIn } from '../tests/helpers';
-import { SAKEN_GJELDER_ANKE, SAKEN_GJELDER_KLAGE, SAKEN_GJELDER_OMGJØRINGSKRAV } from '../tests/registrering/testdata';
-import { userSaksbehandler } from '../tests/test-data';
+import { makeDirectApiRequest } from '@/fixtures/direct-api-request';
+import { KABAL_DEV_DOMAIN } from '@/tests/functions';
+import { logIn } from '@/tests/helpers';
+import { SAKEN_GJELDER_ANKE, SAKEN_GJELDER_KLAGE, SAKEN_GJELDER_OMGJØRINGSKRAV } from '@/tests/registrering/testdata';
+import { userSaksbehandler } from '@/tests/test-data';
 
 interface SearchResponse {
   aapneBehandlinger: string[];
@@ -18,7 +18,7 @@ export const feilregistrerKabalBehandlinger = async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
-  await logIn(page, userSaksbehandler, KABAL_DEV_DOMAIN, KABAL_LOCAL_DOMAIN, KABAL_UI_DOMAIN);
+  await logIn(page, userSaksbehandler, KABAL_DEV_DOMAIN, KABAL_DEV_DOMAIN);
 
   const cookies = await page.context().cookies();
 

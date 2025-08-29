@@ -1,13 +1,11 @@
 # Kabin E2E tests
 This app uses [Playwright](https://playwright.dev/) to log in as a test user in development and test that the app behaves as expected.
 
-## Running the tests
-`npm test`
-
+## Slack
 The app depends on a few environment variables to send messages to Slack.
 Without these it will output the same message updates to the console, it will be repeated a lot.
 
-### Local
+## Running locally
 Locally the E2E application will not send messages to Slack. The Slack config is therefore not needed.
 
 ```
@@ -20,7 +18,22 @@ SAKSBEHANDLER_USERNAME=<email>
 SAKSBEHANDLER_PASSWORD=<password>
 ```
 
-### GCP
+### Against `dev`
+`bun dev` or `bun dev --headed`
+
+Will run the tests against [kabin.dev.intern.nav.no](https://kabin.dev.intern.nav.no) with the local config.
+
+### Against `localhost:8063`
+`bun local` or `bun local --headed`
+
+Will run the tests against [localhost:8063](http://localhost:8063)  with local config.
+
+### Just like in NAIS
+`bun test` or `bun test --headed`
+
+Will run the tests against [kabin.dev.intern.nav.no](https://kabin.dev.intern.nav.no) with the same config as in NAIS.
+
+## GCP
 ```
 kubectl create configmap slack-e2e-configmap \
 --from-literal=klage_notifications_channel=klage-notifications
