@@ -1,48 +1,60 @@
 import { defineConfig } from 'playwright/test';
 
+const isInNais = process.env.CONFIG === 'nais';
+
+export const storageState = isInNais ? '/tmp/state.json' : './state.json';
+
 const baseConfig = defineConfig({
   name: 'Kabin',
-  testDir: './tests',
-  fullyParallel: true,
   timeout: 120_000,
   globalTimeout: 360_000,
-  globalSetup: require.resolve('./setup/global-setup'),
+  globalSetup: './setup/global-setup.ts',
+  globalTeardown: './setup/global-teardown.ts',
+
+  testDir: './tests',
+  testMatch: '**/*.test.ts',
+  fullyParallel: true,
 
   use: {
+    locale: 'no-NB',
     actionTimeout: 10_000,
     navigationTimeout: 15_000,
-    trace: 'on',
-    locale: 'no-NB',
-    storageState: '/tmp/state.json',
+    storageState,
   },
 });
 
-// Config for running tests locally
 const local = defineConfig({
   ...baseConfig,
+
   maxFailures: 1,
+  outputDir: './test-results',
+  reporter: [['list']],
+  retries: 0,
 
   use: {
     ...baseConfig.use,
-    storageState: './state.json',
+
+    trace: 'off',
+    video: 'off',
+    screenshot: 'off',
   },
 });
 
-// Config for running tests in NAIS
 const nais = defineConfig({
   ...baseConfig,
+
+  maxFailures: 0,
   outputDir: '/tmp/test-results',
   reporter: [['list'], ['./reporters/slack-reporter.ts'], ['./reporters/status.ts']],
   retries: 1,
 
   use: {
     ...baseConfig.use,
+
+    trace: 'on',
     video: 'on',
     screenshot: 'on',
-    storageState: '/tmp/state.json',
   },
 });
 
-const config = process.env.CONFIG === 'nais' ? nais : local;
-
-export default config;
+export default isInNais ? nais : local;

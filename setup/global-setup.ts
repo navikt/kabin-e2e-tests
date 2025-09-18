@@ -1,15 +1,14 @@
-import { chromium, type Page } from '@playwright/test';
-import type { FullConfig } from '@playwright/test/reporter';
+import { chromium, type FullConfig, type Page } from '@playwright/test';
+import { storageState } from '@/playwright.config';
 import { feilregistrerKabalBehandlinger } from '@/setup/feilregistrer-and-delete';
 import { DEV_DOMAIN, UI_DOMAIN, USE_LOCALHOST } from '@/tests/functions';
 import { logIn } from '@/tests/helpers';
 import { userSaksbehandler } from '@/tests/test-data';
 
-const globalSetup = async (config: FullConfig) => {
+const globalSetup = async (_config: FullConfig) => {
   console.debug(`Using ${process.env.CONFIG ?? 'local'} config.`);
   console.debug(`Running tests against ${UI_DOMAIN}\n`);
 
-  const { storageState } = config.projects[0].use;
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
