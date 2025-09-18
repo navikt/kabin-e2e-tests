@@ -133,7 +133,7 @@ test.describe('Registrering', () => {
         mottakere: [
           { name: sakenGjelder.name, utskrift: 'Sentral utskrift', address: sakenGjelderAddress },
           { name: data.ankendePart.name, utskrift: 'Lokal utskrift' },
-          { name: data.fullmektig.name, utskrift: 'Sentral utskrift' },
+          { name: data.fullmektig.name, utskrift: 'Digital Postkasse Innbygger' },
           { name: data.ekstraMottaker1.name, utskrift: 'Lokal utskrift' },
           { name: data.ekstraMottaker2.name, utskrift: 'Sentral utskrift', address: extraMottakerAddress },
           { name: data.ekstraMottaker3.name, utskrift: 'Sentral utskrift' },
