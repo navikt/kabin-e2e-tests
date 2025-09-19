@@ -20,6 +20,9 @@ const baseConfig = defineConfig({
     actionTimeout: 10_000,
     navigationTimeout: 15_000,
     storageState,
+    trace: 'on',
+    video: 'on',
+    screenshot: 'on',
   },
 });
 
@@ -30,14 +33,6 @@ const local = defineConfig({
   outputDir: './test-results',
   reporter: [['list']],
   retries: 0,
-
-  use: {
-    ...baseConfig.use,
-
-    trace: 'off',
-    video: 'off',
-    screenshot: 'off',
-  },
 });
 
 const nais = defineConfig({
@@ -47,14 +42,6 @@ const nais = defineConfig({
   outputDir: '/tmp/test-results',
   reporter: [['list'], ['./reporters/slack-reporter.ts'], ['./reporters/status.ts']],
   retries: 1,
-
-  use: {
-    ...baseConfig.use,
-
-    trace: 'on',
-    video: 'on',
-    screenshot: 'on',
-  },
 });
 
 export default isInNais ? nais : local;
