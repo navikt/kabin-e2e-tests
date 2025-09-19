@@ -74,16 +74,22 @@ export const setUtskriftTypeForPart = async (page: Page, part: Part, type: Utskr
   });
 
 export const setUtskriftTypeForExtraReceiver = async (page: Page, part: Part, type: Utskriftstype) =>
-  test.step(`Velg utskriftstype: ${type} for ekstra mottaker: ${part.getTestLabelWithType()}`, () => {
+  test.step(`Velg utskriftstype: ${type} for ekstra mottaker: ${part.getTestLabelWithType()}`, async () => {
     const list = page.getByRole('list', { name: 'Liste over ekstra mottakere' });
     const section = list.getByRole('listitem', { name: part.name });
 
+    const setUtskriftType = page.waitForRequest('**/svarbrev/receivers/*');
+
     switch (type) {
       case Utskriftstype.LOKAL:
-        return section.getByText('Lokal utskrift').click();
+        await section.getByText('Lokal utskrift').click();
+        break;
       case Utskriftstype.SENTRAL:
-        return section.getByText('Sentral utskrift').click();
+        await section.getByText('Sentral utskrift').click();
+        break;
     }
+
+    await finishedRequest(setUtskriftType, 'Failed to set utskrift type for ekstra mottaker');
   });
 
 export const addExtraReceiver = async (page: Page, part: Part) =>
