@@ -1,4 +1,5 @@
 import test, { expect, type Page } from '@playwright/test';
+import { KLAGER_LABEL } from '@/fixtures/registrering/klager-label';
 import { type Journalpost, JournalpostType, type Part, Sakstype } from '@/fixtures/registrering/types';
 
 interface Saksinfo {
@@ -61,7 +62,7 @@ export class StatusPage {
       await expect(saksinfo.getByText('Mottatt NAV klageinstans').locator('> *')).toHaveText(info.mottattKlageinstans);
       await expect(saksinfo.getByText(FRIST_REGEX).locator('> *')).toHaveText(info.fristInKabal);
       await expect(saksinfo.getByText('Varslet frist').locator('> *')).toHaveText(info.varsletFrist);
-      await expect(saksinfo.getByText(KLAGER_TEXT[type]).locator('> *')).toHaveText(info.klager.getNameAndId());
+      await expect(saksinfo.getByText(KLAGER_LABEL[type]).locator('> *')).toHaveText(info.klager.getNameAndId());
       await expect(saksinfo.getByText('Fullmektig').locator('> *')).toHaveText(info.fullmektig.getNameAndId());
       await expect(saksinfo.getByText('Tildelt saksbehandler').locator('> *')).toContainText(info.saksbehandlerName);
     });
@@ -105,12 +106,6 @@ const REGION_NAME: Record<Sakstype, string> = {
   [Sakstype.ANKE]: 'Journalført anke',
   [Sakstype.KLAGE]: 'Valgt journalpost',
   [Sakstype.OMGJØRINGSKRAV]: 'Journalført omgjøringskrav',
-};
-
-const KLAGER_TEXT: Record<Sakstype, string> = {
-  [Sakstype.ANKE]: 'Ankende part',
-  [Sakstype.KLAGE]: 'Klager',
-  [Sakstype.OMGJØRINGSKRAV]: 'Den som krever omgjøring',
 };
 
 const VEDTAK_REGION_NAME: Record<Sakstype, string> = {

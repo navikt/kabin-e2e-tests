@@ -89,7 +89,7 @@ export class RegistreringPage {
 
   setSvarbrevInitialFritekst = async (fritekst: string) => setSvarbrevInitialFritekst(this.page, fritekst);
 
-  selectMottaker = async (part: Part) => selectMottaker(this.page, part);
+  selectMottaker = async (part: Part, type: Sakstype) => selectMottaker(this.page, part, type);
 
   changeAddressForPart = async (
     part: Part,
