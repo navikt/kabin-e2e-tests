@@ -27,9 +27,6 @@ export const logIn = async (page: Page, { username, password }: User, devDomain 
   // Click "Sign in".
   await page.click('input[type=submit]');
 
-  // Click "No" to remember login.
-  await page.click('input[type=button]');
-
   // If the UI domain is different from the login domain, navigate to that.
   if (!page.url().startsWith(UI_DOMAIN)) {
     await page.goto(uiDomain);
