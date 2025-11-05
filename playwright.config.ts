@@ -38,6 +38,7 @@ const local = defineConfig({
 const nais = defineConfig({
   ...baseConfig,
 
+  forbidOnly: true,
   maxFailures: 0,
   outputDir: '/tmp/test-results',
   reporter: [['list'], ['./reporters/slack-reporter.ts'], ['./reporters/status.ts']],
