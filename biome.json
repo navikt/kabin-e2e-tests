@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.3/schema.json",
   "root": true,
   "vcs": {
     "enabled": true,
@@ -38,10 +38,10 @@
         "noReExportAll": "error"
       },
       "security": {
-        "recommended": true
+        "recommended": true,
+        "noSecrets": "off"
       },
       "nursery": {
-        "noSecrets": "off",
         "useExplicitType": "off",
         "noImportCycles": "on",
         "useSortedClasses": { "level": "on", "fix": "safe", "options": {} }
