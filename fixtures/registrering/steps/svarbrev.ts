@@ -1,6 +1,14 @@
 import test, { type Locator, type Page } from 'playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
-import { type Country, type FristExtension, type Part, PartType, Utskriftstype } from '@/fixtures/registrering/types';
+import { KLAGER_LABEL } from '@/fixtures/registrering/klager-label';
+import {
+  type Country,
+  type FristExtension,
+  type Part,
+  PartType,
+  type Sakstype,
+  Utskriftstype,
+} from '@/fixtures/registrering/types';
 
 export const setSendSvarbrev = async (page: Page, send: boolean) =>
   test.step(`Velge å${send ? ' ' : ' ikke '}sende svarbrev`, () => {
@@ -55,10 +63,10 @@ export const setSvarbrevInitialFritekst = async (page: Page, fritekst: string) =
   });
 
 // Unused
-export const selectSvarbrevMottaker = async (page: Page, part: Part) =>
+export const selectSvarbrevMottaker = async (page: Page, part: Part, type: Sakstype) =>
   test.step(`Velg mottaker: ${part.getTestLabelWithType()}`, async () => {
     const svarbrevSection = await getSvarbrevSection(page);
-    await svarbrevSection.getByText(`${part.name} (${partTypeToText(part.type)})`).click();
+    await svarbrevSection.getByText(`${part.name} (${partTypeToText(part.type, type)})`).click();
   });
 
 export const setUtskriftTypeForPart = async (page: Page, part: Part, type: Utskriftstype) =>
@@ -137,22 +145,22 @@ export const changeAddressForExtraReceiver = async (
     return changeAddress(section, address1, address2, address3, country);
   });
 
-export const selectMottaker = async (page: Page, part: Part) =>
+export const selectMottaker = async (page: Page, part: Part, type: Sakstype) =>
   test.step(`Velg mottaker: ${part.getTestLabelWithType()}`, async () => {
     const svarbrevSection = await getSvarbrevSection(page);
-    await svarbrevSection.getByText(`${part.name} (${partTypeToText(part.type)})`).click();
+    await svarbrevSection.getByText(`${part.name} (${partTypeToText(part.type, type)})`).click();
   });
 
 const getSvarbrevSection = async (page: Page) => page.getByRole('region', { name: 'Svarbrev' });
 
-const partTypeToText = (partType: PartType) => {
+const partTypeToText = (partType: PartType, sakstype: Sakstype) => {
   switch (partType) {
     case PartType.SAKEN_GJELDER:
       return 'Saken gjelder';
     case PartType.FULLMEKTIG:
       return 'Fullmektig';
     case PartType.KLAGER:
-      return 'Ankende part';
+      return KLAGER_LABEL[sakstype];
     case PartType.AVSENDER:
       return 'Avsender';
     case PartType.EKSTRA_MOTTAKER:

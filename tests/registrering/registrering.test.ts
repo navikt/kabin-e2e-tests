@@ -72,9 +72,9 @@ test.describe('Registrering', () => {
       await registreringPage.setSvarbrevInitialFritekst('Valgfri E2E-fritekst');
       await registreringPage.setSvarbrevFritekst('E2E-fritekst');
 
-      await registreringPage.selectMottaker(sakenGjelder);
-      await registreringPage.selectMottaker(data.ankendePart);
-      await registreringPage.selectMottaker(data.fullmektig);
+      await registreringPage.selectMottaker(sakenGjelder, type);
+      await registreringPage.selectMottaker(data.ankendePart, type);
+      await registreringPage.selectMottaker(data.fullmektig, type);
 
       await registreringPage.setUtskriftTypeForPart(data.ankendePart, Utskriftstype.LOKAL);
 
