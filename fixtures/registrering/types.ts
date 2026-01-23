@@ -48,7 +48,7 @@ export class Part {
     return this.id.replace(SIX_CIPHERS_REGEX, '$1 ');
   }
 
-  // Contatenated name and id, used to match with textContent()
+  // Concatenated name and id, used to match with textContent()
   // Example: SPESIFIKK KUBBESTOL294619 64263
   public getNameAndId(): string {
     return `${this.name}${this.getHumanReadableId()}`;
