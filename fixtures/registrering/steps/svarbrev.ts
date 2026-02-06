@@ -36,13 +36,10 @@ export const setSvarbrevVarsletFrist = async (page: Page, varsletFrist: FristExt
     await svarbrevSection.getByText('Overstyr', { exact: true }).first().click();
     await finishedRequest(override, 'Failed to set override for varslet frist');
 
-    const fristInput = page.waitForRequest('**/svarbrev/behandlingstid');
+    const behandlingstidInput = page.waitForRequest('**/svarbrev/behandlingstid');
     await svarbrevSection.locator('input[id="frist"]').fill(varsletFrist.value.toString());
-    await finishedRequest(fristInput, 'Failed to set varslet frist');
-
-    const unitInput = page.waitForRequest('**/svarbrev/behandlingstid');
     await svarbrevSection.getByText(varsletFrist.unit, { exact: true }).click();
-    await finishedRequest(unitInput, 'Failed to set varslet frist unit');
+    await finishedRequest(behandlingstidInput, 'Failed to set varslet frist');
 
     svarbrevSection.getByText(
       'Du har endret foreslått frist med mer enn seks måneder. Er du sikker på at dette er riktig?',
