@@ -40,9 +40,14 @@ export const setSvarbrevVarsletFrist = async (page: Page, varsletFrist: FristExt
     await svarbrevSection.locator('input[id="frist"]').fill(varsletFrist.value.toString());
     await finishedRequest(fristInput, 'Failed to set varslet frist');
 
-    const unitInput = page.waitForRequest('**/svarbrev/behandlingstid');
-    await svarbrevSection.getByText(varsletFrist.unit, { exact: true }).click();
-    await finishedRequest(unitInput, 'Failed to set varslet frist unit');
+    const unitButton = svarbrevSection.locator('button', { hasText: varsletFrist.unit });
+    const checked = await unitButton.getAttribute('aria-checked');
+
+    if (checked !== 'true') {
+      const unitInput = page.waitForRequest('**/svarbrev/behandlingstid');
+      await unitButton.click();
+      await finishedRequest(unitInput, 'Failed to set varslet frist unit');
+    }
 
     svarbrevSection.getByText(
       'Du har endret foreslått frist med mer enn seks måneder. Er du sikker på at dette er riktig?',
