@@ -53,7 +53,7 @@ export const ANKE: AnkeTestdata = {
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '18.07.2024',
-  tildeltSaksbehandler: 'F_Z994488 E_Z994488',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
   gosysOppgaveIndex: 0,
 };
 
