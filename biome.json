@@ -38,16 +38,14 @@
         "noReExportAll": "error"
       },
       "security": {
-        "recommended": true,
         "noSecrets": "off"
       },
       "nursery": {
-        "useExplicitType": "off",
-        "useSortedClasses": { "level": "on", "fix": "safe", "options": {} }
+        "useExplicitType": "off"
       },
       "correctness": {
         "useImportExtensions": "off",
-        "noUnusedImports": { "level": "error", "fix": "safe", "options": {} }
+        "noUnusedImports": { "level": "error", "fix": "unsafe" }
       },
       "style": {
         "noImplicitBoolean": "off",
@@ -75,12 +73,12 @@
         "noReactSpecificProps": "off",
         "noEmptyBlockStatements": "error",
         "noFocusedTests": "error",
+        "noSkippedTests": "error",
         "noImportCycles": "on"
       },
       "complexity": {
         "useSimplifiedLogicExpression": "off",
-        "noExcessiveCognitiveComplexity": { "level": "error", "options": { "maxAllowedComplexity": 25 } },
-        "noUselessFragments": { "level": "on", "fix": "safe", "options": {} }
+        "noExcessiveCognitiveComplexity": { "level": "error", "options": { "maxAllowedComplexity": 25 } }
       }
     }
   },
