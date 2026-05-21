@@ -1,4 +1,5 @@
 import type { FullResult, Reporter, TestCase, TestResult } from '@playwright/test/reporter';
+import { GITHUB_ACTOR, GITHUB_REPOSITORY, VERSION } from '@/reporters/trigger';
 
 const API_KEY = process.env.WRITE_API_KEY;
 const JOB_ID = process.env.JOB_ID ?? crypto.randomUUID();
@@ -21,7 +22,7 @@ const body = (name?: string, timeout?: number): CreateJob => ({
   timeout,
 });
 
-const NAME = 'Kabin E2E tests';
+const NAME = `Kabin E2E (${VERSION}) - ${GITHUB_ACTOR} @ ${GITHUB_REPOSITORY}`;
 const TIMEOUT = 15 * 60; // 15 minutes
 
 const update = async (status: Status) => {
