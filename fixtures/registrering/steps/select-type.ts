@@ -1,4 +1,4 @@
-import type { Page } from 'playwright/test';
+import type { Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import { selectAnke } from '@/fixtures/registrering/steps/select-anke';
 import { selectKlage } from '@/fixtures/registrering/steps/select-klage';

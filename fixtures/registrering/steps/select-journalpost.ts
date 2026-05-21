@@ -1,4 +1,4 @@
-import { type Page, test } from 'playwright/test';
+import { type Page, test } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import { isJournalpostType, type SelectJournalpostParams } from '@/fixtures/registrering/types';
 

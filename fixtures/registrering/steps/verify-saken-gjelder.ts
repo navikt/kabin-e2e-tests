@@ -1,4 +1,4 @@
-import test, { expect, type Page } from 'playwright/test';
+import test, { expect, type Page } from '@playwright/test';
 import type { Part } from '@/fixtures/registrering/types';
 
 export const verifySakenGjelder = async (page: Page, part: Part) =>

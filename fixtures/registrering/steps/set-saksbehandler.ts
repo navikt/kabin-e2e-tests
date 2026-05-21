@@ -1,4 +1,4 @@
-import test, { type Page } from 'playwright/test';
+import test, { type Page } from '@playwright/test';
 
 export const setSaksbehandler = async (page: Page, label: string) =>
   test.step('Sett saksbehandler', async () => {

@@ -1,4 +1,4 @@
-import test, { expect, type Locator, type Page } from 'playwright/test';
+import test, { expect, type Locator, type Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import {
   type Ankevedtak,

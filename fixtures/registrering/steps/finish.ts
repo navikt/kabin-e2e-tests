@@ -1,4 +1,4 @@
-import test, { expect, type Page } from 'playwright/test';
+import test, { expect, type Page } from '@playwright/test';
 import { STATUS_REGEX } from '@/fixtures/finished-request';
 import { feilregistrerAndDelete } from '@/fixtures/kabal';
 import { Sakstype } from '@/fixtures/registrering/types';
