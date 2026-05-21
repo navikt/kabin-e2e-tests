@@ -16,6 +16,7 @@ import {
   getTestTitle,
   SlackIcon,
 } from '@/reporters/functions';
+import { GITHUB_ACTOR, GITHUB_REPOSITORY, VERSION } from '@/reporters/trigger';
 import { getSlack, type SlackMessageThread } from '@/slack/slack-client';
 
 interface TestSlackData {
@@ -33,6 +34,7 @@ class SlackReporter implements Reporter {
   private tests: TestCase[] = [];
   private startTime = Date.now();
   private name = '';
+  private trigger = `Version \`${VERSION}\` triggered by \`${GITHUB_ACTOR}\` for \`${GITHUB_REPOSITORY}\``;
 
   private async setTestMessage(test: TestCase, status: TestSlackData) {
     this.testStatuses.set(test.id, status);
@@ -67,7 +69,7 @@ class SlackReporter implements Reporter {
   }
 
   private async updateMainMessage(msg: string) {
-    const mainMessage = `*${this.name} - ${msg}*`;
+    const mainMessage = `*${this.name} - ${msg}*\n_${this.trigger}_`;
 
     if (this.mainThread === null) {
       if (this.slack === null) {
