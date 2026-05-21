@@ -1,4 +1,4 @@
-import test, { expect, type Page } from 'playwright/test';
+import test, { expect, type Page } from '@playwright/test';
 
 export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) =>
   test.step('Velg Gosys-oppgave', async () => {

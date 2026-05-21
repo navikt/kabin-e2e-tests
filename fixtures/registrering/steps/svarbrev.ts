@@ -1,4 +1,4 @@
-import test, { type Locator, type Page } from 'playwright/test';
+import test, { type Locator, type Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import { KLAGER_LABEL } from '@/fixtures/registrering/klager-label';
 import {

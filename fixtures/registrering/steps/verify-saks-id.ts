@@ -1,4 +1,4 @@
-import test, { type Page } from 'playwright/test';
+import test, { type Page } from '@playwright/test';
 
 export const verifySaksId = async (page: Page, jpSaksId: string, mulighetSaksId: string) => {
   if (jpSaksId !== mulighetSaksId) {

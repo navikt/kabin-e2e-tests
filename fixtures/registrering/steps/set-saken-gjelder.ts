@@ -1,4 +1,4 @@
-import test, { type Page } from 'playwright/test';
+import test, { type Page } from '@playwright/test';
 import type { Part } from '@/fixtures/registrering/types';
 
 export const setSakenGjelder = async (page: Page, SAKEN_GJELDER: Part) =>
