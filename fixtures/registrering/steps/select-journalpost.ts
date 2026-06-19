@@ -8,7 +8,7 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
 
     await journalpost.waitFor();
 
-    const [, title, tema, dato, avsenderMottaker, saksId, type] = await journalpost
+    const [, title, tema, dato, avsenderMottaker, saksId, fagsystem, type] = await journalpost
       .locator('article > *')
       .allTextContents();
 
@@ -18,6 +18,7 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
       dato === null ||
       avsenderMottaker === null ||
       saksId === null ||
+      fagsystem === null ||
       type === null
     ) {
       throw new Error('One or more document data is null');
@@ -39,7 +40,7 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
 
     await journalpost.locator('button[title="Valgt"]').waitFor();
 
-    return { title, tema, dato, avsenderMottaker, saksId, type, logiskeVedleggNames, vedleggNames };
+    return { title, tema, dato, avsenderMottaker, saksId, fagsystem, type, logiskeVedleggNames, vedleggNames };
   });
 
 const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
@@ -53,7 +54,7 @@ const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
   const listitems = await documents.getByRole('listitem').all();
 
   for (const listitem of listitems) {
-    const [, title, tema, dato, avsenderMottaker, saksId, type] = await listitem
+    const [, title, tema, dato, avsenderMottaker, saksId, fagsystem, type] = await listitem
       .locator('article > *')
       .allTextContents();
 
@@ -74,6 +75,10 @@ const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
     }
 
     if (params.fagsakId !== undefined && saksId !== params.fagsakId) {
+      continue;
+    }
+
+    if (params.fagsystem !== undefined && fagsystem !== params.fagsystem) {
       continue;
     }
 
