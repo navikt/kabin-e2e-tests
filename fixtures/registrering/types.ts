@@ -130,6 +130,7 @@ export interface SelectJournalpostParams {
   avsenderMottaker?: string;
   fagsakId?: string;
   type?: JournalpostType;
+  fagsystem?: string;
 }
 
 export interface Ankemulighet {
