@@ -152,4 +152,4 @@ const setJournalpostDropdownFilter = async (page: Page, index: number, filter: s
   await page.keyboard.press('Escape');
 };
 
-const getDocumentsContainer = (page: Page) => page.locator('section', { hasText: 'Velg journalpost' });
+const getDocumentsContainer = (page: Page) => page.getByRole('region', { name: 'Velg journalpost' });
