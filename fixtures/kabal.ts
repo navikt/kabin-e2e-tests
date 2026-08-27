@@ -1,6 +1,16 @@
 import type { Cookie } from '@playwright/test';
 import { makeDirectApiRequest } from '@/fixtures/direct-api-request/direct-api-request';
 
+class ResponseError extends Error {
+  constructor(
+    public readonly status: number,
+    body: string,
+  ) {
+    super(`${status}: ${body}`);
+    this.name = 'ResponseError';
+  }
+}
+
 const feilRegistrer = async (cookies: Cookie[], kabalId: string) => {
   const res = await makeDirectApiRequest(
     `https://kabin.intern.dev.nav.no/api/kabal-api/behandlinger/${kabalId}/feilregistrer`,
@@ -13,7 +23,7 @@ const feilRegistrer = async (cookies: Cookie[], kabalId: string) => {
     console.debug(`Feilregistrert oppgave with id: ${kabalId}`);
   } else {
     const text = await res.text();
-    throw new Error(`${res.status}: ${text}`);
+    throw new ResponseError(res.status, text);
   }
 };
 
@@ -28,7 +38,7 @@ const deleteOppgave = async (cookies: Cookie[], kabalId: string) => {
     console.debug(`Deleted oppgave with id: ${kabalId}`);
   } else {
     const text = await res.text();
-    throw new Error(`${res.status}: ${text}`);
+    throw new ResponseError(res.status, text);
   }
 };
 
@@ -41,6 +51,13 @@ const exponentialBackoff = <T>(
 ): Promise<T> =>
   promise().catch((error) => {
     if (retries === 0) {
+      throw error;
+    }
+
+    // Client errors are not transient. Retrying will not change the outcome.
+    if (error instanceof ResponseError && error.status >= 400 && error.status < 500) {
+      console.debug(`${label} failed: ${error.message}. Not retrying client error.`);
+
       throw error;
     }
 
