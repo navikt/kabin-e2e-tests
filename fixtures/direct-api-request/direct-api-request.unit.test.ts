@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'bun:test';
 import type { Cookie } from '@playwright/test';
-import { appliesTo, domainMatches, pathMatches, secureMatches } from '@/fixtures/direct-api-request/direct-api-request';
+import {
+  appliesTo,
+  domainMatches,
+  pathMatches,
+  secureMatches,
+  toMessage,
+} from '@/fixtures/direct-api-request/direct-api-request';
 
 const cookie = (overrides: Partial<Cookie> = {}): Cookie => ({
   name: 'session',
@@ -159,5 +165,52 @@ describe('appliesTo', () => {
     const applicable = cookie({ domain: 'kabin.intern.dev.nav.no', path: '/api', secure: true });
 
     expect(appliesTo(applicable, new URL('https://kabin.intern.dev.nav.no/api?id=123'))).toBe(true);
+  });
+});
+
+describe('toMessage', () => {
+  it('uses the message of an error without a cause', () => {
+    expect(toMessage(new Error('Boom'))).toBe('Boom');
+  });
+
+  it('appends the cause, which is where node hides the reason a fetch failed', () => {
+    const failed = new TypeError('fetch failed', { cause: new Error('connect ECONNREFUSED 127.0.0.1:8080') });
+
+    expect(toMessage(failed)).toBe('fetch failed: connect ECONNREFUSED 127.0.0.1:8080');
+  });
+
+  it('follows a nested cause chain', () => {
+    const inner = new Error('ENOTFOUND', { cause: new Error('getaddrinfo failed') });
+    const failed = new TypeError('fetch failed', { cause: inner });
+
+    expect(toMessage(failed)).toBe('fetch failed: ENOTFOUND: getaddrinfo failed');
+  });
+
+  it('unwraps every error of an AggregateError, as raised when a host has several addresses', () => {
+    const addresses = new AggregateError([
+      new Error('ECONNREFUSED ::1:8080'),
+      new Error('ECONNREFUSED 127.0.0.1:8080'),
+    ]);
+    const failed = new TypeError('fetch failed', { cause: addresses });
+
+    expect(toMessage(failed)).toBe('fetch failed: ECONNREFUSED ::1:8080, ECONNREFUSED 127.0.0.1:8080');
+  });
+
+  it('does not repeat a cause that only echoes its parent', () => {
+    const failed = new Error('fetch failed', { cause: new Error('fetch failed') });
+
+    expect(toMessage(failed)).toBe('fetch failed');
+  });
+
+  it('stops following a cyclic cause chain', () => {
+    const a = new Error('A');
+    const b = new Error('B', { cause: a });
+    a.cause = b;
+
+    expect(toMessage(a)).toBe('A: B: A: B: A');
+  });
+
+  it('falls back for a thrown non-error', () => {
+    expect(toMessage({ status: 500 })).toBe('Unknown error');
   });
 });

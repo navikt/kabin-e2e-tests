@@ -10,7 +10,7 @@ export const makeDirectApiRequest = async <T>(url: string, method: Method, cooki
   }
 
   try {
-    return fetch(parsedUrl, {
+    return await fetch(parsedUrl, {
       method,
       body: JSON.stringify(body),
       headers: {
@@ -20,13 +20,49 @@ export const makeDirectApiRequest = async <T>(url: string, method: Method, cooki
       },
     });
   } catch (e) {
-    if (e instanceof Error) {
-      throw new Error(`${method} ${url} - ${e.message}.`);
-    }
-
-    throw new Error(`${method} ${url} - Unkown error.`);
+    throw new Error(`${method} ${url} - ${toMessage(e)}.`, { cause: e });
   }
 };
+
+/** How many `cause` hops to follow. Also guards against a cyclic chain. */
+const MAX_CAUSE_DEPTH = 4;
+
+/**
+ * Flattens an error and its `cause` chain into a single line.
+ *
+ * Node's `fetch` rejects with a bare `TypeError: fetch failed` and hides the part you actually
+ * need - `ECONNREFUSED`, `ENOTFOUND`, certificate errors - one level down in `cause`. Without this,
+ * a failing test reports only `fetch failed`.
+ */
+export const toMessage = (e: unknown): string => {
+  const parts = toParts(e);
+
+  return parts.length === 0 ? 'Unknown error' : parts.join(': ');
+};
+
+/** The message of `e` followed by those of its `cause` chain, outermost first. Anything that is not
+ * an `Error` contributes nothing, which doubles as the base case for an error without a cause. */
+const toParts = (e: unknown, depth = 0): string[] => {
+  if (!(e instanceof Error)) {
+    return [];
+  }
+
+  if (depth >= MAX_CAUSE_DEPTH) {
+    return [e.message];
+  }
+
+  const cause = e instanceof AggregateError ? [toAlternatives(e, depth)] : toParts(e.cause, depth + 1);
+
+  // Drop empty messages - `AggregateError` has none by default - and any cause that merely repeats
+  // its parent, so we never report `fetch failed: fetch failed`.
+  return [e.message, ...cause].filter((part, i, all) => part !== '' && part !== all[i - 1]);
+};
+
+/** When a host resolves to several addresses, every attempt fails at once and the failures arrive
+ * together in an `AggregateError`. They are alternatives rather than a chain, so they read as a
+ * comma-separated list instead of being joined with the rest of the chain. */
+const toAlternatives = (e: AggregateError, depth: number): string =>
+  e.errors.map((error) => toParts(error, depth + 1).join(': ')).join(', ');
 
 /**
  * Builds a `Cookie` header containing only the cookies that actually belong to `url`.
