@@ -51,6 +51,9 @@ jobs:
       - name: Lint
         run: bun lint
 
+      - name: Unit tests
+        run: bun unit
+
       - name: Get image tag
         id: image-tag
         shell: bash

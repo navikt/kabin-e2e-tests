@@ -1,5 +1,5 @@
 import { type Cookie, chromium } from '@playwright/test';
-import { makeDirectApiRequest } from '@/fixtures/direct-api-request';
+import { makeDirectApiRequest } from '@/fixtures/direct-api-request/direct-api-request';
 import { KABAL_DEV_DOMAIN } from '@/tests/functions';
 import { logIn } from '@/tests/helpers';
 import { SAKEN_GJELDER_ANKE, SAKEN_GJELDER_KLAGE, SAKEN_GJELDER_OMGJØRINGSKRAV } from '@/tests/registrering/testdata';

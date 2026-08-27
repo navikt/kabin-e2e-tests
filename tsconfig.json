@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["esnext", "DOM"],
-    "types": ["node"],
+    "types": ["node", "bun"],
     "sourceMap": true,
     "allowJs": false,
     "skipLibCheck": true,

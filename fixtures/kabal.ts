@@ -1,5 +1,5 @@
 import type { Cookie } from '@playwright/test';
-import { makeDirectApiRequest } from '@/fixtures/direct-api-request';
+import { makeDirectApiRequest } from '@/fixtures/direct-api-request/direct-api-request';
 
 const feilRegistrer = async (cookies: Cookie[], kabalId: string) => {
   const res = await makeDirectApiRequest(
