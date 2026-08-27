@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { makeDirectApiRequest } from '@/fixtures/direct-api-request';
+import { makeDirectApiRequest } from '@/fixtures/direct-api-request/direct-api-request';
 import { REGISTRERING_REGEX } from '@/fixtures/finished-request';
 
 export const deleteRegistrering = async (page: Page) => {
