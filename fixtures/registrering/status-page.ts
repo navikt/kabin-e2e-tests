@@ -109,8 +109,8 @@ const REGION_NAME: Record<Sakstype, string> = {
 };
 
 const VEDTAK_REGION_NAME: Record<Sakstype, string> = {
-  [Sakstype.ANKE]: 'Valgt ankevedtak',
-  [Sakstype.KLAGE]: 'Valgt klagevedtak',
+  [Sakstype.ANKE]: 'Valgt vedtak',
+  [Sakstype.KLAGE]: 'Valgt vedtak',
   [Sakstype.OMGJØRINGSKRAV]: 'Valgt vedtak',
 };
 
