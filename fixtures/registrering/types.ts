@@ -131,6 +131,7 @@ export enum Sakstype {
   KLAGE = 'KLAGE',
   ANKE = 'ANKE',
   OMGJØRINGSKRAV = 'OMGJØRINGSKRAV',
+  BEGJÆRING_OM_GJENOPPTAK = 'BEGJÆRING_OM_GJENOPPTAK',
 }
 
 export interface Ankevedtak {
@@ -144,6 +145,8 @@ export interface Ankevedtak {
 
 export interface Omgjøringskravvedtak extends Ankevedtak {}
 
+export interface Gjenopptaksvedtak extends Ankevedtak {}
+
 export interface Klagevedtak {
   fagsakId: string;
   tema: string;
@@ -155,7 +158,8 @@ export interface Klagevedtak {
 export type Vedtak =
   | { type: Sakstype.KLAGE; data: Klagevedtak }
   | { type: Sakstype.ANKE; data: Ankevedtak }
-  | { type: Sakstype.OMGJØRINGSKRAV; data: Omgjøringskravvedtak };
+  | { type: Sakstype.OMGJØRINGSKRAV; data: Omgjøringskravvedtak }
+  | { type: Sakstype.BEGJÆRING_OM_GJENOPPTAK; data: Gjenopptaksvedtak };
 
 export interface SelectJournalpostParams {
   title?: string;
