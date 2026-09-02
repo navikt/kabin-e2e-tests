@@ -19,5 +19,7 @@ export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) 
 
     await oppgave.click(); // The whole row is clickable, make sure it works. Not just the button.
 
-    await expect(button).toHaveAttribute('title', 'Valgt');
+    await expect(table.getByRole('button', { name: VALGT_OPPGAVE_LABEL, exact: true })).toHaveCount(1);
   });
+
+const VALGT_OPPGAVE_LABEL = 'Oppgave er valgt. Klikk for å fjerne valg.';
