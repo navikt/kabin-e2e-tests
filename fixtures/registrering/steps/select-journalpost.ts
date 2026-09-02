@@ -40,7 +40,7 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
 
     await journalpost.getByRole('button', { name: 'Valgt', exact: true }).waitFor();
 
-    return { title, tema, dato, avsenderMottaker, saksId, fagsystem, type, logiskeVedleggNames, vedleggNames };
+    return { title, tema, dato, avsenderMottaker, saksId, type, logiskeVedleggNames, vedleggNames };
   });
 
 const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
