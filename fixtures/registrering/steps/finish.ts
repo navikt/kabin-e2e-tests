@@ -73,6 +73,7 @@ const SAKSDATA_SECTION_MAP: Record<Sakstype, string> = {
   [Sakstype.KLAGE]: 'Tilpasninger for klagen',
   [Sakstype.ANKE]: 'Saksdata',
   [Sakstype.OMGJØRINGSKRAV]: 'Tilpasninger for omgjøringskravet',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Tilpasninger for begjæringen om gjenopptak',
 };
 
 /**
@@ -96,4 +97,5 @@ const FINISH_TEXT_MAP: Record<Sakstype, string> = {
   [Sakstype.KLAGE]: 'Klage opprettet',
   [Sakstype.ANKE]: 'Anke opprettet',
   [Sakstype.OMGJØRINGSKRAV]: 'Omgjøringskrav opprettet',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Begjæring om gjenopptak opprettet',
 };

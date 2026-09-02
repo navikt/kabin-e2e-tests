@@ -115,7 +115,12 @@ export class StatusPage {
       await expect(valgtVedtak.getByText('Saken gjelder').locator('> *')).toHaveText(
         vedtak.sakenGjelder.getNameAndId(),
       );
-      await expect(valgtVedtak.getByText('Vedtaksdato').locator('> *')).toHaveText(vedtak.vedtaksdato);
+      // The muligheter table leaves the date cell blank when the mulighet carries no date, while
+      // the status page renders "Ukjent" for the same. Translate between the two representations.
+      // Trygderettens kjennelser in dev test data have no date, so every begjæring hits this.
+      const vedtaksdato = vedtak.vedtaksdato.trim().length === 0 ? 'Ukjent' : vedtak.vedtaksdato;
+
+      await expect(valgtVedtak.getByText(VEDTAK_DATE_LABEL[type]).locator('> *')).toHaveText(vedtaksdato);
 
       if (typeof vedtak.ytelse === 'string') {
         await expect(valgtVedtak.getByText('Ytelse').locator('> *')).toHaveText(vedtak.ytelse);
@@ -130,12 +135,21 @@ const REGION_NAME: Record<Sakstype, string> = {
   [Sakstype.ANKE]: 'Journalført anke',
   [Sakstype.KLAGE]: 'Valgt journalpost',
   [Sakstype.OMGJØRINGSKRAV]: 'Journalført omgjøringskrav',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Journalført begjæring om gjenopptak',
 };
 
 const VEDTAK_REGION_NAME: Record<Sakstype, string> = {
   [Sakstype.ANKE]: 'Valgt vedtak',
   [Sakstype.KLAGE]: 'Valgt vedtak',
   [Sakstype.OMGJØRINGSKRAV]: 'Valgt vedtak',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Valgt kjennelse',
+};
+
+const VEDTAK_DATE_LABEL: Record<Sakstype, string> = {
+  [Sakstype.ANKE]: 'Vedtaksdato',
+  [Sakstype.KLAGE]: 'Vedtaksdato',
+  [Sakstype.OMGJØRINGSKRAV]: 'Vedtaksdato',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Kjennelsesdato',
 };
 
 const JOURNALPOST_TYPE_NAME: Record<JournalpostType, string> = {
