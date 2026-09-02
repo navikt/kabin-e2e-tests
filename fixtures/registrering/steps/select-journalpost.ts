@@ -1,8 +1,13 @@
 import { type Page, test } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
-import { isJournalpostType, type SelectJournalpostParams } from '@/fixtures/registrering/types';
+import {
+  DocumentSource,
+  type Dokumenter,
+  isJournalpostType,
+  type SelectJournalpostParams,
+} from '@/fixtures/registrering/types';
 
-export const selectJournalpost = async (page: Page, params: SelectJournalpostParams) =>
+export const selectJournalpost = async (page: Page, params: SelectJournalpostParams): Promise<Dokumenter> =>
   test.step('Velg journalpost', async () => {
     const journalpost = await findJournalpost(page, params);
 
@@ -40,7 +45,10 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
 
     await journalpost.getByRole('button', { name: 'Valgt', exact: true }).waitFor();
 
-    return { title, tema, dato, avsenderMottaker, saksId, type, logiskeVedleggNames, vedleggNames };
+    return {
+      source: DocumentSource.JOURNALPOST,
+      journalpost: { title, tema, dato, avsenderMottaker, saksId, type, logiskeVedleggNames, vedleggNames },
+    };
   });
 
 const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
