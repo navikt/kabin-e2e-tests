@@ -1,6 +1,12 @@
 import test, { expect, type Page } from '@playwright/test';
 import { KLAGER_LABEL } from '@/fixtures/registrering/klager-label';
-import { type Journalpost, JournalpostType, type Part, Sakstype } from '@/fixtures/registrering/types';
+import {
+  type Journalpost,
+  JournalpostType,
+  type Part,
+  Sakstype,
+  type UploadedDocuments,
+} from '@/fixtures/registrering/types';
 
 interface Saksinfo {
   mottattKlageinstans: string;
@@ -62,6 +68,7 @@ export class StatusPage {
       await expect(saksinfo.getByText('Mottatt NAV klageinstans').locator('> *')).toHaveText(info.mottattKlageinstans);
       await expect(saksinfo.getByText(FRIST_REGEX).locator('> *')).toHaveText(info.fristInKabal);
       await expect(saksinfo.getByText('Varslet frist').locator('> *')).toHaveText(info.varsletFrist);
+
       await expect(saksinfo.getByText(KLAGER_LABEL[type]).locator('> *')).toHaveText(info.klager.getNameAndId());
       await expect(saksinfo.getByText('Fullmektig').locator('> *')).toHaveText(info.fullmektig.getNameAndId());
       await expect(saksinfo.getByText('Tildelt saksbehandler').locator('> *')).toContainText(info.saksbehandlerName);
@@ -82,6 +89,23 @@ export class StatusPage {
           await expect(mottakere.getByRole('listitem', { name })).toContainText(address);
         }
       }
+    });
+
+  verifyUploadedDocuments = async (uploadedDocuments: UploadedDocuments, type: Sakstype) =>
+    test.step('Verifiser opplastede dokumenter', async () => {
+      const { inngaaendeKanal, dokumentCount, dokumentNames } = uploadedDocuments;
+
+      // Uploaded documents replace the journalpost card entirely - there is no journalpost to show.
+      await expect(this.page.getByRole('region', { name: REGION_NAME[type] })).toHaveCount(0);
+
+      const uploaded = this.page.getByRole('region', { name: 'Opplastede dokumenter' });
+
+      await expect(uploaded.getByText('Inngående kanal').locator('> *')).toHaveText(inngaaendeKanal);
+      await expect(uploaded.getByText(dokumentCount, { exact: true })).toBeVisible();
+
+      // The name is the only element in a status row carrying a `title` attribute.
+      // The rows are sorted the same way as in the upload editor: hoveddokument first.
+      await expect(uploaded.getByRole('listitem').locator('p[title]')).toHaveText(dokumentNames);
     });
 
   verifyValgtVedtak = async (vedtak: ValgtVedtak, type: Sakstype) =>
