@@ -11,6 +11,11 @@ import {
 export const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
 export const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
 export const SAKEN_GJELDER_OMGJØRINGSKRAV = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
+export const SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK = new Part(
+  'SKEPTISK LANDSBY',
+  '16036832758',
+  PartType.SAKEN_GJELDER,
+);
 
 export const data = {
   ankendePart: new Part('FALSK ONKEL', '17887799784', PartType.KLAGER),
@@ -84,6 +89,23 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
   gosysOppgaveIndex: 1,
 };
 
+export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
+  type: Sakstype.BEGJÆRING_OM_GJENOPPTAK,
+  source: DocumentSource.JOURNALPOST,
+  sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
+  getJournalpostParams: {
+    fagsakId: 'cde6',
+    title: 'Ekspedisjonsbrev til Trygderetten',
+    date: '23.04.2025',
+    avsenderMottaker: 'TRYGDERETTEN',
+  },
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '28.11.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgaveIndex: 3,
+};
+
 /**
  * The upload variants reuse the person, hjemler and dates of their journalpost counterparts - the
  * only thing that differs is where the documents come from. They do need their own
@@ -114,8 +136,28 @@ export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
   gosysOppgaveIndex: 2,
 };
 
+export const BEGJÆRING_OM_GJENOPPTAK_UPLOAD: UploadTestdata = {
+  type: Sakstype.BEGJÆRING_OM_GJENOPPTAK,
+  source: DocumentSource.UPLOAD,
+  sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
+  inngaaendeKanal: InngaaendeKanal.E_POST,
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '28.11.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgaveIndex: 4,
+};
+
 /** Every registrering variant covered by `registrering.test.ts`, one test each. */
-export const TESTDATA: Testdata[] = [KLAGE, ANKE, OMGJØRINGSKRAV, ANKE_UPLOAD, OMGJØRINGSKRAV_UPLOAD];
+export const TESTDATA: Testdata[] = [
+  KLAGE,
+  ANKE,
+  OMGJØRINGSKRAV,
+  BEGJÆRING_OM_GJENOPPTAK,
+  ANKE_UPLOAD,
+  OMGJØRINGSKRAV_UPLOAD,
+  BEGJÆRING_OM_GJENOPPTAK_UPLOAD,
+];
 
 interface CommonTestdata {
   sakenGjelder: Part;

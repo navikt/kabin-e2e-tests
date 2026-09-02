@@ -2,6 +2,7 @@ import test, { expect, type Locator, type Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import {
   type Ankevedtak,
+  type Gjenopptaksvedtak,
   type Klagevedtak,
   type Omgjøringskravvedtak,
   Sakstype,
@@ -57,10 +58,17 @@ const getVedtakData = async (type: Sakstype, cells: Locator[]): Promise<Vedtak> 
 
       return { data, type };
     }
+    case Sakstype.BEGJÆRING_OM_GJENOPPTAK: {
+      const data = await getGjenopptaksvedtakData(cells);
+
+      return { data, type };
+    }
   }
 };
 
 const getOmgoringskravvedtakData = async (cells: Locator[]): Promise<Omgjøringskravvedtak> => getAnkevedtakData(cells);
+
+const getGjenopptaksvedtakData = async (cells: Locator[]): Promise<Gjenopptaksvedtak> => getAnkevedtakData(cells);
 
 const getAnkevedtakData = async (cells: Locator[]): Promise<Ankevedtak> => {
   const [type, fagsakId, tema, ytelse, vedtaksdato, fagsystem] = await Promise.all(
@@ -101,5 +109,7 @@ const getMuligheterName = (type: Sakstype) => {
       return 'Ankemuligheter';
     case Sakstype.OMGJØRINGSKRAV:
       return 'Omgjøringskravmuligheter';
+    case Sakstype.BEGJÆRING_OM_GJENOPPTAK:
+      return 'Muligheter for begjæring om gjenopptak';
   }
 };
