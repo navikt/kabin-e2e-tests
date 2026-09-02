@@ -70,7 +70,7 @@ export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.11.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 1, // Same user as klage, different task to avoid race condition.
+  gosysOppgaveIndex: 1,
 };
 
 interface BaseTestdata {
@@ -80,6 +80,10 @@ interface BaseTestdata {
   hjemlerShort: string[];
   mottattKlageinstans: string;
   tildeltSaksbehandler: string;
+  /**
+   * Which of the selectable Gosys-oppgaver to claim. Tests sharing a person must use different
+   * indices, since they run in parallel and no two registreringer can claim the same oppgave.
+   */
   gosysOppgaveIndex: number;
 }
 
