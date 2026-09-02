@@ -81,8 +81,12 @@ interface BaseTestdata {
   mottattKlageinstans: string;
   tildeltSaksbehandler: string;
   /**
-   * Which of the selectable Gosys-oppgaver to claim. Tests sharing a person must use different
-   * indices, since they run in parallel and no two registreringer can claim the same oppgave.
+   * Which of the selectable Gosys-oppgaver to claim, if Kabin asks for one at all. Whether it does
+   * follows from the selected mulighet rather than from the sakstype, so the step simply skips when
+   * the section is not rendered.
+   *
+   * Tests sharing a person must use different indices, since they run in parallel and no two
+   * registreringer can claim the same oppgave.
    */
   gosysOppgaveIndex: number;
 }
