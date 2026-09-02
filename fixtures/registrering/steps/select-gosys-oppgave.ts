@@ -10,7 +10,7 @@ export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) 
   const heading = page.getByRole('heading', { name: 'Velg oppgave i Gosys' });
 
   if (!(await heading.isVisible())) {
-    return;
+    return test.step('Kabin ba ikke om en Gosys-oppgave', () => expect(heading).toBeHidden());
   }
 
   return test.step(`Velg ledig Gosys-oppgave nummer ${gosysOppgaveIndex + 1}`, async () => {
