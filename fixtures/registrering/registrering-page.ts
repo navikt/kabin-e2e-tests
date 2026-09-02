@@ -3,6 +3,7 @@ import { deleteRegistrering } from '@/fixtures/registrering/delete-registrering'
 import { finish } from '@/fixtures/registrering/steps/finish';
 import { selectGosysOppgave } from '@/fixtures/registrering/steps/select-gosys-oppgave';
 import { selectJournalpost } from '@/fixtures/registrering/steps/select-journalpost';
+import { verifySourceOptions } from '@/fixtures/registrering/steps/select-source';
 import { selectType } from '@/fixtures/registrering/steps/select-type';
 import { selectFirstAvailableVedtak } from '@/fixtures/registrering/steps/select-vedtak';
 import { setAvsender } from '@/fixtures/registrering/steps/set-avsender';
@@ -28,11 +29,17 @@ import {
   setUtskriftTypeForExtraReceiver,
   setUtskriftTypeForPart,
 } from '@/fixtures/registrering/steps/svarbrev';
+import {
+  deleteInvalidDokumenter,
+  uploadDokumenter,
+  verifyInvalidDokumenterBlockFinish,
+} from '@/fixtures/registrering/steps/upload/upload-dokumenter';
 import { verifySakenGjelder } from '@/fixtures/registrering/steps/verify-saken-gjelder';
 import { verifySaksId } from '@/fixtures/registrering/steps/verify-saks-id';
 import type {
   Country,
   FristExtension,
+  InngaaendeKanal,
   Part,
   Sakstype,
   SelectJournalpostParams,
@@ -44,7 +51,18 @@ export class RegistreringPage {
 
   setSakenGjelder = async (SAKEN_GJELDER: Part) => setSakenGjelder(this.page, SAKEN_GJELDER);
 
-  selectJournalpostByInnerText = async (params: SelectJournalpostParams) => selectJournalpost(this.page, params);
+  verifySourceOptions = async () => verifySourceOptions(this.page);
+
+  /** Picks the documents from an existing journalpost, the default source. */
+  selectJournalpost = async (params: SelectJournalpostParams) => selectJournalpost(this.page, params);
+
+  /** Switches to uploaded documents as the source, and uploads them. */
+  uploadDokumenter = async (inngaaendeKanal: InngaaendeKanal) => uploadDokumenter(this.page, inngaaendeKanal);
+
+  /** Verifies that the documents that failed upload keep the registrering from being finished. */
+  verifyInvalidDokumenterBlockFinish = async (type: Sakstype) => verifyInvalidDokumenterBlockFinish(this.page, type);
+
+  deleteInvalidDokumenter = async () => deleteInvalidDokumenter(this.page);
 
   selectGosysOppgave = async (gosysOppgaveIndex: number) => selectGosysOppgave(this.page, gosysOppgaveIndex);
 
