@@ -1,11 +1,15 @@
 import test, { expect, type Page } from '@playwright/test';
 
 export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) =>
-  test.step('Velg Gosys-oppgave', async () => {
-    const heading = page.getByRole('heading', { name: 'Velg oppgave i Gosys' });
-    const section = page.locator('section', { has: heading });
-    const rows = section.locator('tbody').getByRole('row');
+  test.step(`Velg Gosys-oppgave nummer ${gosysOppgaveIndex + 1}`, async () => {
+    // While the oppgaver load, a skeleton renders a table of its own holding a single empty row.
+    // Only the loaded table is labelled, so scoping to it keeps the index off that placeholder.
+    const table = page.getByRole('table', { name: 'Gosys-oppgaver', exact: true });
+    const rows = table.locator('tbody').getByRole('row');
     const oppgave = rows.nth(gosysOppgaveIndex);
+
+    await oppgave.waitFor();
+
     const selectColumn = oppgave.getByRole('cell').last();
 
     await expect(selectColumn).not.toContainText('Oppgaven er tilknyttet en annen behandling');
