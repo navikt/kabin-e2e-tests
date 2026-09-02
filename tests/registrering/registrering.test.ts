@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { finishedRequest } from '@/fixtures/finished-request';
 import { test } from '@/fixtures/registrering/fixture';
-import { type Part, Sakstype, Utskriftstype } from '@/fixtures/registrering/types';
+import { type Journalpost, JournalpostType, type Part, Sakstype, Utskriftstype } from '@/fixtures/registrering/types';
 import { UI_DOMAIN } from '@/tests/functions';
 import { ANKE, data, KLAGE, OMGJØRINGSKRAV } from '@/tests/registrering/testdata';
 
@@ -59,7 +59,7 @@ test.describe('Registrering', () => {
       await registreringPage.setAnkendePart(data.ankendePart);
       await registreringPage.setFullmektig(data.fullmektig);
 
-      if (journalpost.type === 'I') {
+      if (journalpost.type === JournalpostType.I) {
         await registreringPage.setAvsender(data.avsender);
       }
 
@@ -105,7 +105,7 @@ test.describe('Registrering', () => {
           title: journalpost.title,
           tema: vedtak.data.tema,
           dato: journalpost.saksId === fagsakId ? journalpost.dato : format(new Date(), 'dd.MM.yyyy'),
-          avsenderMottaker: getAvsenderName(journalpost.type, journalpost.avsenderMottaker, data.avsender),
+          avsenderMottaker: getAvsenderName(journalpost, data.avsender),
           saksId: fagsakId,
           type: journalpost.type,
           logiskeVedleggNames: journalpost.logiskeVedleggNames,
@@ -147,15 +147,20 @@ test.describe('Registrering', () => {
   }
 });
 
-const getAvsenderName = (journalpostType: string, journalpostAvsenderMottaker: string, testDataAvsender: Part) => {
-  switch (journalpostType) {
-    case 'N':
+/**
+ * The avsender/mottaker the status page is expected to show for a journalpost. An inngående
+ * journalpost shows the avsender set during registrering, an utgående one keeps the mottaker it was
+ * journalført with, and a notat has neither.
+ */
+const getAvsenderName = (journalpost: Journalpost, avsender: Part): string => {
+  switch (journalpost.type) {
+    case JournalpostType.N:
       return 'Ingen';
-    case 'I':
-      return testDataAvsender.getNameAndId();
-    case 'U':
-      return journalpostAvsenderMottaker;
+    case JournalpostType.I:
+      return avsender.getNameAndId();
+    case JournalpostType.U:
+      return journalpost.avsenderMottaker;
     default:
-      throw new Error(`Unknown journalpostType: ${journalpostType}`);
+      throw new Error(`Unknown journalpostType: ${journalpost.type}`);
   }
 };
