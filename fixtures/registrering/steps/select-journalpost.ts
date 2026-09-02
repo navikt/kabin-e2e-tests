@@ -45,11 +45,11 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
 
 const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
   const documents = getDocumentsContainer(page);
-  await documents.waitFor();
+  await documents.waitFor({ timeout: JOURNALPOSTER_TIMEOUT });
 
   await setJournalpostFilters(page, params);
 
-  await documents.getByRole('listitem').first().waitFor();
+  await documents.getByRole('listitem').first().waitFor({ timeout: JOURNALPOSTER_TIMEOUT });
 
   const listitems = await documents.getByRole('listitem').all();
 
@@ -93,7 +93,7 @@ const findJournalpost = async (page: Page, params: SelectJournalpostParams) => {
 };
 
 const setJournalpostFilters = async (page: Page, params: SelectJournalpostParams) => {
-  await page.getByRole('region', { name: 'Journalpostfiltere' }).waitFor();
+  await page.getByRole('region', { name: 'Journalpostfiltere' }).waitFor({ timeout: JOURNALPOSTER_TIMEOUT });
 
   for (const [key, value] of Object.entries(params)) {
     if (key === 'title') {
@@ -135,10 +135,10 @@ const JOURNALPOST_FILTER_INDEX: Record<JournalpostFilter, number> = {
 };
 
 const setJournalpostFilterTitle = async (page: Page, filter: string) => {
-  await getDocumentsContainer(page).getByRole('listitem').first().waitFor();
+  await getDocumentsContainer(page).getByRole('listitem').first().waitFor({ timeout: JOURNALPOSTER_TIMEOUT });
   const filters = page.getByRole('region', { name: 'Journalpostfiltere' });
 
-  await filters.waitFor();
+  await filters.waitFor({ timeout: JOURNALPOSTER_TIMEOUT });
 
   await filters.getByPlaceholder('Tittel/journalpost-ID').fill(filter);
 };
@@ -153,3 +153,6 @@ const setJournalpostDropdownFilter = async (page: Page, index: number, filter: s
 };
 
 const getDocumentsContainer = (page: Page) => page.getByRole('region', { name: 'Velg journalpost' });
+
+/** Fetching the journalposter is slow, and gets slower the more tests run in parallel. */
+const JOURNALPOSTER_TIMEOUT = 90_000;
