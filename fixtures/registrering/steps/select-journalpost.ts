@@ -38,7 +38,7 @@ export const selectJournalpost = async (page: Page, params: SelectJournalpostPar
     await journalpost.getByText('Velg').click();
     await finishedRequest(setJournalpostRequest, `Failed to select journalpost "${title}"`);
 
-    await journalpost.locator('button[title="Valgt"]').waitFor();
+    await journalpost.getByRole('button', { name: 'Valgt', exact: true }).waitFor();
 
     return { title, tema, dato, avsenderMottaker, saksId, fagsystem, type, logiskeVedleggNames, vedleggNames };
   });
