@@ -1,8 +1,21 @@
-import { FristExtension, Part, PartType, Sakstype, type SelectJournalpostParams } from '@/fixtures/registrering/types';
+import {
+  DocumentSource,
+  FristExtension,
+  InngaaendeKanal,
+  Part,
+  PartType,
+  Sakstype,
+  type SelectJournalpostParams,
+} from '@/fixtures/registrering/types';
 
 export const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
 export const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
 export const SAKEN_GJELDER_OMGJØRINGSKRAV = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
+export const SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK = new Part(
+  'SKEPTISK LANDSBY',
+  '16036832758',
+  PartType.SAKEN_GJELDER,
+);
 
 export const data = {
   ankendePart: new Part('FALSK ONKEL', '17887799784', PartType.KLAGER),
@@ -25,8 +38,9 @@ export const data = {
   varsletFrist: new FristExtension(70, 'måneder'),
 };
 
-export const KLAGE: KlageTestdata = {
+export const KLAGE: JournalpostTestdata = {
   type: Sakstype.KLAGE,
+  source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_KLAGE,
   getJournalpostParams: {
     fagsakId: '1814',
@@ -41,8 +55,9 @@ export const KLAGE: KlageTestdata = {
   gosysOppgaveIndex: 0,
 };
 
-export const ANKE: AnkeTestdata = {
+export const ANKE: JournalpostTestdata = {
   type: Sakstype.ANKE,
+  source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   getJournalpostParams: {
     fagsakId: '712',
@@ -57,8 +72,9 @@ export const ANKE: AnkeTestdata = {
   gosysOppgaveIndex: 0,
 };
 
-export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
+export const OMGJØRINGSKRAV: JournalpostTestdata = {
   type: Sakstype.OMGJØRINGSKRAV,
+  source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
   getJournalpostParams: {
     fagsakId: 'cde6',
@@ -70,27 +86,109 @@ export const OMGJØRINGSKRAV: OmgjøringskravTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.11.2024',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 1, // Same user as klage, different task to avoid race condition.
+  gosysOppgaveIndex: 1,
 };
 
-interface BaseTestdata {
+export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
+  type: Sakstype.BEGJÆRING_OM_GJENOPPTAK,
+  source: DocumentSource.JOURNALPOST,
+  sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
+  getJournalpostParams: {
+    fagsakId: 'cde6',
+    title: 'Ekspedisjonsbrev til Trygderetten',
+    date: '23.04.2025',
+    avsenderMottaker: 'TRYGDERETTEN',
+  },
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '28.11.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgaveIndex: 3,
+};
+
+/**
+ * The upload variants reuse the person, hjemler and dates of their journalpost counterparts - the
+ * only thing that differs is where the documents come from. They do need their own
+ * `gosysOppgaveIndex`, since the tests run in parallel and no two registreringer can claim the same
+ * Gosys-oppgave.
+ */
+export const ANKE_UPLOAD: UploadTestdata = {
+  type: Sakstype.ANKE,
+  source: DocumentSource.UPLOAD,
+  sakenGjelder: SAKEN_GJELDER_ANKE,
+  inngaaendeKanal: InngaaendeKanal.E_POST,
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '18.07.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgaveIndex: 1,
+};
+
+export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
+  type: Sakstype.OMGJØRINGSKRAV,
+  source: DocumentSource.UPLOAD,
+  sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
+  inngaaendeKanal: InngaaendeKanal.ALTINN_INNBOKS,
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '28.11.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgaveIndex: 2,
+};
+
+export const BEGJÆRING_OM_GJENOPPTAK_UPLOAD: UploadTestdata = {
+  type: Sakstype.BEGJÆRING_OM_GJENOPPTAK,
+  source: DocumentSource.UPLOAD,
+  sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
+  inngaaendeKanal: InngaaendeKanal.E_POST,
+  hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
+  hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
+  mottattKlageinstans: '28.11.2024',
+  tildeltSaksbehandler: 'F_Z994864 E_Z994864',
+  gosysOppgaveIndex: 4,
+};
+
+/** Every registrering variant covered by `registrering.test.ts`, one test each. */
+export const TESTDATA: Testdata[] = [
+  KLAGE,
+  ANKE,
+  OMGJØRINGSKRAV,
+  BEGJÆRING_OM_GJENOPPTAK,
+  ANKE_UPLOAD,
+  OMGJØRINGSKRAV_UPLOAD,
+  BEGJÆRING_OM_GJENOPPTAK_UPLOAD,
+];
+
+interface CommonTestdata {
   sakenGjelder: Part;
-  getJournalpostParams: SelectJournalpostParams;
   hjemlerLong: string[];
   hjemlerShort: string[];
   mottattKlageinstans: string;
   tildeltSaksbehandler: string;
+  /**
+   * Which of the selectable Gosys-oppgaver to claim, if Kabin asks for one at all. Whether it does
+   * follows from the selected mulighet rather than from the sakstype, so the step simply skips when
+   * the section is not rendered.
+   *
+   * Tests sharing a person must use different indices, since they run in parallel and no two
+   * registreringer can claim the same oppgave.
+   */
   gosysOppgaveIndex: number;
 }
 
-interface KlageTestdata extends BaseTestdata {
-  type: Sakstype.KLAGE;
+/** Registrering based on an existing journalpost. Available for every sakstype. */
+interface JournalpostTestdata extends CommonTestdata {
+  type: Sakstype;
+  source: DocumentSource.JOURNALPOST;
+  getJournalpostParams: SelectJournalpostParams;
 }
 
-interface AnkeTestdata extends BaseTestdata {
-  type: Sakstype.ANKE;
+/** Registrering based on uploaded documents. Available for every sakstype except klage - klager
+ * always arrive as an existing journalpost. */
+interface UploadTestdata extends CommonTestdata {
+  type: Exclude<Sakstype, Sakstype.KLAGE>;
+  source: DocumentSource.UPLOAD;
+  inngaaendeKanal: InngaaendeKanal;
 }
 
-interface OmgjøringskravTestdata extends BaseTestdata {
-  type: Sakstype.OMGJØRINGSKRAV;
-}
+export type Testdata = JournalpostTestdata | UploadTestdata;

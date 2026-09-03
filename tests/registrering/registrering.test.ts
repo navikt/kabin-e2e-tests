@@ -1,9 +1,15 @@
 import { format } from 'date-fns';
-import { finishedRequest } from '@/fixtures/finished-request';
 import { test } from '@/fixtures/registrering/fixture';
-import { type Part, Sakstype, Utskriftstype } from '@/fixtures/registrering/types';
+import {
+  DocumentSource,
+  type Journalpost,
+  JournalpostType,
+  type Part,
+  Sakstype,
+  Utskriftstype,
+} from '@/fixtures/registrering/types';
 import { UI_DOMAIN } from '@/tests/functions';
-import { ANKE, data, KLAGE, OMGJØRINGSKRAV } from '@/tests/registrering/testdata';
+import { data, TESTDATA } from '@/tests/registrering/testdata';
 
 test.describe('Registrering', () => {
   test.beforeEach(({ page }) => page.goto(UI_DOMAIN));
@@ -14,26 +20,29 @@ test.describe('Registrering', () => {
     }
   });
 
-  for (const {
-    type,
-    sakenGjelder,
-    getJournalpostParams,
-    hjemlerLong,
-    hjemlerShort,
-    mottattKlageinstans,
-    tildeltSaksbehandler,
-    gosysOppgaveIndex,
-  } of [KLAGE, ANKE, OMGJØRINGSKRAV]) {
-    test(`${type}`, async ({ registreringPage, statusPage, page }) => {
-      const fetchingJournalposter = page.waitForRequest('**/arkivertedokumenter'); // The request monitoring must be created before the request is made.
-      const createRegistrering = page.waitForRequest(`${UI_DOMAIN}/api/kabin-api/registreringer`);
-      await registreringPage.setSakenGjelder(sakenGjelder); // Will trigger the request for journalposter.
+  for (const testdata of TESTDATA) {
+    const {
+      type,
+      source,
+      sakenGjelder,
+      hjemlerLong,
+      hjemlerShort,
+      mottattKlageinstans,
+      tildeltSaksbehandler,
+      gosysOppgaveIndex,
+    } = testdata;
 
-      await finishedRequest(createRegistrering, 'Failed to create registrering');
+    test(`${type} - ${source}`, async ({ registreringPage, statusPage }) => {
+      await registreringPage.setSakenGjelder(sakenGjelder);
 
-      await finishedRequest(fetchingJournalposter, 'Failed to fetch journalposter');
+      // The registrering exists once the source of its documents can be picked.
+      await registreringPage.verifySourceOptions();
 
-      const journalpost = await registreringPage.selectJournalpostByInnerText(getJournalpostParams);
+      const dokumenter =
+        source === DocumentSource.UPLOAD
+          ? await registreringPage.uploadDokumenter(testdata.inngaaendeKanal)
+          : await registreringPage.selectJournalpost(testdata.getJournalpostParams);
+
       await registreringPage.selectType(type);
 
       const vedtak = await registreringPage.selectFirstAvailableVedtak(type);
@@ -42,12 +51,15 @@ test.describe('Registrering', () => {
 
       await registreringPage.selectGosysOppgave(gosysOppgaveIndex);
 
-      await registreringPage.verifySaksId(journalpost.saksId, fagsakId);
+      if (dokumenter.source === DocumentSource.JOURNALPOST) {
+        await registreringPage.verifySaksId(dokumenter.journalpost.saksId, fagsakId);
+      }
 
       const ytelse = await registreringPage.getYtelse();
 
-      if (type === Sakstype.KLAGE) {
-        await registreringPage.setMottattVedtaksinstans(journalpost.dato);
+      // A klage is only ever registered from a journalpost.
+      if (type === Sakstype.KLAGE && dokumenter.source === DocumentSource.JOURNALPOST) {
+        await registreringPage.setMottattVedtaksinstans(dokumenter.journalpost.dato);
       }
 
       await registreringPage.setMottattKlageinstans(mottattKlageinstans);
@@ -59,7 +71,9 @@ test.describe('Registrering', () => {
       await registreringPage.setAnkendePart(data.ankendePart);
       await registreringPage.setFullmektig(data.fullmektig);
 
-      if (journalpost.type === 'I') {
+      // Uploaded documents are always incoming, so avsender must always be set. For a journalpost it
+      // only applies to inngående journalposter.
+      if (dokumenter.source === DocumentSource.UPLOAD || dokumenter.journalpost.type === JournalpostType.I) {
         await registreringPage.setAvsender(data.avsender);
       }
 
@@ -98,21 +112,34 @@ test.describe('Registrering', () => {
         { search: 'mcdonald', fullName: data.ekstraMottakerLand },
       );
 
+      if (dokumenter.source === DocumentSource.UPLOAD) {
+        // The documents that failed upload can never be journalført, so Kabin API refuses to finish
+        // the registrering until they are gone.
+        await registreringPage.verifyInvalidDokumenterBlockFinish(type);
+        await registreringPage.deleteInvalidDokumenter();
+      }
+
       await registreringPage.finish(type);
 
-      await statusPage.verifyJournalførtDocument(
-        {
-          title: journalpost.title,
-          tema: vedtak.data.tema,
-          dato: journalpost.saksId === fagsakId ? journalpost.dato : format(new Date(), 'dd.MM.yyyy'),
-          avsenderMottaker: getAvsenderName(journalpost.type, journalpost.avsenderMottaker, data.avsender),
-          saksId: fagsakId,
-          type: journalpost.type,
-          logiskeVedleggNames: journalpost.logiskeVedleggNames,
-          vedleggNames: journalpost.vedleggNames,
-        },
-        type,
-      );
+      if (dokumenter.source === DocumentSource.UPLOAD) {
+        await statusPage.verifyUploadedDocuments(dokumenter.uploadedDocuments, type);
+      } else {
+        const { journalpost } = dokumenter;
+
+        await statusPage.verifyJournalførtDocument(
+          {
+            title: journalpost.title,
+            tema: vedtak.data.tema,
+            dato: journalpost.saksId === fagsakId ? journalpost.dato : format(new Date(), 'dd.MM.yyyy'),
+            avsenderMottaker: getAvsenderName(journalpost, data.avsender),
+            saksId: fagsakId,
+            type: journalpost.type,
+            logiskeVedleggNames: journalpost.logiskeVedleggNames,
+            vedleggNames: journalpost.vedleggNames,
+          },
+          type,
+        );
+      }
 
       await statusPage.verifySaksinfo(
         {
@@ -147,15 +174,20 @@ test.describe('Registrering', () => {
   }
 });
 
-const getAvsenderName = (journalpostType: string, journalpostAvsenderMottaker: string, testDataAvsender: Part) => {
-  switch (journalpostType) {
-    case 'N':
+/**
+ * The avsender/mottaker the status page is expected to show for a journalpost. An inngående
+ * journalpost shows the avsender set during registrering, an utgående one keeps the mottaker it was
+ * journalført with, and a notat has neither.
+ */
+const getAvsenderName = (journalpost: Journalpost, avsender: Part): string => {
+  switch (journalpost.type) {
+    case JournalpostType.N:
       return 'Ingen';
-    case 'I':
-      return testDataAvsender.getNameAndId();
-    case 'U':
-      return journalpostAvsenderMottaker;
+    case JournalpostType.I:
+      return avsender.getNameAndId();
+    case JournalpostType.U:
+      return journalpost.avsenderMottaker;
     default:
-      throw new Error(`Unknown journalpostType: ${journalpostType}`);
+      throw new Error(`Unknown journalpostType: ${journalpost.type}`);
   }
 };

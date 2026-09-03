@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import { selectAnke } from '@/fixtures/registrering/steps/select-anke';
+import { selectBegjæringOmGjenopptak } from '@/fixtures/registrering/steps/select-begjæring-om-gjenopptak';
 import { selectKlage } from '@/fixtures/registrering/steps/select-klage';
 import { selectOmgjøringskrav } from '@/fixtures/registrering/steps/select-omgjøringskrav';
 import { Sakstype } from '@/fixtures/registrering/types';
@@ -17,6 +18,9 @@ export const selectType = async (page: Page, type: Sakstype) => {
       break;
     case Sakstype.OMGJØRINGSKRAV:
       await selectOmgjøringskrav(page);
+      break;
+    case Sakstype.BEGJÆRING_OM_GJENOPPTAK:
+      await selectBegjæringOmGjenopptak(page);
       break;
   }
 
