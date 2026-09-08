@@ -134,8 +134,8 @@ export const uploadDokumenter = async (page: Page, inngaaendeKanal: InngaaendeKa
  * Verifies that the failed documents block finishing, and that the validation summary says why -
  * one error per failing status, not per document.
  */
-export const verifyInvalidDokumenterBlockFinish = async (page: Page, type: Sakstype) =>
-  finishExpectingSaksdataErrors(page, type, [
+export const verifyInvalidDokumenterBlockFinish = async (page: Page, type: Sakstype, fagsystem: string) =>
+  finishExpectingSaksdataErrors(page, type, fagsystem, [
     { fieldName: DOKUMENTER_FIELD_NAME, reason: UNSUPPORTED_TYPE_REASON },
     { fieldName: DOKUMENTER_FIELD_NAME, reason: VIRUS_FOUND_REASON },
   ]);
