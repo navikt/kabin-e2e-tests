@@ -60,7 +60,8 @@ export class RegistreringPage {
   uploadDokumenter = async (inngaaendeKanal: InngaaendeKanal) => uploadDokumenter(this.page, inngaaendeKanal);
 
   /** Verifies that the documents that failed upload keep the registrering from being finished. */
-  verifyInvalidDokumenterBlockFinish = async (type: Sakstype) => verifyInvalidDokumenterBlockFinish(this.page, type);
+  verifyInvalidDokumenterBlockFinish = async (type: Sakstype, fagsystem: string) =>
+    verifyInvalidDokumenterBlockFinish(this.page, type, fagsystem);
 
   deleteInvalidDokumenter = async () => deleteInvalidDokumenter(this.page);
 
@@ -132,7 +133,7 @@ export class RegistreringPage {
 
   addExtraReceiver = async (part: Part) => addExtraReceiver(this.page, part);
 
-  finish = async (saksType: Sakstype) => finish(this.page, saksType);
+  finish = async (saksType: Sakstype, fagsystem: string) => finish(this.page, saksType, fagsystem);
 
   deleteRegistrering = () => deleteRegistrering(this.page);
 }

@@ -3,25 +3,14 @@ import { STATUS_REGEX } from '@/fixtures/finished-request';
 import { feilregistrerAndDelete } from '@/fixtures/kabal';
 import { Sakstype } from '@/fixtures/registrering/types';
 
-export const finish = async (page: Page, type: Sakstype) =>
+export const finish = async (page: Page, type: Sakstype, fagsystem: string) =>
   test.step('Fullfør', async () => {
     await page.getByText('Fullfør', { exact: true }).click();
 
-    const bekreft = page.getByText('Bekreft', { exact: true });
+    const bekreft = getBekreftButton(page);
     await expect(bekreft).toBeVisible();
 
-    const arenaCheckbox = page.getByRole('checkbox', { name: 'Jeg bekrefter at jeg har opprettet en anke i Arena' });
-
-    if (await arenaCheckbox.isVisible()) {
-      await test.step('Bekreft fullfør disabled før Arena bekreftet', async () => {
-        await expect(bekreft).toBeDisabled();
-      });
-
-      await test.step('Bekreft opprettet i Arena', async () => {
-        await arenaCheckbox.check();
-        await expect(arenaCheckbox).toBeChecked();
-      });
-    }
+    await confirmArenaAnke(page, type, fagsystem);
 
     const requestPromise = page.waitForRequest('**/registreringer/**/ferdigstill');
     await bekreft.click();
@@ -65,10 +54,16 @@ export interface ValidationError {
  *
  * Leaves the registrering editable again, so the errors can be fixed and finishing retried.
  */
-export const finishExpectingSaksdataErrors = async (page: Page, type: Sakstype, errors: ValidationError[]) =>
+export const finishExpectingSaksdataErrors = async (
+  page: Page,
+  type: Sakstype,
+  fagsystem: string,
+  errors: ValidationError[],
+) =>
   test.step(`Fullfør med forventede valideringsfeil: ${errors.map(({ reason }) => reason).join(' ')}`, async () => {
     await page.getByRole('button', { name: 'Fullfør', exact: true }).click();
-    await page.getByRole('button', { name: 'Bekreft', exact: true }).click();
+    await confirmArenaAnke(page, type, fagsystem);
+    await getBekreftButton(page).click();
 
     // The summary opens by itself as soon as the request comes back with the validation errors.
     await expect(page.getByRole('heading', { name: VALIDATION_SUMMARY_HEADING, exact: true })).toBeVisible();
@@ -86,6 +81,34 @@ export const finishExpectingSaksdataErrors = async (page: Page, type: Sakstype, 
     // The confirmation popover stays open when finishing fails, covering part of the form.
     await page.getByRole('button', { name: 'Avbryt', exact: true }).click();
   });
+
+/** The fagsystem name, as shown in the `Fagsystem` column of the muligheter tables. */
+const ARENA = 'Arena';
+
+const ARENA_ANKE_CONFIRMATION = 'Jeg bekrefter at jeg har opprettet en anke i Arena';
+
+/**
+ * An anke on a vedtak from Arena must be created in Arena by hand as well, so Kabin keeps `Bekreft`
+ * disabled until the saksbehandler confirms having done so. No other registrering asks for it.
+ *
+ * Expects the confirmation popover to already be open.
+ */
+const confirmArenaAnke = async (page: Page, type: Sakstype, fagsystem: string) => {
+  const confirmation = page.getByRole('checkbox', { name: ARENA_ANKE_CONFIRMATION, exact: true });
+
+  if (type !== Sakstype.ANKE || fagsystem !== ARENA) {
+    return expect(confirmation).toBeHidden();
+  }
+
+  return test.step('Bekreft opprettet i Arena', async () => {
+    await expect(getBekreftButton(page)).toBeDisabled();
+
+    await confirmation.check();
+    await expect(confirmation).toBeChecked();
+  });
+};
+
+const getBekreftButton = (page: Page) => page.getByRole('button', { name: 'Bekreft', exact: true });
 
 const VALIDATION_SUMMARY_HEADING = 'Kan ikke fullføre registrering. Dette mangler:';
 
