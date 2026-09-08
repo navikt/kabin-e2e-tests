@@ -47,7 +47,7 @@ test.describe('Registrering', () => {
 
       const vedtak = await registreringPage.selectFirstAvailableVedtak(type);
 
-      const { fagsakId } = vedtak.data;
+      const { fagsakId, fagsystem } = vedtak.data;
 
       await registreringPage.selectGosysOppgave(gosysOppgaveIndex);
 
@@ -117,11 +117,11 @@ test.describe('Registrering', () => {
       if (dokumenter.source === DocumentSource.UPLOAD) {
         // The documents that failed upload can never be journalført, so Kabin API refuses to finish
         // the registrering until they are gone.
-        await registreringPage.verifyInvalidDokumenterBlockFinish(type);
+        await registreringPage.verifyInvalidDokumenterBlockFinish(type, fagsystem);
         await registreringPage.deleteInvalidDokumenter();
       }
 
-      await registreringPage.finish(type);
+      await registreringPage.finish(type, fagsystem);
 
       if (dokumenter.source === DocumentSource.UPLOAD) {
         await statusPage.verifyUploadedDocuments(dokumenter.uploadedDocuments, type);
@@ -169,7 +169,7 @@ test.describe('Registrering', () => {
         ],
       });
 
-      const { vedtaksdato, fagsystem } = vedtak.data;
+      const { vedtaksdato } = vedtak.data;
 
       await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId: fagsakId, ytelse }, type);
     });
