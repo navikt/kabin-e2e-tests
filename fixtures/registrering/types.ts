@@ -26,7 +26,6 @@ export interface Journalpost {
 export enum DocumentSource {
   JOURNALPOST = 'Velg journalpost',
   UPLOAD = 'Last opp',
-  /** Anke received through Altinn. Not implemented yet - the toggle is permanently disabled. */
   ANKE = 'Anke fra Trygderetten',
 }
 
