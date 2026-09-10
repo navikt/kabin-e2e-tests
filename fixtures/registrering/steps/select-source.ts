@@ -13,7 +13,7 @@ export const verifySourceOptions = async (page: Page) =>
       timeout: REGISTRERING_CREATED_TIMEOUT,
     });
     await expect(getSourceOption(page, DocumentSource.UPLOAD)).toBeEnabled();
-    await expect(getSourceOption(page, DocumentSource.ANKE)).toBeDisabled();
+    await expect(getSourceOption(page, DocumentSource.ANKE)).toBeEnabled();
   });
 
 export const selectSource = async (page: Page, source: DocumentSource) =>
