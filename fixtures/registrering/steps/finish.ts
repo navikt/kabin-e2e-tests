@@ -6,13 +6,34 @@ import { Sakstype } from '@/fixtures/registrering/types';
 export const finish = async (page: Page, type: Sakstype) =>
   test.step('Fullfør', async () => {
     await page.getByText('Fullfør', { exact: true }).click();
+
+    const bekreft = page.getByText('Bekreft', { exact: true });
+    await expect(bekreft).toBeVisible();
+
+    const arenaCheckbox = page.getByRole('checkbox', { name: 'Jeg bekrefter at jeg har opprettet en anke i Arena' });
+
+    if (await arenaCheckbox.isVisible()) {
+      await test.step('Bekreft fullfør disabled før Arena bekreftet', async () => {
+        await expect(bekreft).toBeDisabled();
+      });
+
+      await test.step('Bekreft opprettet i Arena', async () => {
+        await arenaCheckbox.check();
+        await expect(arenaCheckbox).toBeChecked();
+      });
+    }
+
     const requestPromise = page.waitForRequest('**/registreringer/**/ferdigstill');
-    await page.getByText('Bekreft', { exact: true }).click();
+    await bekreft.click();
     const request = await requestPromise;
     const response = await request.response();
 
     if (response === null) {
-      throw new Error('No response');
+      throw new Error('Fullfør failed: No response');
+    }
+
+    if (!response.ok()) {
+      throw new Error(`Fullfør failed: ${response.status()} - ${await response.text()}`);
     }
 
     await page.waitForURL(STATUS_REGEX);
