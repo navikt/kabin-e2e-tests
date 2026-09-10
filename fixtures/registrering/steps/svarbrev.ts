@@ -153,7 +153,23 @@ export const changeAddressForExtraReceiver = async (
 export const selectMottaker = async (page: Page, part: Part, type: Sakstype) =>
   test.step(`Velg mottaker: ${part.getTestLabelWithType()}`, async () => {
     const svarbrevSection = await getSvarbrevSection(page);
-    await svarbrevSection.getByText(`${part.name} (${partTypeToText(part.type, type)})`).click();
+    const mottaker = svarbrevSection.getByRole('checkbox', {
+      name: `${part.name} (${partTypeToText(part.type, type)})`,
+      exact: true,
+    });
+
+    if (await mottaker.isChecked()) {
+      return;
+    }
+
+    // The selection is persisted immediately and the checkbox only ticks once Kabin has confirmed
+    // it. Kabin also cancels an in-flight receiver request as soon as the next one is sent, which
+    // silently drops the selection, so the mottakere are selected one completed request at a time.
+    const addReceiverRequest = page.waitForRequest('**/svarbrev/receivers');
+    await mottaker.click();
+    await finishedRequest(addReceiverRequest, `Failed to select mottaker "${part.getTestLabelWithType()}"`);
+
+    await expect(mottaker).toBeChecked();
   });
 
 const getSvarbrevSection = async (page: Page) => page.getByRole('region', { name: 'Svarbrev' });
