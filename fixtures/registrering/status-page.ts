@@ -34,12 +34,20 @@ interface ValgtVedtak {
 const FRIST_REGEX = /Frist.*/;
 const TEMA_REGEX = /Tema.*/;
 
+/**
+ * How long the status page is given to load the finished behandling. `finish` only waits for the
+ * confirmation heading - everything below it is a single spinner until Kabin has fetched the
+ * behandling, which takes a while when the environment is under load.
+ */
+const STATUS_LOAD_TIMEOUT = 30_000;
+
 export class StatusPage {
   constructor(public readonly page: Page) {}
 
   verifyJournalførtDocument = async (jp: Journalpost, type: Sakstype) =>
     test.step('Verifiser journalpost', async () => {
       const journalfoertDoc = this.page.getByRole('region', { name: REGION_NAME[type] });
+      await journalfoertDoc.waitFor({ timeout: STATUS_LOAD_TIMEOUT });
 
       const kvitteringTemaContainer = journalfoertDoc.getByText(TEMA_REGEX).locator('> *');
       await kvitteringTemaContainer.filter({ hasNotText: 'Laster...' }).waitFor();
@@ -96,10 +104,13 @@ export class StatusPage {
     test.step('Verifiser opplastede dokumenter', async () => {
       const { inngaaendeKanal, dokumentCount, dokumentNames } = uploadedDocuments;
 
+      const uploaded = this.page.getByRole('region', { name: 'Opplastede dokumenter' });
+      // Waited for first: the journalpost card is absent while the page is still loading too, so
+      // asserting its absence any earlier would pass for the wrong reason.
+      await uploaded.waitFor({ timeout: STATUS_LOAD_TIMEOUT });
+
       // Uploaded documents replace the journalpost card entirely - there is no journalpost to show.
       await expect(this.page.getByRole('region', { name: REGION_NAME[type] })).toHaveCount(0);
-
-      const uploaded = this.page.getByRole('region', { name: 'Opplastede dokumenter' });
 
       await expect(uploaded.getByText('Inngående kanal').locator('> *')).toHaveText(inngaaendeKanal);
       await expect(uploaded.getByText(dokumentCount, { exact: true })).toBeVisible();
