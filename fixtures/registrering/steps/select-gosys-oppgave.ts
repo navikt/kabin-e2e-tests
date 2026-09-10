@@ -1,8 +1,19 @@
 import test, { expect, type Page } from '@playwright/test';
 
-export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) =>
-  test.step('Velg Gosys-oppgave', async () => {
-    const heading = page.getByRole('heading', { name: 'Velg oppgave i Gosys' });
+/**
+ * Selects a Gosys-oppgave, if the registrering needs one.
+ *
+ * Whether it does is decided by the API.
+ * Kabin renders the heading only when a Gosys-oppgave is required.
+ */
+export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) => {
+  const heading = page.getByRole('heading', { name: 'Velg oppgave i Gosys' });
+
+  if (!(await heading.isVisible())) {
+    return;
+  }
+
+  return test.step('Velg Gosys-oppgave', async () => {
     const section = page.locator('section', { has: heading });
     const rows = section.locator('tbody').getByRole('row');
     const oppgave = rows.nth(gosysOppgaveIndex);
@@ -17,3 +28,4 @@ export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) 
 
     await expect(button).toHaveAttribute('title', 'Valgt');
   });
+};
