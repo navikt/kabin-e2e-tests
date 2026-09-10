@@ -1,4 +1,4 @@
-import test, { type Locator, type Page } from '@playwright/test';
+import test, { expect, type Locator, type Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
 import { KLAGER_LABEL } from '@/fixtures/registrering/klager-label';
 import {
@@ -7,7 +7,7 @@ import {
   type Part,
   PartType,
   type Sakstype,
-  Utskriftstype,
+  type Utskriftstype,
 } from '@/fixtures/registrering/types';
 
 export const setSendSvarbrev = async (page: Page, send: boolean) =>
@@ -78,12 +78,7 @@ export const setUtskriftTypeForPart = async (page: Page, part: Part, type: Utskr
   test.step(`Velg utskriftstype: ${type} for part: ${part.getTestLabelWithType()}`, async () => {
     const section = await getSvarbrevPartSection(page, part);
 
-    switch (type) {
-      case Utskriftstype.LOKAL:
-        return section.getByText('Lokal utskrift').click();
-      case Utskriftstype.SENTRAL:
-        return section.getByText('Sentral utskrift').click();
-    }
+    return setUtskriftType(page, section, type, `part "${part.name}"`);
   });
 
 export const setUtskriftTypeForExtraReceiver = async (page: Page, part: Part, type: Utskriftstype) =>
@@ -91,19 +86,24 @@ export const setUtskriftTypeForExtraReceiver = async (page: Page, part: Part, ty
     const list = page.getByRole('list', { name: 'Liste over ekstra mottakere' });
     const section = list.getByRole('listitem', { name: part.name });
 
-    const setUtskriftType = page.waitForRequest('**/svarbrev/receivers/*');
-
-    switch (type) {
-      case Utskriftstype.LOKAL:
-        await section.getByText('Lokal utskrift').click();
-        break;
-      case Utskriftstype.SENTRAL:
-        await section.getByText('Sentral utskrift').click();
-        break;
-    }
-
-    await finishedRequest(setUtskriftType, 'Failed to set utskrift type for ekstra mottaker');
+    return setUtskriftType(page, section, type, `ekstra mottaker "${part.name}"`);
   });
+
+const setUtskriftType = async (page: Page, section: Locator, type: Utskriftstype, description: string) => {
+  // Matching by role avoids also matching the "Utsendingskanal" tag, which contains the same text.
+  const option = section.getByRole('radio', { name: type, exact: true });
+
+  // No request is sent when the receiver already has the wanted utskriftstype.
+  if (await option.isChecked()) {
+    return;
+  }
+
+  const setUtskriftTypeRequest = page.waitForRequest('**/svarbrev/receivers/*');
+  await option.click();
+  await finishedRequest(setUtskriftTypeRequest, `Failed to set utskrift type for ${description}`);
+
+  await expect(option).toBeChecked();
+};
 
 export const addExtraReceiver = async (page: Page, part: Part) =>
   test.step(`Legg til ekstra mottaker: ${part.getTestLabelWithType()}`, async () => {
