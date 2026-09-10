@@ -1,6 +1,12 @@
 import test, { expect, type Page } from '@playwright/test';
 import { KLAGER_LABEL } from '@/fixtures/registrering/klager-label';
-import { type Journalpost, JournalpostType, type Part, Sakstype } from '@/fixtures/registrering/types';
+import {
+  type Journalpost,
+  JournalpostType,
+  type Part,
+  Sakstype,
+  type Utskriftstype,
+} from '@/fixtures/registrering/types';
 
 interface Saksinfo {
   mottattKlageinstans: string;
@@ -13,7 +19,7 @@ interface Saksinfo {
 
 interface Svarbrevinfo {
   documentName: string;
-  mottakere: { name: string; utskrift: string; address?: string }[];
+  mottakere: { name: string; utskrift: Utskriftstype; address?: string }[];
 }
 
 interface ValgtVedtak {

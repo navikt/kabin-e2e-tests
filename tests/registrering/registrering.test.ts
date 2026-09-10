@@ -77,6 +77,8 @@ test.describe('Registrering', () => {
       await registreringPage.selectMottaker(data.fullmektig, type);
 
       await registreringPage.setUtskriftTypeForPart(data.ankendePart, Utskriftstype.LOKAL);
+      // Must be set explicitly. Defaults to the channel registered in KRR, which the test does not control.
+      await registreringPage.setUtskriftTypeForPart(data.fullmektig, Utskriftstype.LOKAL);
 
       await registreringPage.changeAddressForPart(
         sakenGjelder,
@@ -131,12 +133,12 @@ test.describe('Registrering', () => {
       await statusPage.verifySvarbrevinfo({
         documentName: data.svarbrevName,
         mottakere: [
-          { name: sakenGjelder.name, utskrift: 'Sentral utskrift', address: sakenGjelderAddress },
-          { name: data.ankendePart.name, utskrift: 'Lokal utskrift' },
-          { name: data.fullmektig.name, utskrift: 'Digital Postkasse Innbygger' },
-          { name: data.ekstraMottaker1.name, utskrift: 'Lokal utskrift' },
-          { name: data.ekstraMottaker2.name, utskrift: 'Sentral utskrift', address: extraMottakerAddress },
-          { name: data.ekstraMottaker3.name, utskrift: 'Sentral utskrift' },
+          { name: sakenGjelder.name, utskrift: Utskriftstype.SENTRAL, address: sakenGjelderAddress },
+          { name: data.ankendePart.name, utskrift: Utskriftstype.LOKAL },
+          { name: data.fullmektig.name, utskrift: Utskriftstype.LOKAL },
+          { name: data.ekstraMottaker1.name, utskrift: Utskriftstype.LOKAL },
+          { name: data.ekstraMottaker2.name, utskrift: Utskriftstype.SENTRAL, address: extraMottakerAddress },
+          { name: data.ekstraMottaker3.name, utskrift: Utskriftstype.SENTRAL },
         ],
       });
 
