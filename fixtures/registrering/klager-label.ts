@@ -4,4 +4,5 @@ export const KLAGER_LABEL: Record<Sakstype, string> = {
   [Sakstype.ANKE]: 'Ankende part',
   [Sakstype.KLAGE]: 'Klager',
   [Sakstype.OMGJØRINGSKRAV]: 'Den som krever omgjøring',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Den som begjærer gjenopptak',
 };

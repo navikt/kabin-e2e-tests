@@ -22,6 +22,40 @@ export interface Journalpost {
   vedleggNames: string[];
 }
 
+/** Where a registrering's documents come from. The values are the labels of the toggle buttons. */
+export enum DocumentSource {
+  JOURNALPOST = 'Velg journalpost',
+  UPLOAD = 'Last opp',
+  /** Anke received through Altinn. Not implemented yet - the toggle is permanently disabled. */
+  ANKE = 'Anke fra Trygderetten',
+}
+
+/** The channel uploaded documents were received through. The values are the labels shown in the UI. */
+export enum InngaaendeKanal {
+  E_POST = 'E-post',
+  ALTINN_INNBOKS = 'Altinn innboks',
+}
+
+/** An in-memory file, in the shape Playwright's `setInputFiles` expects. */
+export interface UploadFile {
+  name: string;
+  mimeType: string;
+  buffer: Buffer;
+}
+
+export interface UploadedDocuments {
+  inngaaendeKanal: InngaaendeKanal;
+  /** The full document count text, e.g. `1 hoveddokument med 2 vedlegg`. */
+  dokumentCount: string;
+  /** Document names, hoveddokument first, then the attachments in order. */
+  dokumentNames: string[];
+}
+
+/** The documents a registrering is based on, discriminated by where they came from. */
+export type Dokumenter =
+  | { source: DocumentSource.JOURNALPOST; journalpost: Journalpost }
+  | { source: DocumentSource.UPLOAD; uploadedDocuments: UploadedDocuments };
+
 export enum PartType {
   SAKEN_GJELDER = 'Saken gjelder',
   FULLMEKTIG = 'Fullmektig',
@@ -97,6 +131,7 @@ export enum Sakstype {
   KLAGE = 'KLAGE',
   ANKE = 'ANKE',
   OMGJØRINGSKRAV = 'OMGJØRINGSKRAV',
+  BEGJÆRING_OM_GJENOPPTAK = 'BEGJÆRING_OM_GJENOPPTAK',
 }
 
 export interface Ankevedtak {
@@ -110,6 +145,8 @@ export interface Ankevedtak {
 
 export interface Omgjøringskravvedtak extends Ankevedtak {}
 
+export interface Gjenopptaksvedtak extends Ankevedtak {}
+
 export interface Klagevedtak {
   fagsakId: string;
   tema: string;
@@ -121,7 +158,8 @@ export interface Klagevedtak {
 export type Vedtak =
   | { type: Sakstype.KLAGE; data: Klagevedtak }
   | { type: Sakstype.ANKE; data: Ankevedtak }
-  | { type: Sakstype.OMGJØRINGSKRAV; data: Omgjøringskravvedtak };
+  | { type: Sakstype.OMGJØRINGSKRAV; data: Omgjøringskravvedtak }
+  | { type: Sakstype.BEGJÆRING_OM_GJENOPPTAK; data: Gjenopptaksvedtak };
 
 export interface SelectJournalpostParams {
   title?: string;

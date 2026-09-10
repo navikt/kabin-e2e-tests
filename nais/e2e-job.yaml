@@ -27,6 +27,8 @@ spec:
       value: '{{github_actor}}'
     - name: GITHUB_REPOSITORY
       value: '{{github_repository}}'
+    - name: GITHUB_REF_NAME
+      value: '{{github_ref_name}}'
   envFrom:
     - secret: kabin-e2e-test-users
     - secret: slack-e2e-secrets

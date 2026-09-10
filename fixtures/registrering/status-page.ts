@@ -5,6 +5,7 @@ import {
   JournalpostType,
   type Part,
   Sakstype,
+  type UploadedDocuments,
   type Utskriftstype,
 } from '@/fixtures/registrering/types';
 
@@ -33,12 +34,20 @@ interface ValgtVedtak {
 const FRIST_REGEX = /Frist.*/;
 const TEMA_REGEX = /Tema.*/;
 
+/**
+ * How long the status page is given to load the finished behandling. `finish` only waits for the
+ * confirmation heading - everything below it is a single spinner until Kabin has fetched the
+ * behandling, which takes a while when the environment is under load.
+ */
+const STATUS_LOAD_TIMEOUT = 30_000;
+
 export class StatusPage {
   constructor(public readonly page: Page) {}
 
   verifyJournalførtDocument = async (jp: Journalpost, type: Sakstype) =>
     test.step('Verifiser journalpost', async () => {
       const journalfoertDoc = this.page.getByRole('region', { name: REGION_NAME[type] });
+      await journalfoertDoc.waitFor({ timeout: STATUS_LOAD_TIMEOUT });
 
       const kvitteringTemaContainer = journalfoertDoc.getByText(TEMA_REGEX).locator('> *');
       await kvitteringTemaContainer.filter({ hasNotText: 'Laster...' }).waitFor();
@@ -68,6 +77,7 @@ export class StatusPage {
       await expect(saksinfo.getByText('Mottatt NAV klageinstans').locator('> *')).toHaveText(info.mottattKlageinstans);
       await expect(saksinfo.getByText(FRIST_REGEX).locator('> *')).toHaveText(info.fristInKabal);
       await expect(saksinfo.getByText('Varslet frist').locator('> *')).toHaveText(info.varsletFrist);
+
       await expect(saksinfo.getByText(KLAGER_LABEL[type]).locator('> *')).toHaveText(info.klager.getNameAndId());
       await expect(saksinfo.getByText('Fullmektig').locator('> *')).toHaveText(info.fullmektig.getNameAndId());
       await expect(saksinfo.getByText('Tildelt saksbehandler').locator('> *')).toContainText(info.saksbehandlerName);
@@ -90,6 +100,26 @@ export class StatusPage {
       }
     });
 
+  verifyUploadedDocuments = async (uploadedDocuments: UploadedDocuments, type: Sakstype) =>
+    test.step('Verifiser opplastede dokumenter', async () => {
+      const { inngaaendeKanal, dokumentCount, dokumentNames } = uploadedDocuments;
+
+      const uploaded = this.page.getByRole('region', { name: 'Opplastede dokumenter' });
+      // Waited for first: the journalpost card is absent while the page is still loading too, so
+      // asserting its absence any earlier would pass for the wrong reason.
+      await uploaded.waitFor({ timeout: STATUS_LOAD_TIMEOUT });
+
+      // Uploaded documents replace the journalpost card entirely - there is no journalpost to show.
+      await expect(this.page.getByRole('region', { name: REGION_NAME[type] })).toHaveCount(0);
+
+      await expect(uploaded.getByText('Inngående kanal').locator('> *')).toHaveText(inngaaendeKanal);
+      await expect(uploaded.getByText(dokumentCount, { exact: true })).toBeVisible();
+
+      // The name is the only element in a status row carrying a `title` attribute.
+      // The rows are sorted the same way as in the upload editor: hoveddokument first.
+      await expect(uploaded.getByRole('listitem').locator('p[title]')).toHaveText(dokumentNames);
+    });
+
   verifyValgtVedtak = async (vedtak: ValgtVedtak, type: Sakstype) =>
     test.step('Verifiser valgt vedtak', async () => {
       const valgtVedtak = this.page.getByRole('region', { name: VEDTAK_REGION_NAME[type] });
@@ -97,7 +127,12 @@ export class StatusPage {
       await expect(valgtVedtak.getByText('Saken gjelder').locator('> *')).toHaveText(
         vedtak.sakenGjelder.getNameAndId(),
       );
-      await expect(valgtVedtak.getByText('Vedtaksdato').locator('> *')).toHaveText(vedtak.vedtaksdato);
+      // The muligheter table leaves the date cell blank when the mulighet carries no date, while
+      // the status page renders "Ukjent" for the same. Translate between the two representations.
+      // Trygderettens kjennelser in dev test data have no date, so every begjæring hits this.
+      const vedtaksdato = vedtak.vedtaksdato.trim().length === 0 ? 'Ukjent' : vedtak.vedtaksdato;
+
+      await expect(valgtVedtak.getByText(VEDTAK_DATE_LABEL[type]).locator('> *')).toHaveText(vedtaksdato);
 
       if (typeof vedtak.ytelse === 'string') {
         await expect(valgtVedtak.getByText('Ytelse').locator('> *')).toHaveText(vedtak.ytelse);
@@ -112,12 +147,21 @@ const REGION_NAME: Record<Sakstype, string> = {
   [Sakstype.ANKE]: 'Journalført anke',
   [Sakstype.KLAGE]: 'Valgt journalpost',
   [Sakstype.OMGJØRINGSKRAV]: 'Journalført omgjøringskrav',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Journalført begjæring om gjenopptak',
 };
 
 const VEDTAK_REGION_NAME: Record<Sakstype, string> = {
   [Sakstype.ANKE]: 'Valgt vedtak',
   [Sakstype.KLAGE]: 'Valgt vedtak',
   [Sakstype.OMGJØRINGSKRAV]: 'Valgt vedtak',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Valgt kjennelse',
+};
+
+const VEDTAK_DATE_LABEL: Record<Sakstype, string> = {
+  [Sakstype.ANKE]: 'Vedtaksdato',
+  [Sakstype.KLAGE]: 'Vedtaksdato',
+  [Sakstype.OMGJØRINGSKRAV]: 'Vedtaksdato',
+  [Sakstype.BEGJÆRING_OM_GJENOPPTAK]: 'Kjennelsesdato',
 };
 
 const JOURNALPOST_TYPE_NAME: Record<JournalpostType, string> = {
