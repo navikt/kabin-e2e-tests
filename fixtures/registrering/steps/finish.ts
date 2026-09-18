@@ -1,6 +1,5 @@
 import test, { expect, type Page } from '@playwright/test';
 import { STATUS_REGEX } from '@/fixtures/finished-request';
-import { feilregistrerAndDelete } from '@/fixtures/kabal';
 import { Sakstype } from '@/fixtures/registrering/types';
 
 export const finish = async (page: Page, type: Sakstype, fagsystem: string) =>
@@ -33,12 +32,10 @@ export const finish = async (page: Page, type: Sakstype, fagsystem: string) =>
       throw new Error('Invalid response');
     }
 
-    const cookies = await page.context().cookies();
-
-    feilregistrerAndDelete(cookies, res.behandlingId);
-
     const main = page.getByRole('main');
     await expect(main).toContainText(FINISH_TEXT_MAP[type]);
+
+    return res.behandlingId;
   });
 
 /** A single error in the validation summary, as it is rendered: `«{fieldName}: {reason}»`. */
