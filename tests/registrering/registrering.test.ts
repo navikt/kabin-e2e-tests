@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { deleteKabalBehandling } from '@/fixtures/kabal';
 import { test } from '@/fixtures/registrering/fixture';
 import {
   DocumentSource,
@@ -32,7 +33,7 @@ test.describe('Registrering', () => {
       gosysOppgaveIndex,
     } = testdata;
 
-    test(`${type} - ${source}`, async ({ registreringPage, statusPage }) => {
+    test(`${type} - ${source}`, async ({ registreringPage, statusPage, page }) => {
       await registreringPage.setSakenGjelder(sakenGjelder);
 
       // The registrering exists once the source of its documents can be picked.
@@ -121,7 +122,7 @@ test.describe('Registrering', () => {
         await registreringPage.deleteInvalidDokumenter();
       }
 
-      await registreringPage.finish(type, fagsystem);
+      const behandlingId = await registreringPage.finish(type, fagsystem);
 
       if (dokumenter.source === DocumentSource.UPLOAD) {
         await statusPage.verifyUploadedDocuments(dokumenter.uploadedDocuments, type);
@@ -172,6 +173,11 @@ test.describe('Registrering', () => {
       const { vedtaksdato } = vedtak.data;
 
       await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId: fagsakId, ytelse }, type);
+
+      await test.step(`Delete Kabal behandling ${behandlingId}`, async () => {
+        const cookies = await page.context().cookies();
+        await deleteKabalBehandling(cookies, behandlingId);
+      });
     });
   }
 });
