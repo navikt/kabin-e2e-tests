@@ -62,7 +62,12 @@ export const deleteKabalBehandlinger = async (context: string) => {
     }
 
     console.info(`${context} - Deleted: ${deleted} behandling(er)`);
-    console.info(`${context} - Failed to delete: ${failed} behandling(er)`);
+
+    if (failed === 0) {
+      console.info(`${context} - All behandlinger deleted successfully`);
+    } else {
+      console.info(`${context} - Failed to delete: ${failed} behandling(er)`);
+    }
   } catch (e) {
     console.error(`${context} - Error while deleting behandlinger:`, e);
   }
