@@ -8,14 +8,10 @@ import {
   type SelectJournalpostParams,
 } from '@/fixtures/registrering/types';
 
-export const SAKEN_GJELDER_KLAGE = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
-export const SAKEN_GJELDER_ANKE = new Part('SPESIFIKK KUBBESTOL', '29461964263', PartType.SAKEN_GJELDER);
-export const SAKEN_GJELDER_OMGJØRINGSKRAV = new Part('SKEPTISK LANDSBY', '16036832758', PartType.SAKEN_GJELDER);
-export const SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK = new Part(
-  'SKEPTISK LANDSBY',
-  '16036832758',
-  PartType.SAKEN_GJELDER,
-);
+export const SAKEN_GJELDER_KLAGE = new Part('FLYKTIG TANKE', '26477435792', PartType.SAKEN_GJELDER);
+export const SAKEN_GJELDER_ANKE = new Part('FLYKTIG TANKE', '26477435792', PartType.SAKEN_GJELDER);
+export const SAKEN_GJELDER_OMGJØRINGSKRAV = new Part('FLYKTIG TANKE', '26477435792', PartType.SAKEN_GJELDER);
+export const SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK = new Part('FLYKTIG TANKE', '26477435792', PartType.SAKEN_GJELDER);
 
 export const data = {
   ankendePart: new Part('FALSK ONKEL', '17887799784', PartType.KLAGER),
@@ -43,10 +39,10 @@ export const KLAGE: JournalpostTestdata = {
   source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_KLAGE,
   getJournalpostParams: {
-    fagsakId: '1814',
-    title: 'Generelt brev',
-    date: '23.08.2024',
-    avsenderMottaker: 'SKEPTISK LANDSBY',
+    fagsakId: 'cde10',
+    title: 'Klage',
+    date: '11.09.2026',
+    avsenderMottaker: 'FLYKTIG TANKE',
   },
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -60,10 +56,10 @@ export const ANKE: JournalpostTestdata = {
   source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   getJournalpostParams: {
-    fagsakId: '712',
-    title: 'Generelt brev',
-    date: '23.08.2024',
-    avsenderMottaker: 'SPESIFIKK KUBBESTOL',
+    fagsakId: 'cde10',
+    title: 'Klagevedtak',
+    date: '11.09.2026',
+    avsenderMottaker: 'FLYKTIG TANKE',
   },
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -77,10 +73,10 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
   source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
   getJournalpostParams: {
-    fagsakId: 'cde6',
-    title: 'Ekspedisjonsbrev til Trygderetten',
-    date: '23.04.2025',
-    avsenderMottaker: 'TRYGDERETTEN',
+    fagsakId: 'cde10',
+    title: 'Klagevedtak',
+    date: '11.09.2026',
+    avsenderMottaker: 'FLYKTIG TANKE',
   },
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -94,10 +90,10 @@ export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
   source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
   getJournalpostParams: {
-    fagsakId: 'cde6',
-    title: 'Ekspedisjonsbrev til Trygderetten',
-    date: '23.04.2025',
-    avsenderMottaker: 'TRYGDERETTEN',
+    fagsakId: 'cde10',
+    title: 'Klagevedtak',
+    date: '11.09.2026',
+    avsenderMottaker: 'FLYKTIG TANKE',
   },
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
