@@ -10,7 +10,6 @@ const baseConfig = defineConfig({
   timeout: 120_000,
   globalTimeout: 360_000,
   globalSetup: './setup/global-setup.ts',
-  globalTeardown: './setup/global-teardown.ts',
 
   testDir: './tests',
   testMatch: '**/*.test.ts',
