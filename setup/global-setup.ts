@@ -1,6 +1,5 @@
 import { chromium, type FullConfig, type Page } from '@playwright/test';
 import { storageState } from '@/playwright.config';
-import { deleteKabalBehandlinger } from '@/setup/delete-kabal-behandlinger';
 import { DEV_DOMAIN, UI_DOMAIN, USE_LOCALHOST } from '@/tests/functions';
 import { logIn } from '@/tests/helpers';
 import { userSaksbehandler } from '@/tests/test-data';
@@ -23,8 +22,6 @@ const globalSetup = async (_config: FullConfig) => {
   }
 
   await browser.close();
-
-  await deleteKabalBehandlinger('global_setup');
 };
 
 export default globalSetup;
