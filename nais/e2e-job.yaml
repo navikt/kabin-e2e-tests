@@ -37,4 +37,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-      - host: kabin.intern.dev.nav.no
+        - host: kabin.intern.dev.nav.no
+        - host: klage-job-status.ekstern.dev.nav.no
+        - host: slack.com
+        - host: files.slack.com
