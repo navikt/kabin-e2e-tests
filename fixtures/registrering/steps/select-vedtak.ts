@@ -1,5 +1,6 @@
 import test, { expect, type Locator, type Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
+import { selectFirstAvailableTidligereKabalbehandling } from '@/fixtures/registrering/steps/select-tidligere-kabalbehandling';
 import {
   type Ankevedtak,
   type Gjenopptaksvedtak,
@@ -9,11 +10,21 @@ import {
   type Vedtak,
 } from '@/fixtures/registrering/types';
 
-export const selectFirstAvailableVedtak = (page: Page, type: Sakstype) =>
-  test.step('Velg første mulige vedtak', async () => {
+interface SelectMulighetResponse {
+  additionalKabalMuligheter: unknown[];
+}
+
+/**
+ * Selects the first selectable vedtak with the given tema. The tema decides which ytelse and hjemler
+ * are available, so it must match the hjemler the test sets.
+ *
+ * Also selects the tidligere behandling in Kabal the vedtak concerns, when Kabin requires one.
+ */
+export const selectFirstAvailableVedtak = (page: Page, type: Sakstype, tema: string): Promise<Vedtak> =>
+  test.step(`Velg første mulige vedtak med tema ${tema}`, async () => {
     const muligheter = page.getByRole('table', { name: getMuligheterName(type) });
     await muligheter.waitFor({ timeout: 20_000 });
-    const rows = muligheter.locator('tbody tr');
+    const rows = muligheter.locator('tbody tr').filter({ has: page.getByRole('cell', { name: tema, exact: true }) });
 
     const mulighet = rows.filter({ has: page.getByRole('button', { name: 'Velg' }) }).first();
     await mulighet.waitFor();
@@ -31,6 +42,14 @@ export const selectFirstAvailableVedtak = (page: Page, type: Sakstype) =>
     await button.click();
     await finishedRequest(selectMulighetRequest, `Failed to select mulighet "${id}"`);
 
+    const response = await (await selectMulighetRequest).response();
+
+    if (response === null) {
+      throw new Error(`No response when selecting mulighet "${id}"`);
+    }
+
+    const { additionalKabalMuligheter }: SelectMulighetResponse = await response.json();
+
     const selected = muligheter.getByTestId(id);
     await expect(selected).toHaveAttribute('title', 'Valgt');
 
@@ -38,7 +57,13 @@ export const selectFirstAvailableVedtak = (page: Page, type: Sakstype) =>
 
     const cells = await selectedRow.getByRole('cell').all();
 
-    return getVedtakData(type, cells);
+    const vedtak = await getVedtakData(type, cells);
+
+    if (additionalKabalMuligheter.length > 0) {
+      await selectFirstAvailableTidligereKabalbehandling(page);
+    }
+
+    return vedtak;
   });
 
 const getVedtakData = async (type: Sakstype, cells: Locator[]): Promise<Vedtak> => {

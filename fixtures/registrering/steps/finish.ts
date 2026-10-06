@@ -67,6 +67,8 @@ export const finishExpectingSaksdataErrors = async (
 
     const items = getValidationSection(page, SAKSDATA_SECTION_MAP[type]).getByRole('listitem');
 
+    await expect(items).toHaveCount(errors.length);
+
     // Checked one by one rather than with `toHaveText`, since the order the API returns the errors
     // in is an implementation detail.
     for (const { fieldName, reason } of errors) {

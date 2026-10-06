@@ -69,7 +69,7 @@ export class RegistreringPage {
 
   selectType = async (type: Sakstype) => selectType(this.page, type);
 
-  selectFirstAvailableVedtak = (type: Sakstype) => selectFirstAvailableVedtak(this.page, type);
+  selectFirstAvailableVedtak = (type: Sakstype, tema: string) => selectFirstAvailableVedtak(this.page, type, tema);
 
   getYtelse = () => this.page.getByTestId('ytelseId').textContent();
 
