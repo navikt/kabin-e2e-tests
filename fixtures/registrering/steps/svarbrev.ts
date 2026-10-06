@@ -154,8 +154,7 @@ export const selectMottaker = async (page: Page, part: Part, type: Sakstype) =>
   test.step(`Velg mottaker: ${part.getTestLabelWithType()}`, async () => {
     const svarbrevSection = await getSvarbrevSection(page);
     const mottaker = svarbrevSection.getByRole('checkbox', {
-      name: `${part.name} (${partTypeToText(part.type, type)})`,
-      exact: true,
+      name: getMottakerName(part, type),
     });
 
     if (await mottaker.isChecked()) {
@@ -171,6 +170,16 @@ export const selectMottaker = async (page: Page, part: Part, type: Sakstype) =>
 
     await expect(mottaker).toBeChecked();
   });
+
+/**
+ * The accessible name of a mottaker checkbox is `«{name} ({part type})»`, followed by a tag for each
+ * of the part's statuses from PDL/KRR (e.g. `Fullmakt`, `Vergemål`). The statuses are outside the
+ * test's control, so only the name and part type are matched.
+ */
+const getMottakerName = (part: Part, type: Sakstype) =>
+  new RegExp(`^${escapeRegExp(`${part.name} (${partTypeToText(part.type, type)})`)}(?: .+)?$`);
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const getSvarbrevSection = async (page: Page) => page.getByRole('region', { name: 'Svarbrev' });
 

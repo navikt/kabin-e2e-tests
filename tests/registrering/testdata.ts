@@ -44,9 +44,10 @@ export const KLAGE: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '23.08.2024',
+  mottattKlageinstans: '11.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
   gosysOppgaveIndex: 0,
 };
@@ -61,11 +62,12 @@ export const ANKE: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '18.07.2024',
+  mottattKlageinstans: '11.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 0,
+  gosysOppgaveIndex: 1,
 };
 
 export const OMGJØRINGSKRAV: JournalpostTestdata = {
@@ -78,11 +80,12 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '28.11.2024',
+  mottattKlageinstans: '11.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 1,
+  gosysOppgaveIndex: 2,
 };
 
 export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
@@ -95,16 +98,18 @@ export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '28.11.2024',
+  mottattKlageinstans: '11.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
   gosysOppgaveIndex: 3,
 };
 
 /**
- * The upload variants reuse the person, hjemler and dates of their journalpost counterparts - the
- * only thing that differs is where the documents come from. They do need their own
+ * The upload variants reuse the person and hjemler of their journalpost counterparts. Without a
+ * journalpost date, vedtak with later vedtaksdato are selectable, so `mottattKlageinstans` must be
+ * later as well. They also need their own
  * `gosysOppgaveIndex`, since the tests run in parallel and no two registreringer can claim the same
  * Gosys-oppgave.
  */
@@ -113,11 +118,12 @@ export const ANKE_UPLOAD: UploadTestdata = {
   source: DocumentSource.UPLOAD,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   inngaaendeKanal: InngaaendeKanal.E_POST,
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '18.07.2024',
+  mottattKlageinstans: '28.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 1,
+  gosysOppgaveIndex: 4,
 };
 
 export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
@@ -125,11 +131,12 @@ export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
   source: DocumentSource.UPLOAD,
   sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
   inngaaendeKanal: InngaaendeKanal.ALTINN_INNBOKS,
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '28.11.2024',
+  mottattKlageinstans: '28.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 2,
+  gosysOppgaveIndex: 5,
 };
 
 export const BEGJÆRING_OM_GJENOPPTAK_UPLOAD: UploadTestdata = {
@@ -137,11 +144,12 @@ export const BEGJÆRING_OM_GJENOPPTAK_UPLOAD: UploadTestdata = {
   source: DocumentSource.UPLOAD,
   sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
   inngaaendeKanal: InngaaendeKanal.E_POST,
+  tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '28.11.2024',
+  mottattKlageinstans: '28.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 4,
+  gosysOppgaveIndex: 6,
 };
 
 /** Every registrering variant covered by `registrering.test.ts`, one test each. */
@@ -157,8 +165,14 @@ export const TESTDATA: Testdata[] = [
 
 interface CommonTestdata {
   sakenGjelder: Part;
+  /** Tema of the vedtak to select. Decides which hjemler are available. */
+  tema: string;
   hjemlerLong: string[];
   hjemlerShort: string[];
+  /**
+   * For a klage it must be between the journalpost date and today. For the other sakstyper it must be
+   * between the vedtaksdato and the journalpost date - or today, for uploaded documents.
+   */
   mottattKlageinstans: string;
   tildeltSaksbehandler: string;
   /**

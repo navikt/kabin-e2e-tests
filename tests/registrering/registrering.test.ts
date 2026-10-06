@@ -26,6 +26,7 @@ test.describe('Registrering', () => {
       type,
       source,
       sakenGjelder,
+      tema,
       hjemlerLong,
       hjemlerShort,
       mottattKlageinstans,
@@ -46,7 +47,7 @@ test.describe('Registrering', () => {
 
       await registreringPage.selectType(type);
 
-      const vedtak = await registreringPage.selectFirstAvailableVedtak(type);
+      const vedtak = await registreringPage.selectFirstAvailableVedtak(type, tema);
 
       const { fagsakId, fagsystem } = vedtak.data;
 
