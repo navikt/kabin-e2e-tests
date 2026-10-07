@@ -6,7 +6,10 @@ const SOME_CHAR_REGEX = /.+/;
 export const setHjemler = async (page: Page, longNames: string[], shortNames: string[]) =>
   test.step(`Sett hjemler: ${shortNames.join(', ')}`, async () => {
     await page.getByLabel('Hjemler').click();
+    // Each change sends the whole list, so a later change can be overwritten by one that is still in flight.
+    const clearHjemlerRequest = page.waitForRequest('**/hjemmel-id-list');
     await page.getByText('Fjern alle').click();
+    await finishedRequest(clearHjemlerRequest, 'Failed to remove all hjemler');
     await page.locator('#hjemmelIdList').filter({ hasNotText: SOME_CHAR_REGEX }).waitFor();
 
     for (const longName of longNames) {
