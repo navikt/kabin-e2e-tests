@@ -1,4 +1,5 @@
 import type { KlankeMulighet } from '@/fixtures/klanke';
+import type { MulighetFilter } from '@/fixtures/registrering/steps/select-vedtak';
 import {
   DocumentSource,
   FristExtension,
@@ -98,31 +99,39 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
   gosysOppgaveIndex: 2,
 };
 
+/**
+ * Finished Anke i Trygderetten in Kabal (behandling ded83fc8-a80f-421d-a86c-12815e3df6c9), created with
+ * kabal-api's /mockdata/randomankeitrygderetten and finished by hand. Gjenopptaksmuligheter are not used
+ * up, so both gjenopptak tests select it.
+ */
+const GJENOPPTAKSMULIGHET: MulighetFilter = { fagsakId: 'cde10', date: '01.10.2026' };
+
 export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
   type: Sakstype.BEGJÆRING_OM_GJENOPPTAK,
   source: DocumentSource.JOURNALPOST,
   sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
+  // Kabin requires the journalpost to be dated no earlier than the kjennelse of the mulighet.
   getJournalpostParams: {
-    fagsakId: 'cde10',
-    title: 'Klagevedtak',
-    date: '11.09.2026',
-    avsenderMottaker: 'FLYKTIG TANKE',
+    fagsakId: 'cde12',
+    title: 'Ekspedisjonsbrev til Trygderetten',
+    date: '06.10.2026',
+    avsenderMottaker: 'TRYGDERETTEN',
   },
   canChangeAvsender: false,
   tema: 'Sykepenger',
+  kabalMulighet: GJENOPPTAKSMULIGHET,
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '11.09.2026',
+  // Between the kjennelse of the mulighet and the journalpost date.
+  mottattKlageinstans: '02.10.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 3,
 };
 
 /**
  * The upload variants reuse the person and hjemler of their journalpost counterparts. Without a
  * journalpost date, vedtak with later vedtaksdato are selectable, so `mottattKlageinstans` must be
- * later as well. They also need their own
- * `gosysOppgaveIndex`, since the tests run in parallel and no two registreringer can claim the same
- * Gosys-oppgave.
+ * later as well. Where a Gosys-oppgave is required, they also need their own `gosysOppgaveIndex`, since
+ * the tests run in parallel and no two registreringer can claim the same Gosys-oppgave.
  */
 export const ANKE_UPLOAD: UploadTestdata = {
   type: Sakstype.ANKE,
@@ -136,7 +145,7 @@ export const ANKE_UPLOAD: UploadTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 4,
+  gosysOppgaveIndex: 3,
 };
 
 export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
@@ -149,7 +158,7 @@ export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.09.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 5,
+  gosysOppgaveIndex: 4,
 };
 
 export const BEGJÆRING_OM_GJENOPPTAK_UPLOAD: UploadTestdata = {
@@ -158,11 +167,11 @@ export const BEGJÆRING_OM_GJENOPPTAK_UPLOAD: UploadTestdata = {
   sakenGjelder: SAKEN_GJELDER_BEGJÆRING_OM_GJENOPPTAK,
   inngaaendeKanal: InngaaendeKanal.E_POST,
   tema: 'Sykepenger',
+  kabalMulighet: GJENOPPTAKSMULIGHET,
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
-  mottattKlageinstans: '28.09.2026',
+  mottattKlageinstans: '02.10.2026',
   tildeltSaksbehandler: 'F_Z994864 E_Z994864',
-  gosysOppgaveIndex: 6,
 };
 
 /** Every registrering variant covered by `registrering.test.ts`, one test each. */
@@ -190,15 +199,21 @@ interface CommonTestdata {
   tildeltSaksbehandler: string;
   /**
    * Which of the selectable Gosys-oppgaver to claim. Tests sharing a saken gjelder must use different
-   * indices, since they run in parallel and no two registreringer can claim the same oppgave.
+   * indices, since they run in parallel and no two registreringer can claim the same oppgave. Omitted
+   * when the mulighet does not require one - Infotrygd muligheter always do, Kabal muligheter may not.
    */
-  gosysOppgaveIndex: number;
+  gosysOppgaveIndex?: number;
   /**
    * Infotrygd mulighet to create in Klanke and select. A mulighet is used up once a Kabal behandling is
    * created from it, so every test creates its own. Tests sharing a saken gjelder must create
    * muligheter Kabin shows differently, since they run in parallel.
    */
   klankeMulighet?: KlankeMulighet;
+  /**
+   * Finished Kabal behandling to select. Unlike Klanke muligheter, these are prepared by hand and not
+   * used up, so tests can share one.
+   */
+  kabalMulighet?: MulighetFilter;
 }
 
 /** Registrering based on an existing journalpost. Available for every sakstype. */

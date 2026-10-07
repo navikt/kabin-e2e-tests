@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import type { KlankeMulighet } from '@/fixtures/klanke';
 import { type TestSaker, test } from '@/fixtures/registrering/fixture';
 import type { RegistreringPage } from '@/fixtures/registrering/registrering-page';
+import { getKlankeMulighetFilter } from '@/fixtures/registrering/steps/select-vedtak';
 import {
   DocumentSource,
   type Dokumenter,
@@ -30,6 +31,7 @@ test.describe('Registrering', () => {
       sakenGjelder,
       tema,
       klankeMulighet,
+      kabalMulighet,
       hjemlerLong,
       hjemlerShort,
       mottattKlageinstans,
@@ -56,7 +58,11 @@ test.describe('Registrering', () => {
 
       await registreringPage.selectType(type);
 
-      const vedtak = await registreringPage.selectFirstAvailableVedtak(type, tema, klankeMulighet);
+      const vedtak = await registreringPage.selectFirstAvailableVedtak(
+        type,
+        tema,
+        klankeMulighet === undefined ? kabalMulighet : getKlankeMulighetFilter(klankeMulighet),
+      );
 
       const { fagsakId, fagsystem } = vedtak.data;
 
