@@ -44,7 +44,7 @@ test.describe('Registrering', () => {
 
     test(`${type} - ${source}`, async ({ registreringPage, statusPage, testSaker }) => {
       // Kabin fetches the muligheter when saken gjelder is set, so the Klanke mulighet must exist by then.
-      await createKlankeMulighet(testSaker, sakenGjelder, klankeMulighet);
+      const createdKlankeMulighet = await createKlankeMulighet(testSaker, sakenGjelder, klankeMulighet);
 
       await registreringPage.setSakenGjelder(sakenGjelder);
 
@@ -61,7 +61,7 @@ test.describe('Registrering', () => {
       const vedtak = await registreringPage.selectFirstAvailableVedtak(
         type,
         tema,
-        klankeMulighet === undefined ? kabalMulighet : getKlankeMulighetFilter(klankeMulighet),
+        createdKlankeMulighet === undefined ? kabalMulighet : getKlankeMulighetFilter(createdKlankeMulighet),
       );
 
       const { fagsakId, fagsystem } = vedtak.data;
@@ -189,11 +189,12 @@ test.describe('Registrering', () => {
   }
 });
 
-const createKlankeMulighet = async (testSaker: TestSaker, sakenGjelder: Part, mulighet?: KlankeMulighet) => {
-  if (mulighet !== undefined) {
-    await testSaker.createKlankeMulighet(sakenGjelder.id, mulighet);
-  }
-};
+const createKlankeMulighet = (
+  testSaker: TestSaker,
+  sakenGjelder: Part,
+  mulighet?: Omit<KlankeMulighet, 'fagsakId'>,
+): Promise<KlankeMulighet | undefined> =>
+  mulighet === undefined ? Promise.resolve(undefined) : testSaker.createKlankeMulighet(sakenGjelder.id, mulighet);
 
 /** Only an inngående journalpost has an avsender. */
 const setOrVerifyAvsender = async (

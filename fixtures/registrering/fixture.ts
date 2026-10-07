@@ -1,12 +1,19 @@
 import { test as base } from '@playwright/test';
 import { deleteKabalBehandling } from '@/fixtures/kabal';
-import { createKlankeSak, deleteKlankeSak, isHandledInKabal, type KlankeMulighet } from '@/fixtures/klanke';
+import {
+  createKlankeSak,
+  deleteKlankeSak,
+  getUniqueFagsakId,
+  isHandledInKabal,
+  type KlankeMulighet,
+} from '@/fixtures/klanke';
 import { RegistreringPage } from '@/fixtures/registrering/registrering-page';
 import { StatusPage } from '@/fixtures/registrering/status-page';
 
 /** Saker the test creates outside Kabin. Deleted when the test is done. */
 export interface TestSaker {
-  createKlankeMulighet: (fnr: string, mulighet: KlankeMulighet) => Promise<void>;
+  /** Creates the mulighet on a unique fagsak, so it cannot be confused with muligheter of other tests or test runs. */
+  createKlankeMulighet: (fnr: string, mulighet: Omit<KlankeMulighet, 'fagsakId'>) => Promise<KlankeMulighet>;
   addKabalBehandling: (behandlingId: string) => void;
 }
 
@@ -30,10 +37,15 @@ export const test = base.extend<Fixtures>({
     const klankeSakIds: string[] = [];
 
     await use({
-      createKlankeMulighet: (fnr, mulighet) =>
-        base.step(`Create Klanke ${mulighet.sakstype} sak ${mulighet.fagsakId}`, async () => {
-          klankeSakIds.push(await createKlankeSak(fnr, mulighet));
-        }),
+      createKlankeMulighet: (fnr, mulighet) => {
+        const created: KlankeMulighet = { ...mulighet, fagsakId: getUniqueFagsakId() };
+
+        return base.step(`Create Klanke ${created.sakstype} sak on fagsak ${created.fagsakId}`, async () => {
+          klankeSakIds.push(await createKlankeSak(fnr, created));
+
+          return created;
+        });
+      },
       addKabalBehandling: (behandlingId) => {
         behandlingIds.push(behandlingId);
       },

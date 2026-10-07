@@ -25,9 +25,8 @@ export interface MulighetFilter {
 }
 
 /**
- * Kabin shows "Ukjent" as vedtaksdato for Infotrygd ankemuligheter, so only klagemuligheter can be told apart by it.
- * Ankemuligheter from Infotrygd are still unambiguous: Kabal leaves its Infotrygd klager out of that table, so
- * every Infotrygd row in it comes from Klanke.
+ * The fagsakId of a created Klanke mulighet is unique. Kabin shows "Ukjent" as vedtaksdato for Infotrygd
+ * ankemuligheter, so only klagemuligheter are filtered on it.
  */
 export const getKlankeMulighetFilter = ({ sakstype, fagsakId, vedtaksdato }: KlankeMulighet): MulighetFilter => ({
   fagsakId,

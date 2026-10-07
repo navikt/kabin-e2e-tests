@@ -48,9 +48,8 @@ export const KLAGE: JournalpostTestdata = {
   },
   // Sent in via nav.no.
   canChangeAvsender: false,
-  // On the same fagsak as the journalpost, so it is not journalført on another sak. Its vedtaksdato is
-  // before the journalpost date, and tells it apart from other muligheter on the fagsak.
-  klankeMulighet: { sakstype: 'KLAGE', fagsakId: 'cde10', temaId: 'SYK', vedtaksdato: '09.09.2026' },
+  // Its vedtaksdato is before the journalpost date.
+  klankeMulighet: { sakstype: 'KLAGE', temaId: 'SYK', vedtaksdato: '09.09.2026' },
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -70,8 +69,7 @@ export const ANKE: JournalpostTestdata = {
     avsenderMottaker: 'FLYKTIG TANKE',
   },
   canChangeAvsender: false,
-  // On the same fagsak as the journalpost, so it is not journalført on another sak.
-  klankeMulighet: { sakstype: 'ANKE', fagsakId: 'cde10', temaId: 'SYK', vedtaksdato: '08.09.2026' },
+  klankeMulighet: { sakstype: 'ANKE', temaId: 'SYK', vedtaksdato: '08.09.2026' },
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -145,8 +143,7 @@ export const ANKE_UPLOAD: UploadTestdata = {
   source: DocumentSource.UPLOAD,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   inngaaendeKanal: InngaaendeKanal.E_POST,
-  // Ankemuligheter are only told apart by fagsakId, so it must differ from the one of `ANKE`.
-  klankeMulighet: { sakstype: 'ANKE', fagsakId: 'cde13', temaId: 'SYK', vedtaksdato: '08.09.2026' },
+  klankeMulighet: { sakstype: 'ANKE', temaId: 'SYK', vedtaksdato: '08.09.2026' },
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -213,10 +210,10 @@ interface CommonTestdata {
   gosysOppgaveIndex?: number;
   /**
    * Infotrygd mulighet to create in Klanke and select. A mulighet is used up once a Kabal behandling is
-   * created from it, so every test creates its own. Tests sharing a saken gjelder must create
-   * muligheter Kabin shows differently, since they run in parallel.
+   * created from it, so every test creates its own on a unique fagsak. Kabin copies a journalpost on
+   * another fagsak to a new journalpost on the fagsak of the mulighet.
    */
-  klankeMulighet?: KlankeMulighet;
+  klankeMulighet?: Omit<KlankeMulighet, 'fagsakId'>;
   /**
    * Finished Kabal behandling to select. Unlike Klanke muligheter, these are prepared by hand and not
    * used up, so tests can share one.
