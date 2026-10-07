@@ -136,7 +136,8 @@ export class RegistreringPage {
 
   addExtraReceiver = async (part: Part) => addExtraReceiver(this.page, part);
 
-  finish = async (saksType: Sakstype, fagsystem: string) => finish(this.page, saksType, fagsystem);
+  finish = async (saksType: Sakstype, fagsystem: string, onCreated: (behandlingId: string) => void) =>
+    finish(this.page, saksType, fagsystem, onCreated);
 
   deleteRegistrering = () => deleteRegistrering(this.page);
 }
