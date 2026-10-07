@@ -1,5 +1,6 @@
 import test, { expect, type Locator, type Page } from '@playwright/test';
 import { finishedRequest } from '@/fixtures/finished-request';
+import type { KlankeMulighet } from '@/fixtures/klanke';
 import { selectFirstAvailableTidligereKabalbehandling } from '@/fixtures/registrering/steps/select-tidligere-kabalbehandling';
 import {
   type Ankevedtak,
@@ -16,15 +17,25 @@ interface SelectMulighetResponse {
 
 /**
  * Selects the first selectable vedtak with the given tema. The tema decides which ytelse and hjemler
- * are available, so it must match the hjemler the test sets.
+ * are available, so it must match the hjemler the test sets. Given a Klanke mulighet, only that one is
+ * selected.
  *
  * Also selects the tidligere behandling in Kabal the vedtak concerns, when Kabin requires one.
  */
-export const selectFirstAvailableVedtak = (page: Page, type: Sakstype, tema: string): Promise<Vedtak> =>
+export const selectFirstAvailableVedtak = (
+  page: Page,
+  type: Sakstype,
+  tema: string,
+  klankeMulighet?: KlankeMulighet,
+): Promise<Vedtak> =>
   test.step(`Velg første mulige vedtak med tema ${tema}`, async () => {
     const muligheter = page.getByRole('table', { name: getMuligheterName(type) });
     await muligheter.waitFor({ timeout: 20_000 });
-    const rows = muligheter.locator('tbody tr').filter({ has: page.getByRole('cell', { name: tema, exact: true }) });
+    const rows = filterKlankeMulighet(
+      page,
+      muligheter.locator('tbody tr').filter({ has: page.getByRole('cell', { name: tema, exact: true }) }),
+      klankeMulighet,
+    );
 
     const mulighet = rows.filter({ has: page.getByRole('button', { name: 'Velg' }) }).first();
     await mulighet.waitFor();
@@ -65,6 +76,18 @@ export const selectFirstAvailableVedtak = (page: Page, type: Sakstype, tema: str
 
     return vedtak;
   });
+
+const filterKlankeMulighet = (page: Page, rows: Locator, mulighet: KlankeMulighet | undefined): Locator => {
+  if (mulighet === undefined) {
+    return rows;
+  }
+
+  const fagsakRows = rows.filter({ has: page.getByRole('cell', { name: mulighet.fagsakId, exact: true }) });
+
+  return mulighet.sakstype === 'KLAGE'
+    ? fagsakRows.filter({ has: page.getByRole('cell', { name: mulighet.vedtaksdato, exact: true }) })
+    : fagsakRows;
+};
 
 const getVedtakData = async (type: Sakstype, cells: Locator[]): Promise<Vedtak> => {
   switch (type) {

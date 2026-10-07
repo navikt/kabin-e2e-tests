@@ -1,3 +1,4 @@
+import type { KlankeMulighet } from '@/fixtures/klanke';
 import {
   DocumentSource,
   FristExtension,
@@ -44,6 +45,11 @@ export const KLAGE: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  // Sent in via nav.no.
+  canChangeAvsender: false,
+  // On the same fagsak as the journalpost, so it is not journalført on another sak. Its vedtaksdato is
+  // before the journalpost date, and tells it apart from other muligheter on the fagsak.
+  klankeMulighet: { sakstype: 'KLAGE', fagsakId: 'cde10', temaId: 'SYK', vedtaksdato: '09.09.2026' },
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -62,6 +68,9 @@ export const ANKE: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  canChangeAvsender: false,
+  // On the same fagsak as the journalpost, so it is not journalført on another sak.
+  klankeMulighet: { sakstype: 'ANKE', fagsakId: 'cde10', temaId: 'SYK', vedtaksdato: '08.09.2026' },
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -80,6 +89,7 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  canChangeAvsender: false,
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -98,6 +108,7 @@ export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
     date: '11.09.2026',
     avsenderMottaker: 'FLYKTIG TANKE',
   },
+  canChangeAvsender: false,
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -118,6 +129,8 @@ export const ANKE_UPLOAD: UploadTestdata = {
   source: DocumentSource.UPLOAD,
   sakenGjelder: SAKEN_GJELDER_ANKE,
   inngaaendeKanal: InngaaendeKanal.E_POST,
+  // Ankemuligheter are only told apart by fagsakId, so it must differ from the one of `ANKE`.
+  klankeMulighet: { sakstype: 'ANKE', fagsakId: 'cde13', temaId: 'SYK', vedtaksdato: '08.09.2026' },
   tema: 'Sykepenger',
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
@@ -180,6 +193,12 @@ interface CommonTestdata {
    * indices, since they run in parallel and no two registreringer can claim the same oppgave.
    */
   gosysOppgaveIndex: number;
+  /**
+   * Infotrygd mulighet to create in Klanke and select. A mulighet is used up once a Kabal behandling is
+   * created from it, so every test creates its own. Tests sharing a saken gjelder must create
+   * muligheter Kabin shows differently, since they run in parallel.
+   */
+  klankeMulighet?: KlankeMulighet;
 }
 
 /** Registrering based on an existing journalpost. Available for every sakstype. */
@@ -187,6 +206,11 @@ interface JournalpostTestdata extends CommonTestdata {
   type: Sakstype;
   source: DocumentSource.JOURNALPOST;
   getJournalpostParams: SelectJournalpostParams;
+  /**
+   * Whether Kabin lets the avsender of the journalpost be changed. Only inngående journalposter have
+   * one, and Kabin keeps it if the journalpost was sent in digitally or is older than a year.
+   */
+  canChangeAvsender: boolean;
 }
 
 /** Registrering based on uploaded documents. Available for every sakstype except klage - klager
