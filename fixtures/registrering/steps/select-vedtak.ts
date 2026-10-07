@@ -18,13 +18,20 @@ interface SelectMulighetResponse {
 /** Identifies a mulighet by the cells Kabin shows for it. */
 export interface MulighetFilter {
   fagsakId: string;
+  /** The fagsystem the vedtak was made in, as Kabin shows it. Kabal behandlinger show the fagsystem they came from. */
+  fagsystem: string;
   /** The date column of the mulighet - vedtaksdato or kjennelsesdato. Omit when Kabin does not show it. */
   date?: string;
 }
 
-/** Kabin shows "Ukjent" as vedtaksdato for Infotrygd ankemuligheter, so only klagemuligheter can be told apart by it. */
+/**
+ * Kabin shows "Ukjent" as vedtaksdato for Infotrygd ankemuligheter, so only klagemuligheter can be told apart by it.
+ * Ankemuligheter from Infotrygd are still unambiguous: Kabal leaves its Infotrygd klager out of that table, so
+ * every Infotrygd row in it comes from Klanke.
+ */
 export const getKlankeMulighetFilter = ({ sakstype, fagsakId, vedtaksdato }: KlankeMulighet): MulighetFilter => ({
   fagsakId,
+  fagsystem: 'Infotrygd',
   date: sakstype === 'KLAGE' ? vedtaksdato : undefined,
 });
 
@@ -95,7 +102,9 @@ const filterMulighet = (page: Page, rows: Locator, filter: MulighetFilter | unde
     return rows;
   }
 
-  const fagsakRows = rows.filter({ has: page.getByRole('cell', { name: filter.fagsakId, exact: true }) });
+  const fagsakRows = rows
+    .filter({ has: page.getByRole('cell', { name: filter.fagsakId, exact: true }) })
+    .filter({ has: page.getByRole('cell', { name: filter.fagsystem, exact: true }) });
 
   return filter.date === undefined
     ? fagsakRows
