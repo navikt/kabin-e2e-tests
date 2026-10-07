@@ -80,6 +80,12 @@ export const ANKE: JournalpostTestdata = {
   gosysOppgaveIndex: 1,
 };
 
+/**
+ * Finished Kabal behandling for FLYKTIG TANKE on Infotrygd sak cde10. Omgjøringskravmuligheter are not used up,
+ * so both omgjøringskrav tests select it.
+ */
+const OMGJØRINGSKRAVMULIGHET: MulighetFilter = { fagsakId: 'cde10', fagsystem: 'Infotrygd', date: '11.09.2026' };
+
 export const OMGJØRINGSKRAV: JournalpostTestdata = {
   type: Sakstype.OMGJØRINGSKRAV,
   source: DocumentSource.JOURNALPOST,
@@ -92,6 +98,7 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
   },
   canChangeAvsender: false,
   tema: 'Sykepenger',
+  kabalMulighet: OMGJØRINGSKRAVMULIGHET,
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '11.09.2026',
@@ -104,7 +111,7 @@ export const OMGJØRINGSKRAV: JournalpostTestdata = {
  * kabal-api's /mockdata/randomankeitrygderetten and finished by hand. Gjenopptaksmuligheter are not used
  * up, so both gjenopptak tests select it.
  */
-const GJENOPPTAKSMULIGHET: MulighetFilter = { fagsakId: 'cde10', date: '01.10.2026' };
+const GJENOPPTAKSMULIGHET: MulighetFilter = { fagsakId: 'cde10', fagsystem: 'Infotrygd', date: '01.10.2026' };
 
 export const BEGJÆRING_OM_GJENOPPTAK: JournalpostTestdata = {
   type: Sakstype.BEGJÆRING_OM_GJENOPPTAK,
@@ -154,6 +161,7 @@ export const OMGJØRINGSKRAV_UPLOAD: UploadTestdata = {
   sakenGjelder: SAKEN_GJELDER_OMGJØRINGSKRAV,
   inngaaendeKanal: InngaaendeKanal.ALTINN_INNBOKS,
   tema: 'Sykepenger',
+  kabalMulighet: OMGJØRINGSKRAVMULIGHET,
   hjemlerLong: ['Folketrygdloven - § 8-2', 'Folketrygdloven - § 22-17'],
   hjemlerShort: ['Ftrl - § 8-2', 'Ftrl - § 22-17'],
   mottattKlageinstans: '28.09.2026',
