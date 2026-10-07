@@ -15,10 +15,23 @@ interface SelectMulighetResponse {
   additionalKabalMuligheter: unknown[];
 }
 
+/** Identifies a mulighet by the cells Kabin shows for it. */
+export interface MulighetFilter {
+  fagsakId: string;
+  /** The date column of the mulighet - vedtaksdato or kjennelsesdato. Omit when Kabin does not show it. */
+  date?: string;
+}
+
+/** Kabin shows "Ukjent" as vedtaksdato for Infotrygd ankemuligheter, so only klagemuligheter can be told apart by it. */
+export const getKlankeMulighetFilter = ({ sakstype, fagsakId, vedtaksdato }: KlankeMulighet): MulighetFilter => ({
+  fagsakId,
+  date: sakstype === 'KLAGE' ? vedtaksdato : undefined,
+});
+
 /**
  * Selects the first selectable vedtak with the given tema. The tema decides which ytelse and hjemler
- * are available, so it must match the hjemler the test sets. Given a Klanke mulighet, only that one is
- * selected.
+ * are available, so it must match the hjemler the test sets. Given a filter, only matching muligheter are
+ * considered.
  *
  * Also selects the tidligere behandling in Kabal the vedtak concerns, when Kabin requires one.
  */
@@ -26,15 +39,15 @@ export const selectFirstAvailableVedtak = (
   page: Page,
   type: Sakstype,
   tema: string,
-  klankeMulighet?: KlankeMulighet,
+  mulighetFilter?: MulighetFilter,
 ): Promise<Vedtak> =>
   test.step(`Velg første mulige vedtak med tema ${tema}`, async () => {
     const muligheter = page.getByRole('table', { name: getMuligheterName(type) });
     await muligheter.waitFor({ timeout: 20_000 });
-    const rows = filterKlankeMulighet(
+    const rows = filterMulighet(
       page,
       muligheter.locator('tbody tr').filter({ has: page.getByRole('cell', { name: tema, exact: true }) }),
-      klankeMulighet,
+      mulighetFilter,
     );
 
     const mulighet = rows.filter({ has: page.getByRole('button', { name: 'Velg' }) }).first();
@@ -77,16 +90,16 @@ export const selectFirstAvailableVedtak = (
     return vedtak;
   });
 
-const filterKlankeMulighet = (page: Page, rows: Locator, mulighet: KlankeMulighet | undefined): Locator => {
-  if (mulighet === undefined) {
+const filterMulighet = (page: Page, rows: Locator, filter: MulighetFilter | undefined): Locator => {
+  if (filter === undefined) {
     return rows;
   }
 
-  const fagsakRows = rows.filter({ has: page.getByRole('cell', { name: mulighet.fagsakId, exact: true }) });
+  const fagsakRows = rows.filter({ has: page.getByRole('cell', { name: filter.fagsakId, exact: true }) });
 
-  return mulighet.sakstype === 'KLAGE'
-    ? fagsakRows.filter({ has: page.getByRole('cell', { name: mulighet.vedtaksdato, exact: true }) })
-    : fagsakRows;
+  return filter.date === undefined
+    ? fagsakRows
+    : fagsakRows.filter({ has: page.getByRole('cell', { name: filter.date, exact: true }) });
 };
 
 const getVedtakData = async (type: Sakstype, cells: Locator[]): Promise<Vedtak> => {
