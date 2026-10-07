@@ -16,12 +16,25 @@ export interface KlankeMulighet {
   fagsakId: string;
   /** Tema code, e.g. `SYK`. */
   temaId: string;
-  /**
-   * Formatted `dd.MM.yyyy`, as Kabin shows it. Kabin requires it, but does not show it for an anke, so
-   * only the fagsakId tells ankemuligheter apart.
-   */
+  /** Formatted `dd.MM.yyyy`, as Kabin shows it. Kabin requires it, but does not show it for an anke. */
   vedtaksdato: string;
 }
+
+const FAGSAK_ID_PREFIX = 'e2e';
+
+/**
+ * A fagsakId no other test or test run uses. Only the fagsakId tells ankemuligheter apart in Kabin, and
+ * Kabin does not show the Klanke sak ID, so this is how a test finds the mulighet it created.
+ *
+ * Klanke saker have no creation time, so it is encoded in the fagsakId in UTC, e.g. `e2e-20261008-085500-a1b2`.
+ */
+export const getUniqueFagsakId = (now = new Date()) => {
+  const iso = now.toISOString(); // 2026-10-08T08:55:00.123Z
+  const date = iso.slice(0, 10).replaceAll('-', '');
+  const time = iso.slice(11, 19).replaceAll(':', '');
+
+  return `${FAGSAK_ID_PREFIX}-${date}-${time}-${crypto.randomUUID().slice(0, 4)}`;
+};
 
 interface KlankeSak {
   id: string;
