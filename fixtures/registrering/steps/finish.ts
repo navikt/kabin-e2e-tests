@@ -2,7 +2,16 @@ import test, { expect, type Page } from '@playwright/test';
 import { STATUS_REGEX } from '@/fixtures/finished-request';
 import { Sakstype } from '@/fixtures/registrering/types';
 
-export const finish = async (page: Page, type: Sakstype, fagsystem: string) =>
+/**
+ * Finishes the registrering. `onCreated` gets the ID of the Kabal behandling as soon as it exists, so it
+ * can be cleaned up even if a later check fails.
+ */
+export const finish = async (
+  page: Page,
+  type: Sakstype,
+  fagsystem: string,
+  onCreated: (behandlingId: string) => void,
+) =>
   test.step('Fullfør', async () => {
     await page.getByText('Fullfør', { exact: true }).click();
 
@@ -24,18 +33,18 @@ export const finish = async (page: Page, type: Sakstype, fagsystem: string) =>
       throw new Error(`Fullfør failed: ${response.status()} - ${await response.text()}`);
     }
 
-    await page.waitForURL(STATUS_REGEX);
-
     const res: unknown = await response.json();
 
     if (!isStatusResponse(res)) {
       throw new Error('Invalid response');
     }
 
+    onCreated(res.behandlingId);
+
+    await page.waitForURL(STATUS_REGEX);
+
     const main = page.getByRole('main');
     await expect(main).toContainText(FINISH_TEXT_MAP[type]);
-
-    return res.behandlingId;
   });
 
 /** A single error in the validation summary, as it is rendered: `«{fieldName}: {reason}»`. */

@@ -134,7 +134,7 @@ test.describe('Registrering', () => {
         await registreringPage.deleteInvalidDokumenter();
       }
 
-      testSaker.addKabalBehandling(await registreringPage.finish(type, fagsystem));
+      await registreringPage.finish(type, fagsystem, testSaker.addKabalBehandling);
 
       if (dokumenter.source === DocumentSource.UPLOAD) {
         await statusPage.verifyUploadedDocuments(dokumenter.uploadedDocuments, type);
