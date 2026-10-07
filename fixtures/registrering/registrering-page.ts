@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import type { KlankeMulighet } from '@/fixtures/klanke';
 import { deleteRegistrering } from '@/fixtures/registrering/delete-registrering';
 import { finish } from '@/fixtures/registrering/steps/finish';
 import { selectGosysOppgave } from '@/fixtures/registrering/steps/select-gosys-oppgave';
@@ -6,7 +7,7 @@ import { selectJournalpost } from '@/fixtures/registrering/steps/select-journalp
 import { verifySourceOptions } from '@/fixtures/registrering/steps/select-source';
 import { selectType } from '@/fixtures/registrering/steps/select-type';
 import { selectFirstAvailableVedtak } from '@/fixtures/registrering/steps/select-vedtak';
-import { setAvsender } from '@/fixtures/registrering/steps/set-avsender';
+import { setAvsender, verifyAvsenderCannotBeChanged } from '@/fixtures/registrering/steps/set-avsender';
 import { setFristInKabal } from '@/fixtures/registrering/steps/set-frist-in-kabal';
 import { setFullmektig } from '@/fixtures/registrering/steps/set-fullmektig';
 import { setHjemler } from '@/fixtures/registrering/steps/set-hjemler';
@@ -69,7 +70,8 @@ export class RegistreringPage {
 
   selectType = async (type: Sakstype) => selectType(this.page, type);
 
-  selectFirstAvailableVedtak = (type: Sakstype, tema: string) => selectFirstAvailableVedtak(this.page, type, tema);
+  selectFirstAvailableVedtak = (type: Sakstype, tema: string, klankeMulighet?: KlankeMulighet) =>
+    selectFirstAvailableVedtak(this.page, type, tema, klankeMulighet);
 
   getYtelse = () => this.page.getByTestId('ytelseId').textContent();
 
@@ -93,6 +95,7 @@ export class RegistreringPage {
   setFullmektig = async (part: Part) => setFullmektig(this.page, part);
 
   setAvsender = async (part: Part) => setAvsender(this.page, part);
+  verifyAvsenderCannotBeChanged = () => verifyAvsenderCannotBeChanged(this.page);
 
   setSaksbehandler = async (label: string) => setSaksbehandler(this.page, label);
 
