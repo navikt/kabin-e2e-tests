@@ -100,19 +100,28 @@ describe('pathMatches', () => {
 
 describe('secureMatches', () => {
   it('sends a secure cookie over https', () => {
-    expect(secureMatches(cookie({ secure: true }), 'https:')).toBe(true);
+    expect(secureMatches(cookie({ secure: true }), new URL('https://kabin.intern.dev.nav.no'))).toBe(true);
   });
 
   it('does not send a secure cookie over http', () => {
-    expect(secureMatches(cookie({ secure: true }), 'http:')).toBe(false);
+    expect(secureMatches(cookie({ secure: true }), new URL('http://kabin.intern.dev.nav.no'))).toBe(false);
+  });
+
+  it('sends a secure cookie over http to localhost', () => {
+    expect(secureMatches(cookie({ secure: true }), new URL('http://localhost:8063'))).toBe(true);
+  });
+
+  it('sends a secure cookie over http to a loopback address', () => {
+    expect(secureMatches(cookie({ secure: true }), new URL('http://127.0.0.1:8063'))).toBe(true);
+    expect(secureMatches(cookie({ secure: true }), new URL('http://[::1]:8063'))).toBe(true);
   });
 
   it('sends a non-secure cookie over https', () => {
-    expect(secureMatches(cookie({ secure: false }), 'https:')).toBe(true);
+    expect(secureMatches(cookie({ secure: false }), new URL('https://kabin.intern.dev.nav.no'))).toBe(true);
   });
 
   it('sends a non-secure cookie over http', () => {
-    expect(secureMatches(cookie({ secure: false }), 'http:')).toBe(true);
+    expect(secureMatches(cookie({ secure: false }), new URL('http://kabin.intern.dev.nav.no'))).toBe(true);
   });
 });
 
@@ -153,6 +162,12 @@ describe('appliesTo', () => {
     const insecureCookie = cookie({ domain: 'kabin.intern.dev.nav.no', path: '/', secure: false });
 
     expect(appliesTo(insecureCookie, new URL('http://kabin.intern.dev.nav.no/api/registreringer/123'))).toBe(true);
+  });
+
+  it('applies to a secure cookie sent over http to localhost', () => {
+    const localCookie = cookie({ domain: 'localhost', path: '/', secure: true });
+
+    expect(appliesTo(localCookie, new URL('http://localhost:8063/api/kabal-api/behandlinger/123'))).toBe(true);
   });
 
   it('ignores the port when matching the domain', () => {
