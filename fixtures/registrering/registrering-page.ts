@@ -5,8 +5,8 @@ import { selectGosysOppgave } from '@/fixtures/registrering/steps/select-gosys-o
 import { selectJournalpost } from '@/fixtures/registrering/steps/select-journalpost';
 import { verifySourceOptions } from '@/fixtures/registrering/steps/select-source';
 import { selectType } from '@/fixtures/registrering/steps/select-type';
-import { selectFirstAvailableVedtak } from '@/fixtures/registrering/steps/select-vedtak';
-import { setAvsender } from '@/fixtures/registrering/steps/set-avsender';
+import { type MulighetFilter, selectFirstAvailableVedtak } from '@/fixtures/registrering/steps/select-vedtak';
+import { setAvsender, verifyAvsenderCannotBeChanged } from '@/fixtures/registrering/steps/set-avsender';
 import { setFristInKabal } from '@/fixtures/registrering/steps/set-frist-in-kabal';
 import { setFullmektig } from '@/fixtures/registrering/steps/set-fullmektig';
 import { setHjemler } from '@/fixtures/registrering/steps/set-hjemler';
@@ -65,11 +65,13 @@ export class RegistreringPage {
 
   deleteInvalidDokumenter = async () => deleteInvalidDokumenter(this.page);
 
-  selectGosysOppgave = async (gosysOppgaveIndex: number) => selectGosysOppgave(this.page, gosysOppgaveIndex);
+  selectGosysOppgave = async (gosysOppgaveIndex: number | undefined) =>
+    selectGosysOppgave(this.page, gosysOppgaveIndex);
 
   selectType = async (type: Sakstype) => selectType(this.page, type);
 
-  selectFirstAvailableVedtak = (type: Sakstype) => selectFirstAvailableVedtak(this.page, type);
+  selectFirstAvailableVedtak = (type: Sakstype, tema: string, mulighetFilter?: MulighetFilter) =>
+    selectFirstAvailableVedtak(this.page, type, tema, mulighetFilter);
 
   getYtelse = () => this.page.getByTestId('ytelseId').textContent();
 
@@ -93,6 +95,7 @@ export class RegistreringPage {
   setFullmektig = async (part: Part) => setFullmektig(this.page, part);
 
   setAvsender = async (part: Part) => setAvsender(this.page, part);
+  verifyAvsenderCannotBeChanged = () => verifyAvsenderCannotBeChanged(this.page);
 
   setSaksbehandler = async (label: string) => setSaksbehandler(this.page, label);
 
@@ -133,7 +136,8 @@ export class RegistreringPage {
 
   addExtraReceiver = async (part: Part) => addExtraReceiver(this.page, part);
 
-  finish = async (saksType: Sakstype, fagsystem: string) => finish(this.page, saksType, fagsystem);
+  finish = async (saksType: Sakstype, fagsystem: string, onCreated: (behandlingId: string) => void) =>
+    finish(this.page, saksType, fagsystem, onCreated);
 
   deleteRegistrering = () => deleteRegistrering(this.page);
 }

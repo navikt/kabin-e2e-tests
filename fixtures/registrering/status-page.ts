@@ -40,6 +40,8 @@ const TEMA_REGEX = /Tema.*/;
  * behandling, which takes a while when the environment is under load.
  */
 const STATUS_LOAD_TIMEOUT = 30_000;
+// A part's name and ID are in a paragraph. PDL status tags, like "Fullmakt", are siblings of it.
+const PART_NAME_AND_ID = '> p';
 
 export class StatusPage {
   constructor(public readonly page: Page) {}
@@ -78,8 +80,12 @@ export class StatusPage {
       await expect(saksinfo.getByText(FRIST_REGEX).locator('> *')).toHaveText(info.fristInKabal);
       await expect(saksinfo.getByText('Varslet frist').locator('> *')).toHaveText(info.varsletFrist);
 
-      await expect(saksinfo.getByText(KLAGER_LABEL[type]).locator('> *')).toHaveText(info.klager.getNameAndId());
-      await expect(saksinfo.getByText('Fullmektig').locator('> *')).toHaveText(info.fullmektig.getNameAndId());
+      await expect(saksinfo.getByText(KLAGER_LABEL[type]).locator(PART_NAME_AND_ID)).toHaveText(
+        info.klager.getNameAndId(),
+      );
+      await expect(saksinfo.getByText('Fullmektig').locator(PART_NAME_AND_ID)).toHaveText(
+        info.fullmektig.getNameAndId(),
+      );
       await expect(saksinfo.getByText('Tildelt saksbehandler').locator('> *')).toContainText(info.saksbehandlerName);
     });
 
@@ -124,7 +130,7 @@ export class StatusPage {
     test.step('Verifiser valgt vedtak', async () => {
       const valgtVedtak = this.page.getByRole('region', { name: VEDTAK_REGION_NAME[type] });
 
-      await expect(valgtVedtak.getByText('Saken gjelder').locator('> *')).toHaveText(
+      await expect(valgtVedtak.getByText('Saken gjelder').locator(PART_NAME_AND_ID)).toHaveText(
         vedtak.sakenGjelder.getNameAndId(),
       );
       // The muligheter table leaves the date cell blank when the mulighet carries no date, while

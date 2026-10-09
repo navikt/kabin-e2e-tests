@@ -1,5 +1,6 @@
 import type { Cookie } from '@playwright/test';
 import { makeDirectApiRequest } from '@/fixtures/direct-api-request/direct-api-request';
+import { UI_DOMAIN } from '@/tests/functions';
 
 class ResponseError extends Error {
   constructor(
@@ -13,7 +14,7 @@ class ResponseError extends Error {
 
 const deleteOppgave = async (cookies: Cookie[], kabalId: string) => {
   const res = await makeDirectApiRequest(
-    `https://kabin.intern.dev.nav.no/api/kabal-api/internal/dev/behandlinger/${kabalId}`,
+    `${UI_DOMAIN}/api/kabal-api/internal/dev/behandlinger/${kabalId}`,
     'DELETE',
     cookies,
   );
@@ -54,10 +55,6 @@ const exponentialBackoff = <T>(
     );
   });
 
-export const deleteKabalBehandling = async (cookies: Cookie[], kabalId: string) => {
-  try {
-    await exponentialBackoff(() => deleteOppgave(cookies, kabalId), 'Deletion', 3, 1000, 2);
-  } catch (e) {
-    console.error('Delete failed for oppgave:', kabalId, e);
-  }
-};
+/** Throws if the behandling could not be deleted, so callers can keep anything it still depends on. */
+export const deleteKabalBehandling = (cookies: Cookie[], kabalId: string) =>
+  exponentialBackoff(() => deleteOppgave(cookies, kabalId), 'Deletion', 3, 1000, 2);

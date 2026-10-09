@@ -1,6 +1,6 @@
 import { chromium, type FullConfig, type Page } from '@playwright/test';
 import { storageState } from '@/playwright.config';
-import { deleteKabalBehandlinger } from '@/setup/delete-kabal-behandlinger';
+import { deleteStaleTestSaker } from '@/setup/delete-stale-test-saker';
 import { DEV_DOMAIN, UI_DOMAIN, USE_LOCALHOST } from '@/tests/functions';
 import { logIn } from '@/tests/helpers';
 import { userSaksbehandler } from '@/tests/test-data';
@@ -14,17 +14,17 @@ const globalSetup = async (_config: FullConfig) => {
 
   await logIn(page, userSaksbehandler);
 
-  if (typeof storageState === 'string') {
-    if (USE_LOCALHOST) {
-      await setLocalhostCookie(page);
-    }
+  if (USE_LOCALHOST) {
+    await setLocalhostCookie(page);
+  }
 
+  await deleteStaleTestSaker(await page.context().cookies(UI_DOMAIN));
+
+  if (typeof storageState === 'string') {
     await page.context().storageState({ path: storageState });
   }
 
   await browser.close();
-
-  await deleteKabalBehandlinger('global_setup');
 };
 
 export default globalSetup;

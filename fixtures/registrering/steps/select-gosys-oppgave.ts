@@ -8,19 +8,21 @@ import test, { expect, type Page } from '@playwright/test';
 const SELECT_BUTTON_NAME = /^(Velg oppgave|Oppgave er valgt)/;
 
 /**
- * Selects a Gosys-oppgave, if the registrering needs one.
+ * Selects a Gosys-oppgave, or verifies that Kabin does not ask for one when no index is given.
  *
- * Whether it does is decided by the API.
+ * Whether one is needed is decided by the API, per mulighet.
  * Kabin renders the heading only when a Gosys-oppgave is required.
  */
-export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number) => {
+export const selectGosysOppgave = async (page: Page, gosysOppgaveIndex: number | undefined) => {
   const heading = page.getByRole('heading', { name: 'Velg oppgave i Gosys' });
 
-  if (!(await heading.isVisible())) {
-    return test.step('Kabin ba ikke om en Gosys-oppgave', () => expect(heading).toBeHidden());
+  if (gosysOppgaveIndex === undefined) {
+    return test.step('Kabin ber ikke om en Gosys-oppgave', () => expect(heading).toBeHidden());
   }
 
   return test.step(`Velg ledig Gosys-oppgave nummer ${gosysOppgaveIndex + 1}`, async () => {
+    await expect(heading).toBeVisible();
+
     // While the oppgaver load, a skeleton renders a table of its own holding a single empty row.
     // Only the loaded table is labelled, so scoping to it keeps the index off that placeholder.
     const table = page.getByRole('table', { name: 'Gosys-oppgaver', exact: true });

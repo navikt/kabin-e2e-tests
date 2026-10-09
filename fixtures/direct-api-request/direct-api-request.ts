@@ -82,7 +82,7 @@ const toCookieHeader = (url: URL, cookies: Cookie[]): string =>
 
 /** Whether a browser would send `cookie` to `url`. See RFC 6265, sections 5.1.3 - 5.4. */
 export const appliesTo = (cookie: Cookie, url: URL): boolean =>
-  domainMatches(cookie, url.hostname) && pathMatches(cookie, url.pathname) && secureMatches(cookie, url.protocol);
+  domainMatches(cookie, url.hostname) && pathMatches(cookie, url.pathname) && secureMatches(cookie, url);
 
 /** A leading dot marks a domain cookie, which also applies to every subdomain. Without it the
  * cookie is host-only, and applies to exactly the host that set it. */
@@ -92,4 +92,10 @@ export const domainMatches = ({ domain }: Cookie, hostname: string): boolean =>
 export const pathMatches = ({ path }: Cookie, pathname: string): boolean =>
   pathname === path || (pathname.startsWith(path) && (path.endsWith('/') || pathname.at(path.length) === '/'));
 
-export const secureMatches = ({ secure }: Cookie, protocol: string): boolean => !secure || protocol === 'https:';
+/** Secure cookies are only sent to secure origins. Like browsers, this treats `localhost` as secure
+ * even over plain http (RFC 6265bis, section 5.8.3), which is what local runs talk to. */
+export const secureMatches = ({ secure }: Cookie, { protocol, hostname }: URL): boolean =>
+  !secure || protocol === 'https:' || isLocalhost(hostname);
+
+const isLocalhost = (hostname: string): boolean =>
+  hostname === 'localhost' || hostname.endsWith('.localhost') || hostname === '127.0.0.1' || hostname === '[::1]';

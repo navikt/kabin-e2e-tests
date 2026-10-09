@@ -1,8 +1,11 @@
 import { format } from 'date-fns';
-import { deleteKabalBehandling } from '@/fixtures/kabal';
-import { test } from '@/fixtures/registrering/fixture';
+import type { KlankeMulighet } from '@/fixtures/klanke';
+import { type TestSaker, test } from '@/fixtures/registrering/fixture';
+import type { RegistreringPage } from '@/fixtures/registrering/registrering-page';
+import { getKlankeMulighetFilter } from '@/fixtures/registrering/steps/select-vedtak';
 import {
   DocumentSource,
+  type Dokumenter,
   type Journalpost,
   JournalpostType,
   type Part,
@@ -26,6 +29,9 @@ test.describe('Registrering', () => {
       type,
       source,
       sakenGjelder,
+      tema,
+      klankeMulighet,
+      kabalMulighet,
       hjemlerLong,
       hjemlerShort,
       mottattKlageinstans,
@@ -33,7 +39,13 @@ test.describe('Registrering', () => {
       gosysOppgaveIndex,
     } = testdata;
 
-    test(`${type} - ${source}`, async ({ registreringPage, statusPage, page }) => {
+    // Uploaded documents are always incoming, so avsender must always be set.
+    const canChangeAvsender = testdata.source === DocumentSource.UPLOAD || testdata.canChangeAvsender;
+
+    test(`${type} - ${source}`, async ({ registreringPage, statusPage, testSaker }) => {
+      // Kabin fetches the muligheter when saken gjelder is set, so the Klanke mulighet must exist by then.
+      const createdKlankeMulighet = await createKlankeMulighet(testSaker, sakenGjelder, klankeMulighet);
+
       await registreringPage.setSakenGjelder(sakenGjelder);
 
       // The registrering exists once the source of its documents can be picked.
@@ -46,7 +58,11 @@ test.describe('Registrering', () => {
 
       await registreringPage.selectType(type);
 
-      const vedtak = await registreringPage.selectFirstAvailableVedtak(type);
+      const vedtak = await registreringPage.selectFirstAvailableVedtak(
+        type,
+        tema,
+        createdKlankeMulighet === undefined ? kabalMulighet : getKlankeMulighetFilter(createdKlankeMulighet),
+      );
 
       const { fagsakId, fagsystem } = vedtak.data;
 
@@ -72,11 +88,7 @@ test.describe('Registrering', () => {
       await registreringPage.setAnkendePart(data.ankendePart);
       await registreringPage.setFullmektig(data.fullmektig);
 
-      // Uploaded documents are always incoming, so avsender must always be set. For a journalpost it
-      // only applies to inngående journalposter.
-      if (dokumenter.source === DocumentSource.UPLOAD || dokumenter.journalpost.type === JournalpostType.I) {
-        await registreringPage.setAvsender(data.avsender);
-      }
+      await setOrVerifyAvsender(registreringPage, dokumenter, canChangeAvsender);
 
       await registreringPage.setSaksbehandler(tildeltSaksbehandler);
 
@@ -122,7 +134,7 @@ test.describe('Registrering', () => {
         await registreringPage.deleteInvalidDokumenter();
       }
 
-      const behandlingId = await registreringPage.finish(type, fagsystem);
+      await registreringPage.finish(type, fagsystem, testSaker.addKabalBehandling);
 
       if (dokumenter.source === DocumentSource.UPLOAD) {
         await statusPage.verifyUploadedDocuments(dokumenter.uploadedDocuments, type);
@@ -134,7 +146,7 @@ test.describe('Registrering', () => {
             title: journalpost.title,
             tema: vedtak.data.tema,
             dato: journalpost.saksId === fagsakId ? journalpost.dato : format(new Date(), 'dd.MM.yyyy'),
-            avsenderMottaker: getAvsenderName(journalpost, data.avsender),
+            avsenderMottaker: getAvsenderName(journalpost, data.avsender, canChangeAvsender),
             saksId: fagsakId,
             type: journalpost.type,
             logiskeVedleggNames: journalpost.logiskeVedleggNames,
@@ -173,26 +185,41 @@ test.describe('Registrering', () => {
       const { vedtaksdato } = vedtak.data;
 
       await statusPage.verifyValgtVedtak({ sakenGjelder, vedtaksdato, fagsystem, saksId: fagsakId, ytelse }, type);
-
-      await test.step(`Delete Kabal behandling ${behandlingId}`, async () => {
-        const cookies = await page.context().cookies();
-        await deleteKabalBehandling(cookies, behandlingId);
-      });
     });
   }
 });
 
+const createKlankeMulighet = (
+  testSaker: TestSaker,
+  sakenGjelder: Part,
+  mulighet?: Omit<KlankeMulighet, 'fagsakId'>,
+): Promise<KlankeMulighet | undefined> =>
+  mulighet === undefined ? Promise.resolve(undefined) : testSaker.createKlankeMulighet(sakenGjelder.id, mulighet);
+
+/** Only an inngående journalpost has an avsender. */
+const setOrVerifyAvsender = async (
+  registreringPage: RegistreringPage,
+  dokumenter: Dokumenter,
+  canChangeAvsender: boolean,
+) => {
+  if (canChangeAvsender) {
+    await registreringPage.setAvsender(data.avsender);
+  } else if (dokumenter.source === DocumentSource.JOURNALPOST && dokumenter.journalpost.type === JournalpostType.I) {
+    await registreringPage.verifyAvsenderCannotBeChanged();
+  }
+};
+
 /**
  * The avsender/mottaker the status page is expected to show for a journalpost. An inngående
- * journalpost shows the avsender set during registrering, an utgående one keeps the mottaker it was
- * journalført with, and a notat has neither.
+ * journalpost shows the avsender set during registrering, if it could be changed. Otherwise it keeps
+ * the avsender/mottaker it was journalført with. A notat has neither.
  */
-const getAvsenderName = (journalpost: Journalpost, avsender: Part): string => {
+const getAvsenderName = (journalpost: Journalpost, avsender: Part, canChangeAvsender: boolean): string => {
   switch (journalpost.type) {
     case JournalpostType.N:
       return 'Ingen';
     case JournalpostType.I:
-      return avsender.getNameAndId();
+      return canChangeAvsender ? avsender.getNameAndId() : journalpost.avsenderMottaker;
     case JournalpostType.U:
       return journalpost.avsenderMottaker;
     default:
