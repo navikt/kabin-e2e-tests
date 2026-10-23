@@ -58,7 +58,7 @@ export class StatusPage {
       await expect(journalfoertDoc.getByText(TEMA_REGEX).locator('> *')).toHaveText(jp.tema);
       await expect(journalfoertDoc.getByText('Dato').locator('> *')).toHaveText(jp.dato);
       await expect(journalfoertDoc.getByText('Avsender/mottaker').locator('> *')).toContainText(jp.avsenderMottaker);
-      await expect(journalfoertDoc.getByText('Saks-ID').locator('> *')).toHaveText(jp.saksId);
+      await expect(journalfoertDoc.getByText('Saksnummer').locator('> *')).toHaveText(jp.saksId);
       await expect(journalfoertDoc.getByText('Type').locator('> *')).toHaveText(JOURNALPOST_TYPE_NAME[jp.type]);
 
       for (const name of jp.logiskeVedleggNames) {
@@ -145,7 +145,7 @@ export class StatusPage {
       }
 
       await expect(valgtVedtak.getByText('Fagsystem').locator('> *')).toHaveText(vedtak.fagsystem);
-      await expect(valgtVedtak.getByText('Saks-ID').locator('> *')).toHaveText(vedtak.saksId);
+      await expect(valgtVedtak.getByText('Saksnummer').locator('> *')).toHaveText(vedtak.saksId);
     });
 }
 
