@@ -26,7 +26,7 @@ export interface Journalpost {
 export enum DocumentSource {
   JOURNALPOST = 'Velg journalpost',
   UPLOAD = 'Last opp',
-  ANKE = 'Anke fra Trygderetten',
+  ANKE = 'Sak fra Trygderetten',
 }
 
 /** The channel uploaded documents were received through. The values are the labels shown in the UI. */

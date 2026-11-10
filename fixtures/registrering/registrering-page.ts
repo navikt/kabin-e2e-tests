@@ -73,7 +73,7 @@ export class RegistreringPage {
   selectFirstAvailableVedtak = (type: Sakstype, tema: string, mulighetFilter?: MulighetFilter) =>
     selectFirstAvailableVedtak(this.page, type, tema, mulighetFilter);
 
-  getYtelse = () => this.page.getByTestId('ytelseId').textContent();
+  getYtelse = () => this.page.getByTestId('ytelse').textContent();
 
   setMottattVedtaksinstans = async (vedtaksdato: string) => setMottattVedtaksinstans(this.page, vedtaksdato);
 
